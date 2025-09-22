@@ -1,0 +1,37 @@
+{# Formatting macros #}
+{%- macro formatEmail(email) -%}
+  <span class="email"><a href="mailto:{{ email }}">{{ email._value }}</a></span>
+{%- endmacro -%}
+
+{%- macro formatOrcid(reply) -%}
+  {%- if reply._raw -%}
+    <span class="orcid">ORCID: <a href="https://orcid.org/{{ reply._raw['orcid-id'] }}" target="_blank">{{ reply._raw['orcid-id'] }}</a></span>
+  {%- else -%}
+    <span class="orcid">ORCID: {{ reply._value }} </span>
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro downloadUrlFile(document) -%}
+  {%- if document -%}
+          <a href="{{ document._url }}" target="_blank">{{document._name}}</a>
+  {%- else -%}
+          <span class="error">File not found</span>
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro formatDetection() -%}
+  {# HTML with warnings #}
+  {%- if dc.document.format_uuid == "990bad19-516f-4241-b5f2-06aa560a244c" -%}
+    HTML_with_warnings
+  {%- endif -%}
+{%- endmacro -%}
+
+{% macro lowerFirstLetter(string) -%}
+  {{ string[:1].lower() ~ string[1:] }}
+{%- endmacro %}
+
+{%- macro linkQuestion(questionPath) -%}
+  {%- if formatDetection() == "HTML_with_warnings" -%}
+    <a href="{{ctx.config.clientUrl}}/projects/{{ctx.questionnaire.uuid}}?questionPath={{questionPath}}" class="footnote" title="Question linked to this text" target="_blank" rel="noopener noreferrer">❓</a>
+  {%- endif -%}
+{%- endmacro -%}

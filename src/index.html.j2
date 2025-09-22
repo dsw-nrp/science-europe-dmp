@@ -1,0 +1,32 @@
+{%- import "src/mapping/prepare-data.j2" as json with context -%}
+{%- import "src/mapping/object.j2" as obj with context -%}
+{%- set dc = ctx|to_context_obj -%}
+{%- set data = obj.result -%}
+{%- import "src/macros.html.j2" as macros with context -%}
+{%- import "src/globals.j2" as globals with context -%}
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <title>Data Management Plan</title>
+    <meta charset="utf-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <style>
+      {% include "src/style.css" %}
+    </style>
+  </head>
+  <body>
+    <article class="dmp">
+      {%- if macros.formatDetection() == "HTML_with_warnings" -%}
+        {% include "src/content/validation.html.j2" with context %}
+      {%- endif -%}
+      {% include "src/content/frontpage.html.j2" with context %}
+      {% include "src/content/versions.html.j2" with context %}
+      {% include "src/content/contributors.html.j2" with context %}
+      {% include "src/content/projects.html.j2" with context %}
+      {% include "src/content/content.html.j2" with context %}
+    </article>
+  </body>
+
+</html>

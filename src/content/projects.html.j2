@@ -1,0 +1,87 @@
+<div id="dmp-projects">
+  <h2>Projects</h2>
+  {%- if data.dmp.projects|length > 0 -%}
+    <p>We will be working on the following projects and for those are the data and work described in this DMP.</p>
+
+    {% for project in data.dmp.projects %}
+      <div class="project">
+      {%- if project.name -%}
+        <h3>{{ project.name._value }}{{ macros.linkQuestion(project.name._path) }}</h3>
+      {%- else -%}
+        <h3 class="empty-value">(project name not given)</h3>
+      {%- endif -%}
+
+        <dl>
+            <dt>Acronym</dt>
+            <dd>
+            {% if project.acronym %}
+              {{ project.acronym._value }}{{ macros.linkQuestion(project.acronym._path) }}
+            {% else %}
+              N/A
+            {% endif %}
+            </dd>
+            <dt>Start date</dt>
+            <dd>
+            {% if project.startDate %}
+              {{ project.startDate._value }}{{ macros.linkQuestion(project.startDate._path) }}
+            {% else %}
+              N/A
+            {% endif %}
+            </dd>
+            <dt>End date</dt>
+            <dd>
+            {% if project.endDate %}
+              {{ project.endDate._value }}{{ macros.linkQuestion(project.endDate._path) }}
+            {% else %}
+              N/A
+            {% endif %}
+            </dd>
+          <dt>Funding</dt>
+          <dd>
+            {%- if project.fundings|length > 0 %}
+              <ul>
+                {%- for funding in project.fundings -%}
+                <li>
+                  {% if funding.funder %}
+                    {%- if funding.funder._raw -%}
+                    <a href="{{ funding.funder._raw.uri }}" target="_blank" rel="noopener">{{ funding.funder._raw.name }}</a>{{ macros.linkQuestion(funding.funder._path) }}
+                    {%- else -%}
+                    {{ funding.funder._value }}{{ macros.linkQuestion(funding.funder._path) }}
+                    {%- endif -%}
+                  {% else %}
+                  no funder given
+                  {% endif %}
+                  : 
+                  {% if funding.grantId %}
+                  {{ funding.grantId._value }}{{ macros.linkQuestion(funding.grantId._path) }}
+                  {% else %}
+                  no grant number given
+                  {% endif %}
+                  (
+                  {% if funding.status %}
+                  {{ funding.status._value }}{{ macros.linkQuestion(funding.status._path)}}
+                  {% else %}
+                  status is unknown
+                  {% endif %}
+                  )
+                </li>
+              {%- endfor %}
+              </ul>
+            {%- else -%}
+              Did not apply for any funding yet.
+            {%- endif -%}
+          </dd>
+          <dt>Abstract</dt>
+          <dd>
+          {%- if project.description -%}
+              <p>{{ project.description._value }}{{ macros.linkQuestion(project.description._path) }}</p>
+          {%- else -%}
+            No abstract given.
+          {%- endif -%}
+          </dd>
+        </dl>
+    {%- endfor -%}
+  {%- else -%}
+    <div style="font-style:italic;">There are no projects described for this DMP.</div>
+  {%- endif -%}
+</div>

@@ -1,0 +1,63 @@
+<div id="validation">
+    {%- set ns = namespace(all_provided=true, datasets_unprovided=[]) -%}
+    {%- if data.dmp.datasets|length > 0 -%}
+        {%- for dataset in data.dmp.datasets -%}
+            {%- set fields = [
+                ('Collection', dataset.collection),
+                ('Processing Environment', dataset.processingEnvironment),
+                ('Distributions', dataset.distributions),
+                ('Organisation Strategy', dataset.organisationStrategy),
+                ('Metadata', dataset.metadata),
+                ('Documentation', dataset.documentation),
+                ('Preservation Strategy', dataset.preservationStrategy),
+                ('Reuse Restrictions', dataset.reuseRestriction),
+                ('Tools', dataset.tools)
+            ] -%}
+            {%- set unprovided = [] -%}
+            {%- for field in fields -%}
+                {%- if not field[1] -%}
+                    {%- set _ = unprovided.append(field[0]) -%}
+                {%- endif -%}
+            {%- endfor -%}
+            {%- if dataset.distributions -%}
+                {%- for distribution in dataset.distributions -%}
+                    {%- if distribution.dataStorage is not defined -%}
+                        {%- set _ = unprovided.append("Data Storage for <em>" ~ (distribution.name._value if distribution.name else "(distribution name not given)") ~ "</em>") -%}
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- endif -%}
+            {%- if unprovided|length > 0 -%}
+                {%- set ns.all_provided = false -%}
+                {%- if dataset.name and dataset.name._raw and dataset.name._raw.name -%}
+                    {%- set _ = ns.datasets_unprovided.append({
+                    'name': dataset.name._raw.name,
+                    'unprovided': unprovided
+                }) -%}
+                {%- else -%}
+                    {%- set _ = ns.datasets_unprovided.append({
+                        'name': dataset.name._value if dataset.name else "(dataset name not given)",
+                        'unprovided': unprovided
+                    }) -%}
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+
+        {%- if not ns.all_provided -%}
+        <div class="validation-warning">
+            <div>
+                <h2>
+                    <strong>⚠️ Some datasets have unprovided parts ⚠️</strong>
+                </h2>
+            </div>
+            {%- for ds in ns.datasets_unprovided -%}
+                <em>{{ ds.name }}</em> has the following parts not provided:
+                <ul>
+                    {%- for item in ds.unprovided -%}
+                        <li>{{ item }}</li>
+                    {%- endfor -%}
+                </ul>
+            {%- endfor -%}
+        </div>
+        {%- endif -%}
+    {%- endif -%}
+</div>

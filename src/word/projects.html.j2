@@ -1,0 +1,47 @@
+<div id="dmp-projects">
+  <h2>Projects</h2>
+
+  {%- if data.dmp.projects|length > 0 -%}
+    <p>We will be working on the following projects and for those are the data and work described in this DMP.</p>
+
+    {% for project in data.dmp.projects %}
+      <div class="project">
+      {%- if project.name -%}
+        <h3>{{ project.name._value }}</h3>
+      {%- else -%}
+        <h3 class="empty-value">(project name not given)</h3>
+      {%- endif -%}
+        <dl>
+          <dt>Acronym</dt>
+          <dd>{{ project.acronym._value if project.acronym else "N/A" }}</dd>
+          <dt>Start date</dt>
+          <dd>{{ project.start_date._value if project.start_date else "N/A" }}</dd>
+          <dt>End date</dt>
+          <dd>{{ project.end_date._value if project.end_date else "N/A" }}</dd>
+          <dt>Funding</dt>
+          <dd>
+            {%- if project.fundings|length > 0 %}
+              <ul>
+              {%- for funding in project.fundings %}
+                <li>{{ macros.integrationValue(funding.name) if funding.name else "(funding name not given)" }}: {{ funding.grantId._value if funding.grantId else "grant identification number not yet given" }} ({{ funding.status._value if funding.status else "status not yet given" }})</li>
+              {%- endfor %}
+              </ul>
+            {%- else -%}
+              Did not apply for any funding yet.
+            {%- endif -%}
+          </dd>
+        </dl>
+
+      {%- if project.description %}
+        <section class="abstract">
+      {# {%- set paragraphs = project.description.split('\n') -%}
+          {% for paragraph in paragraphs %} #}
+          <p>{{ project.description._value }}</p>
+        </section>
+      {%- endif -%}
+      </div>
+    {%- endfor -%}
+  {%- else -%}
+    <div style="font-style:italic;">There are no projects described for this DMP.</div>
+  {%- endif -%}
+</div>

@@ -1,0 +1,101 @@
+{
+    "templateId": "science-europe-dmp",
+    "organizationId": "dmp.eosc.cz",
+    "version": "0.0.1",
+    "name": "Science Europe DMP",
+    "description": "Science Europe Data Management Plan for Czech National Repository Platform",
+    "license": "Apache-2.0",
+    "metamodelVersion": "17.0",
+    "allowedPackages": [
+        {
+            "orgId": "dmp.eosc.cz",
+            "kmId": "czech-nrp-km",
+            "minVersion": "0.1.5",
+            "maxVersion": null
+        }
+    ],
+    "formats": [
+        {
+            "uuid": "5276e716-395a-4b77-b362-5168e3131410",
+            "name": "HTML",
+            "icon": "fas fa-file-alt",
+            "steps": [
+                {
+                    "name": "jinja",
+                    "options": {
+                        "template": "src/index.html.j2",
+                        "content-type": "text/html",
+                        "extension": "html"
+                    }
+                }
+            ]
+        },
+        {
+            "uuid": "990bad19-516f-4241-b5f2-06aa560a244c",
+            "name": "HTML with warnings",
+            "icon": "fa-solid fa-file-exclamation",
+            "steps": [
+                {
+                    "name": "jinja",
+                    "options": {
+                        "template": "src/index.html.j2",
+                        "content-type": "text/html",
+                        "extension": "html"
+                    }
+                }
+            ]
+        },
+        {
+            "uuid": "68c26e34-5e77-4e15-9bf7-06ff92582257",
+            "name": "PDF",
+            "icon": "fas fa-file-pdf",
+            "steps": [
+                {
+                    "name": "jinja",
+                    "options": {
+                        "template": "src/index.html.j2",
+                        "content-type": "text/html",
+                        "extension": "html"
+                    }
+                },
+                {
+                    "name": "weasyprint",
+                    "options": {}
+                }
+            ]
+        },
+        {
+            "uuid": "f4bd941a-dfbe-4226-a1fc-200fb5269311",
+            "name": "MS Word",
+            "icon": "fas fa-file-word",
+            "steps": [
+                {
+                    "name": "jinja",
+                    "options": {
+                        "template": "src/word/index.html.j2",
+                        "content-type": "text/html",
+                        "extension": "html"
+                    }
+                },
+                {
+                    "name": "pandoc",
+                    "options": {
+                        "from": "html",
+                        "to": "docx",
+                        "args": "--filter=pandoc-docx-pagebreakpy --reference-doc=src/word/reference.docx"
+                    }
+                }
+            ]
+        }
+    ],
+    "_tdk": {
+        "version": "4.14.0",
+        "readmeFile": "README.md",
+        "files": [
+            "src/**/*.j2",
+            "src/style.css",
+            "src/word/reference.docx",
+            "LICENSE"
+        ]
+    }
+}

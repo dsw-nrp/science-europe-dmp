@@ -1,0 +1,248 @@
+<div id="q-ethical-aspects" class="question">
+  <div class="answer">
+    <p>This section considers ethical and legal aspects that may affect data sharing, including informed consent for the use and long-term preservation of personal data.</p>
+    {# Produced datasets #}
+    {%- for dataset in data.dmp.datasets -%}
+        <h4>
+            {%- if dataset.name._raw -%}
+                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
+            {%- elif dataset.name -%}
+            <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
+            {%- else -%}
+                <strong>(no name given)</strong>
+            {%- endif -%}
+            {# If will be published #}
+            {%- if dataset.isPublished._value is sameas true %} (published){{ macros.linkQuestion(dataset.isPublished._path) }}
+            {%- elif dataset.isPublished._value is sameas false %} (not published){{ macros.linkQuestion(dataset.isPublished._path) }}
+            {%- endif -%}:
+        </h4>
+            {%- if dataset.collection -%}
+                {%- if dataset.collection.isSensitiveDataCollection._value is sameas true -%}
+                    {%- if dataset.collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas true %}
+                        <p>We will collect data connected to a person, i.e. "personal data".{{ macros.linkQuestion(dataset.collection.sensitiveDataCollection.isPersonalDataCollection._path) }}</p>
+                        {%- set personalDataCollection = dataset.collection.sensitiveDataCollection.personalDataCollection -%}
+
+                        {# Legal base #}
+                        <p>
+                        {%- if personalDataCollection.underLegalBasis._value == "public_interest" %}
+                            We collect personal data for the benefit of society, and this is more important than the privacy of the subjects (i.e. public interest).{{macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                        {%- elif personalDataCollection.underLegalBasis._value == "consent" %}
+                            We ask the data subjects for their consent.{{ macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                            {%- if personalDataCollection.subjectConsent.typeOfConsent %}
+                                {{personalDataCollection.subjectConsent.typeOfConsent._label}}{{macros.linkQuestion(personalDataCollection.subjectConsent.typeOfConsent._path) }}
+                            {%- endif -%}
+                            {%- if personalDataCollection.subjectConsent.isAvailableForReuse._value is sameas true %}
+                                The consent form will be available for re-users.{{ macros.linkQuestion(personalDataCollection.subjectConsent.isAvailableForReuse._path) }}
+                                {%- if personalDataCollection.subjectConsent.availableForReuse.howOrganized -%}
+                                    The consent form files are organised as follows:
+                                    {{ personalDataCollection.subjectConsent.availableForReuse.howOrganized._value }}.{{ macros.linkQuestion(personalDataCollection.subjectConsent.availableForReuse.howOrganized._path) }}
+                                {%- endif -%}
+                               {%- if personalDataCollection.subjectConsent.availableForReuse.howAvailableForReuse %}
+                                    The consent form files will be stored:
+                                    {{ personalDataCollection.subjectConsent.availableForReuse.howAvailableForReuse._value }}.{{ macros.linkQuestion(personalDataCollection.subjectConsent.availableForReuse.howAvailableForReuse._path) }}
+                                {%- endif -%}
+                            {%- elif personalDataCollection.subjectConsent.isAvailableForReuse._value is sameas false %}
+                                The consent form will not be available for re-users.{{ macros.linkQuestion(personalDataCollection.subjectConsent.isAvailableForReuse._path) }}
+                            {%- endif -%}
+                            {%- if personalDataCollection.subjectConsent.processOfConsent %}
+                                The procedure for obtaining consent from data subjects is set as follows:
+                                {{ personalDataCollection.subjectConsent.processOfConsent._value }}{{ macros.linkQuestion(personalDataCollection.subjectConsent.processOfConsent._path) }}
+                            {%- endif -%}
+                        {%- elif personalDataCollection.underLegalBasis._value == "fulfill_contract" %}
+                            We collect personal data to fulfill a contract.{{ macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                        {%- elif personalDataCollection.underLegalBasis._value == "legitimate_interest" %}
+                            We collect personal data based on our legitimate interest.{{ macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                        {%- elif personalDataCollection.underLegalBasis._value == "vital_interest" %}
+                            We collect personal data based on our legitimate interest.{{ macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                        {%- elif personalDataCollection.underLegalBasis._value == "legal_requirement" %}
+                            We collect personal data because it is a legal requirement.{{ macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                        {%- elif personalDataCollection.underLegalBasis._value == "public_interest" %}
+                            We collect personal data based on public interest.{{ macros.linkQuestion(personalDataCollection.underLegalBasis._path) }}
+                        {%- endif -%}
+                        </p>
+
+                        {# Subjects rights and informed #}
+                        {%- if personalDataCollection.howSubjectsInformed -%}
+                            <p>The data subjects will be informed as follows:
+                            {{ personalDataCollection.howSubjectsInformed._value }}.{{ macros.linkQuestion(personalDataCollection.howSubjectsInformed._path) }}
+                            </p>
+                        {%- endif -%}
+                        {%- if personalDataCollection.howSubjectsGetsRights|length > 0 -%}
+                            <p>The data subjects can exercise their rights to their data as follows:
+                            {{ personalDataCollection.howSubjectsGetsRights|map(attribute='_label')|map('lower')|join(', ') ~ '.' }}{{ macros.linkQuestion(personalDataCollection.howSubjectsGetsRights[0]._path) }}
+                            </p>
+                        {%- endif -%}
+
+                        {# Anonymized data #}
+                        {%- if personalDataCollection.isFullyAnonymized._value is sameas false -%}
+                            {%- set nonAnonymizedDataset = personalDataCollection.nonAnonymizedData -%}
+                            {%- if nonAnonymizedDataset.isPseudonymized._value is sameas true %}
+                            <p>The data are not fully anonymised, but only pseudononymized.{{ macros.linkQuestion(nonAnonymizedDataset.isPseudonymized._path) }}</p>
+                            {%- elif nonAnonymizedDataset.isPseudonymized._value is sameas false -%}
+                                {%- if nonAnonymizedDataset.noPseudonymizationReason %}
+                                    <p>The dataset is not fully anonymized, and it is not even pseudonymized, because: {{ nonAnonymizedDataset.noPseudonymizationReason._value }}.{{ macros.linkQuestion(nonAnonymizedDataset.noPseudonymizationReason._path) }}</p>
+                                {%- else %}
+                                    <p>The dataset is not fully anonymized, and it is not even pseudonymized.{{ macros.linkQuestion(nonAnonymizedDataset.isPseudonymized._path) }}</p>
+                                {%- endif -%}
+                            {%- endif -%}
+
+                            {# DPIA #}
+                            {%- if nonAnonymizedDataset.isDpiaRequired._value is sameas true -%}
+                                <p>
+                                {%- if nonAnonymizedDataset.isDpiaPerformedToPersonalData._value is sameas true %}
+                                    DPIA has already been conducted for the personal data.{{ macros.linkQuestion(nonAnonymizedDataset.isDpiaPerformedToPersonalData._path)}}
+                                    {%- if nonAnonymizedDataset.dpia.reasons|length > 0 %}
+                                        DPIA is necessary for this project because the following high-risk criteria, as defined by the European Commission, apply:{{ macros.linkQuestion(nonAnonymizedDataset.dpia.reasons[0]._path) }}
+                                        <ul>
+                                            {%- for reason in nonAnonymizedDataset.dpia.reasons -%}
+                                                <li>{{ reason._label }}</li>
+                                            {%- endfor -%}
+                                        </ul>
+                                    {%- endif -%}
+                                    {%- if nonAnonymizedDataset.dpia.conducted|length > 0 %}
+                                        The DPIA was conducted for the following parts of the data:{{ macros.linkQuestion(nonAnonymizedDataset.dpia.conducted[0].dataSubject._path) }}
+                                        <ul>
+                                            {%- for dataPart in nonAnonymizedDataset.dpia.conducted -%}
+                                                {%- set details = [] -%}
+                                                {%- if dataPart.dataSubject -%}
+                                                    {%- do details.append(dataPart.dataSubject._value) -%}
+                                                {%- endif -%}
+                                                {%- if dataPart.process -%}
+                                                    {%- do details.append( dataPart.process._value ) -%}
+                                                {%- endif -%}
+                                                {%- if details|length > 0 %}
+                                                    <li>{{ details | join(': ') }}</li>
+                                                {%- endif -%}
+                                            {%- endfor -%}
+                                        </ul>
+                                    {%- endif -%}
+                                {%- else %}
+                                    We need to conduct a data protection impact assessment (DPIA).{{ macros.linkQuestion(nonAnonymizedDataset.isDpiaRequired._path)}}
+                                {%- endif -%}
+                                </p>
+                            {%- endif -%}
+
+                            {# Controllers and Data Processing Agreement #}
+                            {%- if nonAnonymizedDataset.controllers|length > 0 -%}
+                                {%- set names = [] -%}
+                                {%- for controller in nonAnonymizedDataset.controllers -%}
+                                    {%- set name = "" -%}
+                                    {%- if controller -%}
+                                        {%- if controller._raw -%}
+                                            {% for rawName in controller._raw.names -%}
+                                                {% if "ror_display" in rawName.types %}
+                                                    {%- do names.append(rawName.value) -%}
+                                                {% endif %}
+                                            {%- endfor %}
+                                        {%- else -%}
+                                            {%- do names.append(controller._value) -%}
+                                        {%- endif -%}
+                                    {%- else -%}
+                                        {%- do names.append("(no name given)") -%}
+                                    {%- endif -%}
+                                {%- endfor -%}
+                                <p>The following organisations are the controllers of the processed personal data: {{names | join(', ')}}.{{ macros.linkQuestion(nonAnonymizedDataset.controllers[0]._path) }}</p>
+                            {%- endif -%}
+
+                            {%- if nonAnonymizedDataset.isDataProcessingAgreementEstablished._value is sameas true -%}
+                                <p>We have established processing agreements between the data processors and data controllers.{{ macros.linkQuestion(nonAnonymizedDataset.isDataProcessingAgreementEstablished._path) }}
+                                {# List agreements #}
+                                {%- if nonAnonymizedDataset.dataProcessingAgreements|length > 0 -%}
+                                    {%- set agreements_list = [] -%}
+                                    {%- for agreementItem in nonAnonymizedDataset.dataProcessingAgreements -%}
+                                        {%- set processor = agreementItem.processor if agreementItem.processor else "(no processor given)" -%}
+                                        {%- set agreement = agreementItem.agreement if agreementItem.agreement else "(no agreement given)" -%}
+                                        {%- do agreements_list.append(processor._value ~ ' &rarr; ' ~ agreement._value) -%}
+                                    {%- endfor -%}
+                                    {%- set agreement_phrase = 'The agreement is as follows:' if agreements_list|length == 1 else 'The agreements are as follows:' %}
+                                    {{agreement_phrase ~ '<ul><li>' ~ agreements_list|join('</li><li>') ~ '</li></ul>'}}
+                                {%- endif -%}
+                                </p>
+                            {%- elif nonAnonymizedDataset.isDataProcessingAgreementEstablished._value == "unrelevant" -%}
+                                <p>Data processing agreements are not relevant for this dataset.{{ macros.linkQuestion(nonAnonymizedDataset.isDataProcessingAgreementEstablished._path) }}</p>
+                            {%- elif nonAnonymizedDataset.isDataProcessingAgreementEstablished._value == "not_yet" -%}
+                                <p>Data processing agreements between the data processors and data controllers have not yet been established, but will be in place before data processing begins.{{ macros.linkQuestion(nonAnonymizedDataset.isDataProcessingAgreementEstablished._path) }}</p>
+                            {%- endif -%}
+
+                        {%- elif personalDataCollection.isFullyAnonymized._value is sameas true -%}
+                            <p>
+                            {%- set anonymizationProcess = personalDataCollection.anonymizationProcess -%}
+                            {%- if anonymizationProcess.anonymizationProcessTechniques|length > 0 %}
+                                The data are fully anonymized, and the anonymization process and techniques are described in Section 5 (Data Security).{{ macros.linkQuestion(anonymizationProcess.anonymizationProcessTechniques[0]._path) }}
+                            {%- else %}
+                                The data are fully anonymized.{{ macros.linkQuestion(personalDataCollection.isFullyAnonymized._path) }}
+                            {%- endif -%}
+                            {%- if anonymizationProcess.isSameLegalBasisAsCollection._value is sameas true %}
+                                The anonymization process is based on the same legal basis as the data collection.{{ macros.linkQuestion(anonymizationProcess.isSameLegalBasisAsCollection._path) }}
+                            {%- elif anonymizationProcess.isSameLegalBasisAsCollection._value is sameas false %}
+                                The anonymization process is not based on the same legal basis as the data collection.{{ macros.linkQuestion(anonymizationProcess.isSameLegalBasisAsCollection._path) }}
+                                {%- if anonymizationProcess.underLegalBasis %} The legal basis for anonymization is: {{ anonymizationProcess.underLegalBasis._label }}.{{ macros.linkQuestion(anonymizationProcess.underLegalBasis._path) }}{% endif -%}
+                            {%- endif -%}
+                            </p>
+                        {%- endif -%}
+
+                        {# GDPR category #}
+                        {%- if personalDataCollection.categoryGdpr._value == "standard" -%}
+                            <p>The personal data we collect falls under GDPR category of standard personal data.{{ macros.linkQuestion(personalDataCollection.categoryGdpr._path) }}</p>
+                        {%- elif personalDataCollection.categoryGdpr -%}
+                            {%- set details = personalDataCollection.categoryGdpr -%}
+                            <p>
+                            {%- if details|length > 1 %}
+                                The personal data we collect falls under special categories of personal data ({{details|map(attribute='_label')|map('lower')|join('; ') }}).{{ macros.linkQuestion(personalDataCollection.categoryGdpr[0]._path) }}
+                            {%- else %}
+                                The personal data we collect falls under special category of personal data ({{details|map(attribute='_label')|map('lower')|join('; ') }}).{{ macros.linkQuestion(personalDataCollection.categoryGdpr[0]._path) }}
+                            {%- endif -%}
+                            {%- if personalDataCollection.specialCategoryGdprExemption %}
+                            The exemption of <em>{{personalDataCollection.specialCategoryGdprExemption._value}}</em> allows us to process this category of data.{{ macros.linkQuestion(personalDataCollection.specialCategoryGdprExemption._path) }}
+                            {%- endif -%}
+                            </p>
+                        {%- endif -%}
+
+                        {# Purpose #}
+                        {%- if dataset.collection.sensitiveDataCollection.personalDataCollection.purpose %}
+                            <p>The purpose of processing the personal data can be described as follows: {{dataset.collection.sensitiveDataCollection.personalDataCollection.purpose._value }}.{{ macros.linkQuestion(dataset.collection.sensitiveDataCollection.personalDataCollection.purpose._path) }}</p>
+                        {%- endif -%}
+
+                    {%- elif dataset.collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas false -%}
+                        <p>It does not contain personal data, but other sensitive data.{{ macros.linkQuestion(dataset.collection.sensitiveDataCollection.isPersonalDataCollection._path) }}</p>
+                    {%- endif -%}
+                {%- elif dataset.collection.isSensitiveDataCollection._value is sameas false -%}
+                    <p>It does not contain sensitive data.{{ macros.linkQuestion(dataset.collection.isSensitiveDataCollection._path) }}</p>
+                {%- else -%}
+                    <p>No information on personal nor sensitive data were provided.</p>
+                {%- endif -%}
+
+                {# Ethical Legislation #}
+                {%- if dataset.collection.isSubjectToEthicalReview._value is sameas true -%}
+                    <p>
+                    The data collection is subject to ethical legislation.{{ macros.linkQuestion(dataset.collection.isSubjectToEthicalReview._path) }}
+                    {%- if dataset.collection.ethicalReview.extensionOfReusedData._value == "not_applicable" %} 
+                       A new approval or extension of any existing approval under research ethics laws is not applicable for the re-use of the data.{{ macros.linkQuestion(dataset.collection.ethicalReview.extensionOfReusedData._path) }}
+                    {%- elif dataset.collection.ethicalReview.extensionOfReusedData._value == "existing"  %}
+                        An existing approval under research ethics laws covers our re-use of the data; no new approval or extension is required.{{ macros.linkQuestion(dataset.collection.ethicalReview.extensionOfReusedData._path) }}
+                    {%- elif dataset.collection.ethicalReview.extensionOfReusedData._value == "extension"  %}
+                        An extension of an existing approval under research ethics laws will be needed for the re-use of the data.{{ macros.linkQuestion(dataset.collection.ethicalReview.extensionOfReusedData._path) }}
+                    {%- elif dataset.collection.ethicalReview.extensionOfReusedData._value == "new"  %}
+                        A new ethical approval under research ethics laws will be needed to cover our usage of the data.{{ macros.linkQuestion(dataset.collection.ethicalReview.extensionOfReusedData._path) }}
+                    {%- endif -%}
+                    {%- if dataset.collection.ethicalReview.ethicalReviewLinkDocument or dataset.collection.ethicalReview.ethicalReviewDocument %}
+                        The protocol from the meeting with the ethics committee is available
+                        {%- if dataset.collection.ethicalReview.ethicalReviewLinkDocument %}
+                            at: <a href="{{ dataset.collection.ethicalReview.ethicalReviewLinkDocument._value }}" target="_blank">{{ dataset.collection.ethicalReview.ethicalReviewLinkDocument._value }}</a>{{ macros.linkQuestion(dataset.collection.ethicalReview.ethicalReviewLinkDocument._path) }}
+                        {%- endif %}
+                        {%- if dataset.collection.ethicalReview.ethicalReviewDocument %}
+                            {%- if dataset.collection.ethicalReview.ethicalReviewLinkDocument %} and can be downloaded {% else %} and can be downloaded {% endif %}
+                            <a href="{{ dataset.collection.ethicalReview.ethicalReviewDocument._url}}" target="_blank">here</a>{{ macros.linkQuestion(dataset.collection.ethicalReview.ethicalReviewDocument._path) }}
+                        {%- endif %}
+                        .
+                    {%- endif -%}
+                    </p>
+                {%- elif dataset.collection.isSubjectToEthicalReview._value is sameas false -%}
+                    <p>The data collection is not subject to ethical legislation.{{ macros.linkQuestion(dataset.collection.isSubjectToEthicalReview._path) }}</p>
+                {%- else -%}
+                    <p>No information on ethical aspects were provided.</p>
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    </div>
+</div>

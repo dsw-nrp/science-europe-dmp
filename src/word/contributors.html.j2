@@ -1,0 +1,40 @@
+<div id="dmp-contributors">
+  <h2>Contributors</h2>
+
+  <p>The following contributors are related to the {{globals.projects}} of this DMP:</p>
+
+  {%- if data.dmp.collaboration.contributors|length > 0 -%}
+  <ul>
+  {% for contributor in data.dmp.collaboration.contributors %}
+    <li class="contributor">
+      <span class="name">{{ contributor.name._value if contributor.name else "(name not given)" }}</span>
+      {%- if contributor.email and contributor.orcid %}
+        <br>{{ macros.formatEmail(contributor.email) }}, {{ macros.formatOrcid(contributor.orcid) }}
+      {%- elif contributor.email %}
+        <br>{{ macros.formatEmail(contributor.email) }}
+      {%- elif contributor.orcid %}
+        <br>{{ macros.formatOrcid(contributor.orcid) }}
+      {%- endif -%}
+      {%- if contributor.roles|length > 0 %}
+        <br>{% if contributor.roles|length == 0 %}Role{% else %}Roles{% endif %}: {% for role in contributor.roles %}<span class="role">{{ role }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+      {%- endif %}
+      {%- if contributor.affiliation %}
+        <br>Affiliation: <span class="affiliation">{{ macros.integrationValue(contributor.affiliation) }}</span>
+      {%- endif %}
+    </li>
+  {% endfor %}
+  </ul>
+  {%- elif dc.qtn.created_by -%}
+  <ul>
+    <li class="contributor">
+      <span class="name">{{ dc.qtn.created_by.first_name }} {{ dc.qtn.created_by.last_name }}</span>
+      <br>{{ macros.formatEmail(dc.qtn.created_by.email) }}
+      {%- if dc.qtn.created_by.affiliation %}
+      <br>Affiliation: <span class="affiliation">{{ dc.qtn.created_by.affiliation }}</span>
+      {%- endif %}
+    </li>
+  </ul>
+  {%- else -%}
+  <div style="font-style:italic;">There are no contributors described for this DMP.</div>
+  {%- endif -%}
+</div>

@@ -86,6 +86,21 @@
                     }
                 }
             ]
+        },
+        {
+            "uuid": "5aa7b468-a035-42ae-84e5-01e76119cde1",
+            "name": "JSON",
+            "icon": "fas fa-file-word",
+            "steps": [
+                {
+                    "name": "jinja",
+                    "options": {
+                        "template": "src/index.json.j2",
+                        "content-type": "application/json",
+                        "extension": "json"
+                    }
+                }
+            ]
         }
     ],
     "_tdk": {

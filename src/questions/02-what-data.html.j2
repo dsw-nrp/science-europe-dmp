@@ -17,101 +17,11 @@
                 <strong>(no name given)</strong>
             {%- endif -%}
 
-            {%- if dataset.collection -%}
-                {# Measuring  #}
-                {%- if dataset.collection.isEquipmentCollection._value is sameas true -%}
-                    <p>This dataset will be collected using measuring equipment.{{ macros.linkQuestion(dataset.collection.isEquipmentCollection._path) }}</p>
-                    {%- set equipmentCollection = dataset.collection.equipmentCollection -%}
-                    {# Who will collect #}
-                    {%- if equipmentCollection.whoMeasures._value == "experts_own_equipment" %}
-                        This dataset will be collected by experts in the {{globals.projects}}, with our own equipment.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
-                    {%- elif equipmentCollection.whoMeasures._value == "experts_spec_infrastructure" %}
-                        This dataset will be collected by experts in the {{globals.projects}}, at a specialized infrastructure.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
-                    {%- elif equipmentCollection.whoMeasures._value == "external_party" %}
-                        This dataset will be collected by an external party{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
-                        {%- if equipmentCollection.externalPartyControlOverData._value -%}
-                            {%- if equipmentCollection.externalPartyControlOverData._value == "external_party" %} 
-                                and they will also have control over the data.
-                            {%- elif equipmentCollection.externalPartyControlOverData._value == "project_partners" -%} 
-                                and the control over the data is equally shared between all project partners.
-                            {%- elif equipmentCollection.externalPartyControlOverData %} 
-                                and for the control over the data we have made following arrangements: {{equipmentCollection.externalPartyControlOverData._value}}
-                            {%- endif %}
-                            {{ macros.linkQuestion(equipmentCollection.externalPartyControlOverData._path) }}
-                        {%- endif %}
-                        {%- if equipmentCollection.externalPartyResponsibility._value -%}
-                            {%- if equipmentCollection.externalPartyResponsibility._value == "embargo" %} 
-                                The external party is responsible for long-term safekeeping and will publish it after a fixed embargo period.
-                            {%- elif equipmentCollection.externalPartyResponsibility._value == "project_timeline" %} 
-                                The external party is responsible for long-term safekeeping and will publish it according to the project timeline.
-                            {%- elif equipmentCollection.externalPartyResponsibility._value == "delete" %} 
-                                The external party is responsible for long-term safekeeping and will delete the data after it has been provided to the project partners and any necessary evaluations have been completed, while the project partners will be responsible for data publication.
-                            {%- elif equipmentCollection.externalPartyResponsibility %} 
-                                For the long-term responsibility of the data we have made following arrangements: {{equipmentCollection.externalPartyResponsibility._value}}
-                            {%- endif %}
-                            {{ macros.linkQuestion(equipmentCollection.externalPartyResponsibility._path) }}
-                        {%- endif -%}
-                    {%- endif -%}
-                    </p>
-
-                    {# Measuring equipment #}
-                    {%- if equipmentCollection.instruments|length > 0 %}
-                            <p>The following measuring equipment{{ "s" if equipmentCollection.instruments|length > 1 else "" }} will be used to collect the data in the {{globals.projects}}:</p>
-                        <ul>
-                        {% for instrument in equipmentCollection.instruments -%}
-                            <li>
-                                <strong>{{ instrument.name._value if instrument.name else "(no name given)" }}</strong>{{ macros.linkQuestion(instrument.name._path) }}
-                                {%- if instrument.isStandard._value is sameas true %} 
-                                    <br>The equipment is very well described and known.{{ macros.linkQuestion(instrument.isStandard._path) }}
-                                {%- elif instrument.isStandard._value is sameas false %} 
-                                    <br>The equipment is not fully described, so we will need to take extra care documenting the process.{{ macros.linkQuestion(instrument.isStandard._path) }}
-                                {%- endif -%}
-                                {%- if instrument.url %}
-                                    <br>Available: <a href='{{ instrument.url._value }}' target='_blank'>{{ instrument.url._value }}</a>{{ macros.linkQuestion(instrument.url._path) }}
-                                {%- endif %}
-                                {%- if instrument.description %}
-                                    <br>{{ instrument.description._value }}{{ macros.linkQuestion(instrument.description._path) }}
-                                {%- endif %}
-                            </li>
-                        {%- endfor -%}
-                        </ul>
-                    {%- else -%}
-                        <p>No measuring equipment is specified for this dataset.</p>
-                    {%- endif -%}
-                {%- endif -%}
-
-                {# Non-Measuring Equipment Collection #}
-                {%- if dataset.collection.isNonEquipmentCollection._value is sameas true -%}
-                    {%- set nonEquipmentCollection = dataset.collection.nonEquipmentCollection -%}
-                    {% set methods = [] %}
-                    {% if nonEquipmentCollection.usesQuestionnaires._value is sameas true %}
-                        {% do methods.append("questionnaires") %}
-                    {% endif %}
-                    {% if nonEquipmentCollection.usesReportsForms._value is sameas true %}
-                        {% do methods.append("reports or forms") %}
-                    {% endif %}
-                    {% if nonEquipmentCollection.usesPatientRecords._value is sameas true  %}
-                        {% do methods.append("patient records") %}
-                    {% endif %}
-                    {% if nonEquipmentCollection.usesOtherForms._value %}
-                        {% do methods.append(nonEquipmentCollection.usesOtherForms._value) %}
-                    {% endif %}
-                    {% if methods|length > 0 %}
-                        <p>This dataset will be captured using {{ methods|join(", ") }}.
-                    {%- else -%}
-                        <p>No specific capturing method is specified for this dataset.
-                    {%- endif -%}
-                    {{ macros.linkQuestion(dataset.collection.isNonEquipmentCollection._path) }}
-                        </p>
-                {%- endif -%}
-
-                {# Physical Samples Collection #}
-                {%- if dataset.collection.isPhysicalSamplesCollection._value is sameas true -%}
-                    <p>This dataset will be collected from physical samples.{{ macros.linkQuestion(dataset.collection.isPhysicalSamplesCollection._path) }}</p>
-                {%- endif -%}
-
+            {# Type #}
+            {%- if dataset.type -%}
+                <p>This dataset is of type <em>{{ dataset.type._value }}</em>.{{macros.linkQuestion(dataset.type._path) }} </p>
             {%- else -%}
-            <p>Collection process is not defined for this dataset.</p>
+                <p>The type of this dataset is not specified.</p>
             {%- endif -%}
 
             {# Volume #}
@@ -130,8 +40,9 @@
                 <p>The total estimated volume of all distributions for this dataset is approximately {{ (ns.total_volume | round(2)) }} GB.</p>
                 {%- endif -%}
             {%- endif -%}
-
+            </li>
         {%- endfor -%}
+        </ul>
     {%- endif -%}
 
     {# Reusing Data #}
@@ -196,10 +107,10 @@
     {%- set usedOntologies = usedOntologies | unique(attribute='name._value') | list -%}
     
 
-    {# Formats and types #}
+    {# Formats #}
     {%- if formats|length > 0 -%}
-    <h4>Formats and Types</h4>
-    <div>We will be using the following data formats and types:
+    <h4>Formats</h4>
+    <div>We will be using the following data formats:
         <ul>
         {%- for format in formats -%}
         <li>
@@ -248,11 +159,12 @@
         </ul>
     </div>
     {%- else -%}
-    <div>We will not be using any specific data formats or types.</div>
+    <div>We will not be using any specific data formats.</div>
     {%- endif -%}
 
     {# New data types #}
     {%- if newDataTypes|length > 0 -%}
+    <h4>New Data Types</h4>
     <div>We will be using the following new types of data for listed distributions:
         <ul>
         {%- for newDataType in newDataTypes -%}

@@ -2,112 +2,260 @@
   <h3>1. How will new data be collected or produced and/or how will existing data be re-used?</h3>
     <div class="answer">
     {# Generated datasets #}
-    <h4>Generated Datasets</h4>
-    {%- if data.dmp.datasets|length > 0 -%}
-    The following dataset{{ "s" if data.dmp.datasets|length > 1 }} will be generated in this {{globals.projects}}:
-    <ul>
-        {%- for dataset in data.dmp.datasets -%}
-            <li>
-            {%- if dataset.name._raw -%}
-                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- elif dataset.name -%}
-                <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- else -%}
-                <strong>(no name given)</strong>
-            {%- endif -%}
+    <h4>Generated datasets</h4>
 
-            {# Collection Process #}
-            {%- if dataset.collection -%}
-                {# Measuring  #}
-                {%- if dataset.collection.isEquipmentCollection._value is sameas true -%}
-                    <p>This dataset will be collected
-                    {%- set equipmentCollection = dataset.collection.equipmentCollection -%}
+    {% if data.dmp.datasets | length > 0 %}
+        {%- if data.dmp.sharedResources.collections | length > 0 -%}
+            {% if data.dmp.sharedResources.collections | length > 1 %}
+                <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.collections | length }} distinct collection processes will be used to gather and generate research data:</p>
+            {% elif data.dmp.sharedResources.collections | length == 1 %}
+                <p>In our {{ globals.projects }}, a single collection process will be used to collect and generate research data:</p>
+            {% endif %}
+            <ul>
+            {% for collection in data.dmp.sharedResources.collections %}
+                <li style="margin-bottom: 2em;">
+                {# --- Measuring equipment collection --- #}
+                {% if collection.isEquipmentCollection._value is sameas true %}
+                    {% set equipmentCollection = collection.equipmentCollection %}
+                    <p>
+                    This collection process involves the use of measuring equipment{{ "s" if equipmentCollection.instruments|length > 1 else "" }}.{{ macros.linkQuestion(collection.isEquipmentCollection._path) }}
+                    {% if equipmentCollection.instruments | length > 0 %}
+                    The following instruments will be used:
+                    <ul>
+                        {% for instrument in equipmentCollection.instruments %}
+                        <li>
+                            <strong>{{ instrument.name._value if instrument.name else "(no name given)" }}</strong>
+                            {{ macros.linkQuestion(instrument.name._path) }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    </p>
 
-                    {# Measuring equipment #}
-                    {%- if equipmentCollection.instruments|length > 0 %}
-                            using following measuring equipment{{ "s" if equipmentCollection.instruments|length > 1 else "" }}:{{ macros.linkQuestion(dataset.collection.isEquipmentCollection._path) }}</p>
-                        <ul>
-                        {% for instrument in equipmentCollection.instruments -%}
-                            <li>
-                                <strong>{{ instrument.name._value if instrument.name else "(no name given)" }}</strong>{{ macros.linkQuestion(instrument.name._path) }}
-                            </li>
-                        {%- endfor -%}
-                        </ul>
-                    {%- else -%}
-                        using measuring equipment.{{ macros.linkQuestion(dataset.collection.isEquipmentCollection._path) }}</p>
-                    {%- endif -%}
-                {%- endif -%}
-
-                {# Measure quality #}
-                {%- if dataset.collection.isEquipmentCollection._value is sameas true -%}
-                    {%- set quality_process_labels = {
-                        "calibration": "calibrating measures",
-                        "repeatSamples": " conducting repeat samples or repeating measurements to monitor the consistency of the results",
-                        "standardizedMethods": "use standardized methods for data capture and recording",
-                        "dataEntryValidation": "doing data entry validation",
-                        "dataPeerReview": "using data peer review",
-                        "usesControlledVocabularies": "using controlled vocabularies",
-                        "knownOutcomeSamples": "measuring samples with known outcomes to monitor consistency",
-                    } -%}
-                    {%- set used_processes = [] -%}
-                    {%- for key, label in quality_process_labels.items() -%}
-                        {%- if dataset.collection.equipmentCollection.qualityProcesses[key] and dataset.collection.equipmentCollection.qualityProcesses[key]._value is sameas true and label -%}
-                        {%- do used_processes.append(label) -%}
+                    {# Who will collect #}
+                    {%- if equipmentCollection.whoMeasures._value == "experts_own_equipment" %}
+                        This dataset will be collected by experts in the {{globals.projects}}, with our own equipment.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
+                    {%- elif equipmentCollection.whoMeasures._value == "experts_spec_infrastructure" %}
+                        This dataset will be collected by experts in the {{globals.projects}}, at a specialized infrastructure.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
+                    {%- elif equipmentCollection.whoMeasures._value == "external_party" %}
+                        This dataset will be collected by an external party{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
+                        {%- if equipmentCollection.externalPartyControlOverData._value -%}
+                            {%- if equipmentCollection.externalPartyControlOverData._value == "external_party" %} 
+                                and they will also have control over the data.
+                            {%- elif equipmentCollection.externalPartyControlOverData._value == "project_partners" -%} 
+                                and the control over the data is equally shared between all project partners.
+                            {%- elif equipmentCollection.externalPartyControlOverData %} 
+                                and for the control over the data we have made following arrangements: {{equipmentCollection.externalPartyControlOverData._value}}
+                            {%- endif %}
+                            {{ macros.linkQuestion(equipmentCollection.externalPartyControlOverData._path) }}
+                        {%- endif %}
+                        {%- if equipmentCollection.externalPartyResponsibility._value -%}
+                            {%- if equipmentCollection.externalPartyResponsibility._value == "embargo" %} 
+                                The external party is responsible for long-term safekeeping and will publish it after a fixed embargo period.
+                            {%- elif equipmentCollection.externalPartyResponsibility._value == "project_timeline" %} 
+                                The external party is responsible for long-term safekeeping and will publish it according to the project timeline.
+                            {%- elif equipmentCollection.externalPartyResponsibility._value == "delete" %} 
+                                The external party is responsible for long-term safekeeping and will delete the data after it has been provided to the project partners and any necessary evaluations have been completed, while the project partners will be responsible for data publication.
+                            {%- elif equipmentCollection.externalPartyResponsibility %} 
+                                For the long-term responsibility of the data we have made following arrangements: {{equipmentCollection.externalPartyResponsibility._value}}
+                            {%- endif %}
+                            {{ macros.linkQuestion(equipmentCollection.externalPartyResponsibility._path) }}
                         {%- endif -%}
-                    {%- endfor -%}
-                    {%- if used_processes|length > 0 -%}
-                        <p>During equipment collection of this dataset, the following quality assurance processes will be used: 
-                        {{ used_processes|join(", ") }}{% if dataset.collection.equipmentCollection.qualityProcesses.otherQualityProcesses and dataset.collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value %}, {{ dataset.collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value }}{% endif %}.{{ macros.linkQuestion(dataset.collection.equipmentCollection.usesQualityProcesses._path) }}
-                        </p>
                     {%- endif -%}
-                {%- endif -%}
 
-                {# Non-Measuring Equipment Collection #}
-                {%- if dataset.collection.isNonEquipmentCollection._value is sameas true -%}
-                    {%- set nonEquipmentCollection = dataset.collection.nonEquipmentCollection -%}
+                    {# --- Quality processes --- #}
+                    {% set quality_labels = {
+                    "calibration": "calibrating measures",
+                    "repeatSamples": "conducting repeat samples or repeating measurements to monitor consistency",
+                    "standardizedMethods": "using standardized methods for data capture and recording",
+                    "dataEntryValidation": "performing data entry validation",
+                    "dataPeerReview": "applying data peer review",
+                    "usesControlledVocabularies": "using controlled vocabularies",
+                    "knownOutcomeSamples": "measuring samples with known outcomes to monitor consistency"
+                    } %}
+                    {% set used = [] %}
+                    {% for key, label in quality_labels.items() %}
+                    {% if collection.equipmentCollection.qualityProcesses[key]
+                        and collection.equipmentCollection.qualityProcesses[key]._value is sameas true %}
+                        {% do used.append(label) %}
+                    {% endif %}
+                    {% endfor %}
+                    {% if used | length > 0 %}
+                    <p>
+                        As part of this equipment-based collection, the following quality assurance procedures will be implemented:
+                        {{ used | join(", ") }}{% if collection.equipmentCollection.qualityProcesses.otherQualityProcesses and collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value %}, {{ collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value }}{% endif %}.
+                        {{ macros.linkQuestion(collection.equipmentCollection.usesQualityProcesses._path) }}
+                    </p>
+                    {%- endif -%}
+                {% endif %}
+
+                {# --- Non-equipment collection --- #}
+                {% if collection.isNonEquipmentCollection._value is sameas true %}
+                    {% set non = collection.nonEquipmentCollection %}
                     {% set methods = [] %}
-                    {% if nonEquipmentCollection.usesQuestionnaires._value is sameas true %}
-                        {% do methods.append("questionnaires") %}
+                    {% if non.usesQuestionnaires._value %}{% do methods.append("questionnaires") %}{% endif %}
+                    {% if non.usesReportsForms._value %}{% do methods.append("reports or forms") %}{% endif %}
+                    {% if non.usesPatientRecords._value %}{% do methods.append("patient records") %}{% endif %}
+                    {% if non.usesOtherForms._value %}{% do methods.append(non.usesOtherForms._value) %}{% endif %}
+
+                    {% if methods | length > 0 %}
+                    <p>This collection process relies on non-instrumental methods such as {{ methods | join(", ") }}.{{ macros.linkQuestion(collection.isNonEquipmentCollection._path) }}</p>
+                    {% else %}
+                    <p>This collection process relies on non-instrumental data capture, but no specific method has been indicated.{{ macros.linkQuestion(collection.isNonEquipmentCollection._path) }}</p>
                     {% endif %}
-                    {% if nonEquipmentCollection.usesReportsForms._value is sameas true %}
-                        {% do methods.append("reports or forms") %}
+                {% endif %}
+
+                {# --- Physical samples --- #}
+                {% if collection.isPhysicalSamplesCollection._value is sameas true %}
+                    <p>This collection process involves sampling and measuring from physical specimens.{{ macros.linkQuestion(collection.isPhysicalSamplesCollection._path) }}</p>
+                {% endif %}
+
+                {# --- Datasets resulting from this collection --- #}
+                {% if collection.usedBy | length == data.dmp.datasets | length %}
+                    <p>This collection process is used to generate all datasets within {{ globals.projects }}.</p>
+                {%- else -%}
+                    {% set datasets = [] %}
+                    {% for datasetUuid in collection.usedBy %}
+                    {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
+                    {% if ds %}
+                        {% if ds.name._raw %}
+                        {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                        {% elif ds.name %}
+                        {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                        {% else %}
+                        {% do datasets.append("<strong>(no name)</strong>") %}
+                        {% endif %}
                     {% endif %}
-                    {% if nonEquipmentCollection.usesPatientRecords._value is sameas true  %}
-                        {% do methods.append("patient records") %}
+                    {% endfor %}
+                    <p>As a result of this collection process, the following {{ datasetText }} will be generated within {{ globals.projects }}: {{ datasets | join(", ") | safe }}.</p>
+                {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {%- endif -%}
+
+        {# Provenance #}
+        {%- if data.dmp.sharedResources.metadataSpecifications | length > 0 -%}
+            {% if data.dmp.sharedResources.metadataSpecifications | length > 1 %}
+                <p>To document the provenance of the generated data in our {{ globals.projects }}, several approaches will be employed:</p>
+            {% elif data.dmp.sharedResources.metadataSpecifications | length == 1 %}
+                <p>To document the provenance of the generated data in our {{ globals.projects }}, one approach will be employed:</p>
+            {% endif %}
+            <ul>
+            {% for metadata in data.dmp.sharedResources.metadataSpecifications %}
+                <li>
+                {# Dataset using this provenance approach #}
+                {% if metadata.usedBy | length == data.dmp.datasets | length %}
+                    <p>Following provenance applies to all datasets generated within {{ globals.projects }}.</p>
+                {% else %}
+                    {% set datasets = [] %}
+                    {% for datasetUuid in metadata.usedBy %}
+                    {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
+                    {% if ds %}
+                        {% if ds.name._raw %}
+                        {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                        {% elif ds.name %}
+                        {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                        {% else %}
+                        {% do datasets.append("<strong>(no name)</strong>") %}
+                        {% endif %}
                     {% endif %}
-                    {% if nonEquipmentCollection.usesOtherForms._value %}
-                        {% do methods.append(nonEquipmentCollection.usesOtherForms._value) %}
-                    {% endif %}
-                    {% if methods|length > 0 %}
-                        <p>This dataset will be captured using {{ methods|join(", ") }}.
-                    {%- else -%}
-                        <p>No specific capturing method is specified for this dataset.
+                    {% endfor %}
+                    <p>Following provenance applies to {{ datasets | join(", ") | safe }}.</p>
+                {% endif %}
+                <p>
+                {%- if metadata.isProvenanceDocumented._value is sameas true -%}
+                    {%- if metadata.provenanceDocumented.provenanceDocumentedType -%}
+                        {%- if metadata.provenanceDocumented.provenanceDocumentedType._value == "lab_notebook" -%}
+                            We will use lab notebooks to make sure that there is good provenance of the data analysis.
+                        {%- elif metadata.provenanceDocumented.provenanceDocumentedType._value == "electronic_lab_notebook" -%}
+                            We will use an electronic lab notebook to make sure that there is good provenance of the data analysis.
+                        {%- elif metadata.provenanceDocumented.provenanceDocumentedType._value == "system" -%}
+                            Our computing workflow system keeps provenance information to ensure the good provenance of the data analysis.
+                        {%- elif metadata.provenanceDocumented.provenanceDocumentedType -%}
+                            We will use other solution than (electronic) lab notebooks to make sure that there is good provenance of the data analysis{{ ": " ~ metadata.provenanceDocumented.provenanceDocumentedType._value }}
+                        {%- endif -%}
+                        {{ macros.linkQuestion(metadata.provenanceDocumented.provenanceDocumentedType._path) }}
                     {%- endif -%}
-                    {{ macros.linkQuestion(dataset.collection.isNonEquipmentCollection._path) }}
-                        </p>
-                {%- endif -%}
 
-                {# Physical Samples Collection #}
-                {%- if dataset.collection.isPhysicalSamplesCollection._value is sameas true -%}
-                    <p>This dataset will be collected from physical samples.{{ macros.linkQuestion(dataset.collection.isPhysicalSamplesCollection._path) }}</p>
-                {%- endif -%}
+                    {%- if metadata.provenanceDocumented.usesStandard._value is sameas true -%}
+                        {%- if metadata.provenanceDocumented.standardProvenanceUsed %}
+                            For documenting the provenance, we will use the following standard: <em>{{ metadata.provenanceDocumented.standardProvenanceUsed._value }}</em>.{{ macros.linkQuestion(metadata.provenanceDocumented.standardProvenanceUsed._path) }}
+                        {%- else %}
+                            For documenting provenance we will use a standard (no specific standard has been provided).{{ macros.linkQuestion(metadata.provenanceDocumented.usesStandard._path) }}
+                        {%- endif -%}
 
-            {%- else -%}
-            <p>Collection process is not defined for this dataset.</p>
-            {%- endif -%}
-                
-            {# Validating the integrity of the results #}
-            {%- if dataset.processingEnvironment -%}
-                {%- set processingEnvironment = dataset.processingEnvironment -%}
-                {%- if processingEnvironment.isMonitoringIntegrityAfterProcessing._value is sameas true and processingEnvironment.monitoringIntegrityAfterProcessing|length > 0 -%}
-                    <p>To validate the integrity of the results, the following will be done: {{ processingEnvironment.monitoringIntegrityAfterProcessing|map(attribute='_label')|map('lower')|join(", ") }}.{{ macros.linkQuestion(processingEnvironment.isMonitoringIntegrityAfterProcessing._path) }}</p>
+                    {%- elif metadata.provenanceDocumented.usesStandard._value is sameas false -%}
+                        {%- if metadata.provenanceDocumented.noStandardReason._value == "no_standard" %}
+                            For documenting provenance we will not use a standard because there is no standard in our {{globals.project}} area.{{ macros.linkQuestion(metadata.provenanceDocumented.noStandardReason._path) }}
+                        {%- elif metadata.provenanceDocumented.noStandardReason._value %}
+                            For documenting provenance we will not use a standard because: {{ metadata.provenanceDocumented.noStandardReason._value }}.{{ macros.linkQuestion(metadata.provenanceDocumented.noStandardReason._path) }}
+                        {%- else %}
+                            We will not use a standard for documenting provenance.{{ macros.linkQuestion(metadata.provenanceDocumented.usesStandard._path) }}
+                        {%- endif -%}
+
+                    {%- endif -%}
+
+                {%- elif metadata.isProvenanceDocumented._value is sameas false -%}
+                    Provenance is not documented{%- if metadata.noProvenanceReason %} because: {{ metadata.noProvenanceReason._value }}{{ macros.linkQuestion(metadata.noProvenanceReason._path) }}{%- else -%}.{{ macros.linkQuestion(metadata.isProvenanceDocumented._path) }}{%- endif -%}
                 {%- endif -%}
-            {%- endif -%}
-        {%- endfor -%}
-    </ul>
-    {%- else -%}
-        <p>We do not plan to generate any data in this project.</p>
-    {%- endif -%}
+                </p>
+                </li>
+            {% endfor %}
+            </ul>
+
+        {%- else -%}
+            <p>No specification for documenting the provenance of the generated data has been defined.</p>
+        {%- endif -%}
+
+        {# Validating the integrity of the results #}
+        {%- if data.dmp.sharedResources.processingEnvironments | length > 0 -%}
+            {% if data.dmp.sharedResources.processingEnvironments | length > 1 %}
+                <p>In our {{ globals.projects }}, several validation processes will be applied to ensure the integrity and reliability of the research results.</p>
+            {% elif data.dmp.sharedResources.processingEnvironments | length == 1 %}
+                <p>In our {{ globals.projects }}, a dedicated validation process will be applied to ensure the integrity and reliability of the research results.</p>
+            {% endif %}
+            <ul>
+            {% for env in data.dmp.sharedResources.processingEnvironments %}
+                <li>
+                {% if env.isMonitoringIntegrityAfterProcessing._value is sameas true and env.monitoringIntegrityAfterProcessing | length > 0 %}
+                    <p>
+                        This validation of result integrity in processing environment will include
+                        {{ env.monitoringIntegrityAfterProcessing | map(attribute='_label') | map('lower') | join(", ") }}.
+                        {{ macros.linkQuestion(env.isMonitoringIntegrityAfterProcessing._path) }}
+                    </p>
+                {% else %}
+                <p>No specific validation steps were defined for verifying the integrity of results.</p>
+                {% endif %}
+                {% if env.usedBy | length == data.dmp.datasets | length %}
+                    <p>This validation process applies to all datasets generated within {{ globals.projects }}.</p>
+                {% else %}
+                    {% set datasets = [] %}
+                    {% for datasetUuid in env.usedBy %}
+                    {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
+                    {% if ds %}
+                        {% if ds.name._raw %}
+                        {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                        {% elif ds.name %}
+                        {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                        {% else %}
+                        {% do datasets.append("<strong>(no name)</strong>") %}
+                        {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    <p>Applies to {{ datasets | join(", ") | safe }}.</p>
+                {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+
+        {% else %}
+        <p>No validation of data integrity is planned for this {{ globals.projects }}.</p>
+        {% endif %}
+
+    {% else %}
+    <p>No datasets are expected to be generated in this {{ globals.projects }}.</p>
+    {% endif %}
 
     {# Re-used datasets #}
     <h4>Re-used Datasets</h4>
@@ -154,7 +302,7 @@
                 {%- if consideredData.isReused._value is sameas true and consideredData.reusedData -%}
                     {%- set reusedData = consideredData.reusedData -%}
                     {% if reusedData.purpose %}
-                    <p>It is used in the project for: {{ reusedData.purpose._value }}{{macros.linkQuestion(reusedData.purpose._path) }}</p>
+                    <p>It is used in the {{ globals.projects }} for: {{ reusedData.purpose._value }}{{macros.linkQuestion(reusedData.purpose._path) }}</p>
                     {% endif %}
                     {# Reuse conditions #}
                     {%- if reusedData.conditions._value == "CC0" %}
@@ -222,9 +370,9 @@
                     {%- if reusedData.users|length > 0 -%}
                         <p>
                         {%- if reusedData.users|length == 1 -%}
-                            There is only one user of the data within the project: 
+                            There is only one user of the data within the {{ globals.projects }}: 
                         {%- elif reusedData.users|length > 1 -%}
-                            There are several users of the data within the project: 
+                            There are several users of the data within the {{ globals.projects }}: 
                         {%- endif -%}
                         {%- if reusedData.users|length > 0 -%}
                             {%- for user in reusedData.users %} {{ user.name._value if user.name else "(no name given)" }}{{ macros.linkQuestion(user.name._path) }}
@@ -282,6 +430,8 @@
             </li>
         {%- endfor -%}
         </ul>
+    {%- else -%}
+        <p>No pre-existing data will be re-used in this {{ globals.projects }}.</p>
     {%- endif -%}
     </div>
 </div>

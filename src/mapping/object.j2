@@ -25,6 +25,14 @@
         "outputsRetentionCriteriaDescription": None,
         "areOtherOutputs": None,
         "otherOutputs": [],
+        "sharedResources": {
+            "collections": [],
+            "processingEnvironments": [],
+            "metadataSpecifications": [],
+            "reuseRestrictions": [],
+            "organisationStrategies": [],
+            "documentationSpecifications": [],
+        }
     },
     "meta": {
         "document": {
@@ -290,7 +298,6 @@
         "qualifiedReferences": [],
         "distributions": [],
         "tools": [],
-        "reuseRestriction": {},
     } -%}
     {%- if datasetItem.identifiers|length > 0 -%}
         {%- for identifierItem in datasetItem.identifiers -%}
@@ -332,6 +339,7 @@
 {# Mapping [Data Collection] #}
 {%- for collectionItem in data.obj.collections -%}
     {%- set collection = {
+        "uuid": collectionItem._uuid,
         "startDate": collectionItem.startDate|default(None),
         "endDate": collectionItem.endDate|default(None),
         "isEquipmentCollection": collectionItem.isEquipmentCollection|default(None),
@@ -748,24 +756,41 @@
     {%- endif -%}
 
     {# what datasets? #}
+    {%- set usedBy = [] -%}
+
     {%- if collectionItem.isForAllDatasets._value is sameas true -%}
         {# Assign to all datasets #}
         {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"collection": collection}) -%}
+            {%- if dataset.get("collection") is none -%}
+                {%- do dataset.update({"collection": collection.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
         {%- endfor -%}
+
     {%- elif collectionItem.isForAllDatasets._value is sameas false -%}
         {# Assign to related datasets #}
         {%- for relatedDataset in collectionItem.isForAllDatasets.relatedDatasets -%}
             {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"collection": collection}) -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("collection") is none -%}
+                    {%- do ds.update({"collection": collection.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to collection #}
+        {%- do collection.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.collections.append(collection) -%}
     {%- endif -%}
 {%- endfor -%}
 
 {# Mapping [Processing Environment] #}
 {%- for processingEnvironmentItem in data.obj.processingEnvironments -%}
     {%- set processingEnvironment = {
+        "uuid": processingEnvironmentItem._uuid,
         "isSharedWorkingSpace": processingEnvironmentItem.isSharedWorkingSpace|default(None),
         "isCustomWorkingSpaceSecure": None,
         "sharedWorkingSpace": {
@@ -801,19 +826,36 @@
             "monitoringIntegrityAfterProcessing": processingEnvironmentItem.isMonitoringIntegrityAfterProcessing.monitoringIntegrityAfterProcessing|list,
         }) -%}
     {%- endif -%}
+
     {# what datasets? #}
+    {%- set usedBy = [] -%}
+
     {%- if processingEnvironmentItem.isForAllDatasets._value is sameas true -%}
         {# Assign to all datasets #}
         {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"processingEnvironment": processingEnvironment}) -%}
+            {%- if dataset.get("processingEnvironment") is none -%}
+                {%- do dataset.update({"processingEnvironment": processingEnvironment.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
         {%- endfor -%}
+
     {%- elif processingEnvironmentItem.isForAllDatasets._value is sameas false -%}
         {# Assign to related datasets #}
         {%- for relatedDataset in processingEnvironmentItem.isForAllDatasets.relatedDatasets -%}
             {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"processingEnvironment": processingEnvironment}) -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("processingEnvironment") is none -%}
+                    {%- do ds.update({"processingEnvironment": processingEnvironment.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to processingEnvironment #}
+        {%- do  processingEnvironment.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.processingEnvironments.append(processingEnvironment) -%}
     {%- endif -%}
 {%- endfor -%}
 
@@ -1102,6 +1144,7 @@
 {# Mapping [Organisation Strategy] #}
 {%- for organisationItem in data.obj.organisationStrategies -%}
     {%- set organisationStrategy = {
+        "uuid": organisationItem._uuid,
         "fileNamingConvention": {
             "isAgreementOnFileNamingConvention": organisationItem.fileNamingConvention.isAgreementOnFileNamingConvention|default(None),
             "agreementOnFileNamingConvention": None,
@@ -1145,24 +1188,41 @@
     {%- endfor -%}
 
     {# what datasets? #}
+    {%- set usedBy = [] -%}
+
     {%- if organisationItem.isForAllDatasets._value is sameas true -%}
         {# Assign to all datasets #}
         {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"organisationStrategy": organisationStrategy}) -%}
+            {%- if dataset.get("organisationStrategy") is none -%}
+                {%- do dataset.update({"organisationStrategy": organisationStrategy.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
         {%- endfor -%}
+
     {%- elif organisationItem.isForAllDatasets._value is sameas false -%}
         {# Assign to related datasets #}
         {%- for relatedDataset in organisationItem.isForAllDatasets.relatedDatasets -%}
             {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"organisationStrategy": organisationStrategy}) -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("organisationStrategy") is none -%}
+                    {%- do ds.update({"organisationStrategy": organisationStrategy.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to organisationStrategy #}
+        {%- do organisationStrategy.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.organisationStrategies.append(organisationStrategy) -%}
     {%- endif -%}
 {%- endfor -%}
 
 {# Mapping [Metadata] #}
 {%- for metadataItem in data.obj.metadataSpecifications -%}
     {%- set metadataSpecification = {
+        "uuid": metadataItem._uuid,
         "description": metadataItem.description|default(None),
         "language": metadataItem.language|default(None),
         "isStandardMetadata": metadataItem.isStandardMetadata|default(None),
@@ -1257,25 +1317,41 @@
             }) -%}
         {%- endif -%}
     {%- endif -%}
-
-    {# what datasets? #}
-    {%- if metadataItem.isForAllDatasets._value is sameas true -%}
-        {# Assign to all datasets #}
-        {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"metadata": metadataSpecification}) -%}
-        {%- endfor -%}
-    {%- elif metadataItem.isForAllDatasets._value is sameas false -%}
-        {# Assign to related datasets #}
-        {%- for relatedDataset in metadataItem.isForAllDatasets.relatedDatasets -%}
-            {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"metadata": metadataSpecification}) -%}
-            {%- endif -%}
-        {%- endfor -%}
-    {%- endif -%}
     {%- if metadataSpecification.isLicenseCC0._value is sameas false -%}
         {%- do metadataSpecification.update({
             "noLicenseCC0Reason": metadataItem.isLicenseCC0.noLicenseCC0Reason|default(None),
         }) -%}
+    {%- endif -%}
+
+    {# what datasets? #}
+    {%- set usedBy = [] -%}
+
+    {%- if metadataItem.isForAllDatasets._value is sameas true -%}
+        {# Assign to all datasets #}
+        {%- for dataset in result.dmp.datasets -%}
+            {%- if dataset.get("metadata") is none -%}
+                {%- do dataset.update({"metadata": metadataSpecification.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
+        {%- endfor -%}
+
+    {%- elif metadataItem.isForAllDatasets._value is sameas false -%}
+        {# Assign to related datasets #}
+        {%- for relatedDataset in metadataItem.isForAllDatasets.relatedDatasets -%}
+            {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("metadata") is none -%}
+                    {%- do ds.update({"metadata": metadataSpecification.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to metadata #}
+        {%- do metadataSpecification.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.metadataSpecifications.append(metadataSpecification)-%}
     {%- endif -%}
 {%- endfor -%}
 
@@ -1283,24 +1359,40 @@
 {# Mapping [Documentation] #}
 {%- for documentationItem in data.obj.documentationSpecifications -%}
     {%- set documentationSpecification = {
+        "uuid": documentationItem._uuid,
         "description": documentationItem.description|default(None),
         "includeMethodology": documentationItem.includeMethodology|default(None),
         "includeDataValidation": documentationItem.includeDataValidation|default(None),
         "format": documentationItem.format|default(None),
     }-%}
     {# what datasets? #}
+    {%- set usedBy = [] -%}
     {%- if documentationItem.isForAllDatasets._value is sameas true -%}
-        {# Assign  to all datasets #}
+        {# Assign to all datasets #}
         {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"documentation": documentationSpecification}) -%}
+            {%- if dataset.get("documentation") is none -%}
+                {%- do dataset.update({"documentation": documentationSpecification.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
         {%- endfor -%}
+
     {%- elif documentationItem.isForAllDatasets._value is sameas false -%}
         {# Assign to related datasets #}
         {%- for relatedDataset in documentationItem.isForAllDatasets.relatedDatasets -%}
             {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"documentation": documentationSpecification}) -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("documentation") is none -%}
+                    {%- do ds.update({"documentation": documentationSpecification.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to documentation #}
+        {%- do documentationSpecification.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.documentationSpecifications.append(documentationSpecification)-%}
     {%- endif -%}
 {%- endfor -%}
 
@@ -1450,6 +1542,7 @@
 {# Mapping [(Re)Use Restrictions] #}
 {%- for reuseRestrictionItem in data.obj.reuseRestrictions -%}
     {%- set reuseRestriction = {
+        "uuid": reuseRestrictionItem.uuid,
         "isReuseRestrictionSpecified": reuseRestrictionItem.isReuseRestrictionSpecified|default(None),
         "reuseRestrictionSpecificationReason": None,
         "potentialDataUsers": reuseRestrictionItem.potentialDataUsers|default(None),
@@ -1626,19 +1719,36 @@
             "noMetadataAvailableReason": reuseRestrictionItem.accessRestriction.isMetadataAvailable.noMetadataAvailableReason|default(None),
         }) -%}
     {%- endif -%}
+
     {# what datasets? #}
+    {%- set usedBy = [] -%}
+
     {%- if reuseRestrictionItem.isForAllDatasets._value is sameas true -%}
         {# Assign to all datasets #}
         {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"reuseRestriction": reuseRestriction}) -%}
+            {%- if dataset.get("reuseRestriction") is none -%}
+                {%- do dataset.update({"reuseRestriction": reuseRestriction.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
         {%- endfor -%}
+
     {%- elif reuseRestrictionItem.isForAllDatasets._value is sameas false -%}
         {# Assign to related datasets #}
         {%- for relatedDataset in reuseRestrictionItem.isForAllDatasets.relatedDatasets -%}
             {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"reuseRestriction": reuseRestriction}) -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("reuseRestriction") is none -%}
+                    {%- do ds.update({"reuseRestriction": reuseRestriction.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to reuseRestriction #}
+        {%- do reuseRestriction.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.reuseRestrictions.append(reuseRestriction) -%}
     {%- endif -%}
 {%- endfor -%}
 

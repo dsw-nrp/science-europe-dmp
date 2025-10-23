@@ -1,0 +1,53 @@
+<div id="q-how-data" class="question">
+    <h3>4. What data quality control measures will be used?</h3>
+
+    <div class="answer">
+    {% if data.dmp.datasets | length > 0 %}
+    <p>For following datasets, the quality control measures will be applied:</p>
+    <ul>
+    {%- for dataset in data.dmp.datasets -%}
+        {# Measure quality #}
+        {%- if dataset.collection -%}
+        <li>
+
+            {%- if dataset.name._raw -%}
+                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
+            {%- elif dataset.name -%}
+                <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
+            {%- else -%}
+                <strong>(no name given)</strong>
+            {%- endif -%}
+            {%- set collection = data.dmp.sharedResources.collections|selectattr('uuid', 'equalto', dataset.collection)|first -%}
+            {%- if collection.isEquipmentCollection._value is sameas true -%}
+                {%- set quality_process_labels = {
+                    "calibration": "calibrating measures",
+                    "repeatSamples": " conducting repeat samples or repeating measurements to monitor the consistency of the results",
+                    "standardizedMethods": "use standardized methods for data capture and recording",
+                    "dataEntryValidation": "doing data entry validation",
+                    "dataPeerReview": "using data peer review",
+                    "usesControlledVocabularies": "using controlled vocabularies",
+                    "knownOutcomeSamples": "measuring samples with known outcomes to monitor consistency",
+                } -%}
+                {%- set used_processes = [] -%}
+                {%- for key, label in quality_process_labels.items() -%}
+                    {%- if collection.equipmentCollection.qualityProcesses[key] and collection.equipmentCollection.qualityProcesses[key]._value is sameas true and label -%}
+                    {%- do used_processes.append(label) -%}
+                    {%- endif -%}
+                {%- endfor -%}
+                {%- if used_processes|length > 0 -%}
+                    <p>During equipment collection of this dataset, the following quality assurance processes will be used: 
+                    {{ used_processes|join(", ") }}{% if collection.equipmentCollection.qualityProcesses.otherQualityProcesses and collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value %}, {{ collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value }}{% endif %}.{{ macros.linkQuestion(collection.equipmentCollection.usesQualityProcesses._path) }}
+                    </p>
+                {%- else -%}
+                    <p>No specific quality assurance processes will be used during equipment collection of this dataset.{{ macros.linkQuestion(collection.equipmentCollection.usesQualityProcesses._path) }}</p>
+                {%- endif -%}
+            {%- endif -%}
+        {%- endif -%}
+        </li>
+    {%- endfor -%}
+    </ul>
+    {%- else -%}
+        <p>There will be no instrument dataset in this project.</p>
+    {%- endif -%}
+    </div>
+</div>

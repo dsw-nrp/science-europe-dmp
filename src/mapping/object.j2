@@ -32,6 +32,7 @@
             "reuseRestrictions": [],
             "organisationStrategies": [],
             "documentationSpecifications": [],
+            "preservationStrategies": [],
         }
     },
     "meta": {
@@ -1400,6 +1401,7 @@
 {# Mapping [Preservation Strategy] #}
 {%- for preservationItem in data.obj.preservationStrategies -%}
     {%- set preservationStrategy = {
+        "uuid": preservationItem._uuid,
         "usesLongTermStorageDuringProject": preservationItem.usesLongTermStorageDuringProject|default(None),
         "longTermStorageDuringProject": {},
         "noLongTermStorageDuringProject": {},
@@ -1524,18 +1526,34 @@
     {%- endif -%}
 
     {# what datasets? #}
+    {%- set usedBy = [] -%}
+
     {%- if preservationItem.isForAllDatasets._value is sameas true -%}
         {# Assign to all datasets #}
         {%- for dataset in result.dmp.datasets -%}
-            {%- do dataset.update({"preservationStrategy": preservationStrategy}) -%}
+            {%- if dataset.get("preservationStrategy") is none -%}
+                {%- do dataset.update({"preservationStrategy": preservationStrategy.uuid}) -%}
+                {%- do usedBy.append(dataset.uuid) -%}
+            {%- endif -%}
         {%- endfor -%}
+
     {%- elif preservationItem.isForAllDatasets._value is sameas false -%}
         {# Assign to related datasets #}
         {%- for relatedDataset in preservationItem.isForAllDatasets.relatedDatasets -%}
             {%- if relatedDataset.relatedDataset and relatedDataset.relatedDataset._uuid in datasetsMap -%}
-                {%- do datasetsMap[relatedDataset.relatedDataset._uuid].update({"preservationStrategy": preservationStrategy}) -%}
+                {%- set ds = datasetsMap[relatedDataset.relatedDataset._uuid] -%}
+                {%- if ds.get("preservationStrategy") is none -%}
+                    {%- do ds.update({"preservationStrategy": preservationStrategy.uuid}) -%}
+                    {%- do usedBy.append(ds.uuid) -%}
+                {%- endif -%}
             {%- endif -%}
         {%- endfor -%}
+    {%- endif -%}
+
+    {%- if usedBy|length > 0 -%}
+        {# assign usedBy to preservationStrategy #}
+        {%- do preservationStrategy.update({"usedBy": usedBy}) -%}
+        {%- do result.dmp.sharedResources.preservationStrategies.append(preservationStrategy) -%}
     {%- endif -%}
 {%- endfor -%}
 

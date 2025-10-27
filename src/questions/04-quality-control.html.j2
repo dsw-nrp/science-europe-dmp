@@ -1,23 +1,40 @@
 <div id="q-how-data" class="question">
-    <h3>4. What data quality control measures will be used?</h3>
+<h3>4. What data quality control measures will be used?</h3>
 
-    <div class="answer">
-    {% if data.dmp.datasets | length > 0 %}
-    <p>For following datasets, the quality control measures will be applied:</p>
-    <ul>
-    {%- for dataset in data.dmp.datasets -%}
-        {# Measure quality #}
-        {%- if dataset.collection -%}
-        <li>
+<div class="answer">
+{% if data.dmp.datasets | length > 0 %}
+    {%- if data.dmp.sharedResources.collections | length > 0 -%}
+        {% if data.dmp.sharedResources.collections | length > 1 %}
+            <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.collections | length }} distinct collection processes will be used to gather and generate research data:</p>
+        {% elif data.dmp.sharedResources.collections | length == 1 %}
+            <p>In our {{ globals.projects }}, a single collection process will be used to collect and generate research data:</p>
+        {% endif %}
+        <ul>
+        {% for collection in data.dmp.sharedResources.collections %}
+            <li style="margin-bottom: 2em;">
 
-            {%- if dataset.name._raw -%}
-                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- elif dataset.name -%}
-                <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- else -%}
-                <strong>(no name given)</strong>
-            {%- endif -%}
-            {%- set collection = data.dmp.sharedResources.collections|selectattr('uuid', 'equalto', dataset.collection)|first -%}
+            {# --- Build the dataset list (if not all) --- #}
+            {% if collection.usedBy | length == data.dmp.datasets | length %}
+                {% set datasetText = "all datasets generated within " ~ globals.projects %}
+                {% set datasets = [] %}
+            {% else %}
+                {% set datasets = [] %}
+                {% for datasetUuid in collection.usedBy %}
+                    {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
+                    {% if ds %}
+                    {% if ds.name._raw %}
+                        {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                    {% elif ds.name %}
+                        {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
+                    {% else %}
+                        {% do datasets.append("<strong>(no name)</strong>") %}
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% set datasetText = datasets | join(", ") | safe %}
+            {% endif %}
+            {% set numDatasets = collection.usedBy | length %}
+
             {%- if collection.isEquipmentCollection._value is sameas true -%}
                 {%- set quality_process_labels = {
                     "calibration": "calibrating measures",
@@ -35,19 +52,22 @@
                     {%- endif -%}
                 {%- endfor -%}
                 {%- if used_processes|length > 0 -%}
-                    <p>During equipment collection of this dataset, the following quality assurance processes will be used: 
+                    <p>During equipment collection of {{ datasetText }}, the following quality assurance processes will be used: 
                     {{ used_processes|join(", ") }}{% if collection.equipmentCollection.qualityProcesses.otherQualityProcesses and collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value %}, {{ collection.equipmentCollection.qualityProcesses.otherQualityProcesses._value }}{% endif %}.{{ macros.linkQuestion(collection.equipmentCollection.usesQualityProcesses._path) }}
                     </p>
                 {%- else -%}
-                    <p>No specific quality assurance processes will be used during equipment collection of this dataset.{{ macros.linkQuestion(collection.equipmentCollection.usesQualityProcesses._path) }}</p>
+                    <p>No specific quality assurance processes will be used during equipment collection of {{ datasetText }}.{{ macros.linkQuestion(collection.equipmentCollection.usesQualityProcesses._path) }}</p>
                 {%- endif -%}
+            {%- else -%}
+                <p>During collection of non-equipment datasets ({{ datasetText }}), no quality assurance processes will be applied.</p>
             {%- endif -%}
-        {%- endif -%}
-        </li>
-    {%- endfor -%}
+            </li>
+        {%- endfor -%}
     </ul>
     {%- else -%}
-        <p>There will be no instrument dataset in this project.</p>
+        <p>There is no description available for the datasets.</p>
     {%- endif -%}
-    </div>
+{% else %}
+    <p>There are no datasets described in this {{ globals.dmp }}.</p>
+{% endif %}
 </div>

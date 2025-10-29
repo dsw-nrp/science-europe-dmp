@@ -33,6 +33,8 @@
             "organisationStrategies": [],
             "documentationSpecifications": [],
             "preservationStrategies": [],
+            "dataStores": [],
+            "tools": [],
         }
     },
     "meta": {
@@ -863,6 +865,7 @@
 {# Mapping [Distributions] #}
 {%- for distributionItem in data.obj.distributions -%}
     {%- set distribution = {
+        "uuid": distributionItem._uuid,
         "name": distributionItem.name|default(None),
         "description": distributionItem.description|default(None),
         "contactPerson": None,
@@ -1071,12 +1074,12 @@
     {%- endif -%}
 
     {# Mapping [Data Storage] #}
-    {%- set dataStorageItem = (data.obj.dataStorageInfrastructures | selectattr('_uuid', 'equalto', distributionItem.dataStorageInfrastructure._uuid) | list | first) if distributionItem.dataStorageInfrastructure else None -%}
 
     {# Mapping [Data Storage Infrastructure] #}
-    {%- if dataStorageItem -%}
+    {%- for dataStorageItem in data.obj.dataStorageInfrastructures -%}
         {%- set dataStorage = {
             "uuid": dataStorageItem._uuid|default(None),
+            "usedBy": [],
             "name": dataStorageItem.name|default(None),
             "description": dataStorageItem.description|default(None),
             "url": dataStorageItem.url|default(None),
@@ -1131,15 +1134,28 @@
         {%- endfor -%}
 
         {%- do distribution.update({
-            "dataStorage": dataStorage,
+            "dataStorage": dataStorage.uuid,
         }) -%}
-    {%- endif -%}
+`
+        {# check if dataStorage already exists in result.dmp.sharedResources.dataStores #}
+        {%- set existingDataStores = result.dmp.sharedResources.dataStores| selectattr("uuid", "equalto", dataStorage.uuid)|list  -%}
+        {%- if existingDataStores | length > 0 -%}
+            {%- set existingDataStore = existingDataStores | first -%}
+            {%- do existingDataStore.usedBy.append(distribution.uuid) -%}
+        {%- else -%}
+            {%- do dataStorage.usedBy.append(distribution.uuid) -%}
+            {%- do result.dmp.sharedResources.dataStores.append(dataStorage) -%}
+        {%- endif -%}
 
-    {# what datasets? #}
+    {%- endfor -%}
+
+     {# what datasets? #}
     {%- set relatedDataset = distributionItem.relatedDataset -%}
     {%- if relatedDataset and relatedDataset._uuid in datasetsMap -%}
         {%- do datasetsMap[relatedDataset._uuid].distributions.append(distribution) -%}
     {%- endif -%}
+
+
 {%- endfor -%}
 
 {# Mapping [Organisation Strategy] #}
@@ -1776,6 +1792,7 @@
     {%- if result.dmp.areSpecialToolsRequired._value is sameas true -%}
         {%- for toolItem in data.obj.areToolsForAccessReuse.toolsForAccessReuse -%}
             {%- set tool = {
+                "uuid": toolItem._uuid,
                 "name": toolItem.name|default(None),
                 "description": toolItem.description|default(None),
                 "isFreeAndAvailable": toolItem.isFreeAndAvailable|default(None),
@@ -1784,6 +1801,7 @@
                 "accessLink": None,
                 "noAccessLinkAlternatives": {},
                 "isAvailableInInstitution": toolItem.isAvailableInInstitution|default(None),
+                "usedBy": [],
             } -%}
             {%- if tool.isFreeAndAvailable._value is sameas false -%}
                 {%- do tool.update({
@@ -1807,30 +1825,36 @@
                 {%- endif -%}
             {%- endif -%}
 
-            {# what datasets? #}
+            {# Determine which datasets use this tool #}
+            {%- set usedBy = [] -%}
+
             {%- if toolItem.isForAllDatasets._value is sameas true -%}
                 {# Assign this tool to all datasets #}
                 {%- for dataset in result.dmp.datasets -%}
-                    {%- do dataset.tools.append(tool) -%}
-                {%- endfor -%}
-                {%- for consideredDataset in result.dmp.reusingData.consideredDatasets -%}
-                    {%- if consideredDataset.reusedData -%}
-                        {%- do consideredDataset.reusedData.tools.append(tool) -%}
+                    {# Append this tool if not already there #}
+                    {%- if toolItem._uuid not in dataset.tools -%}
+                        {%- do dataset.tools.append(toolItem._uuid) -%}
+                        {%- do usedBy.append(dataset.uuid) -%}
                     {%- endif -%}
                 {%- endfor -%}
+                {%- do result.dmp.sharedResources.tools.append(tool) -%}
+
             {%- elif toolItem.isForAllDatasets._value is sameas false -%}
-                {# Assign this tool to related datasets #}
+                {# Assign this tool only to specified datasets #}
                 {%- for relatedDatasetItem in toolItem.isForAllDatasets.relatedDatasets -%}
                     {%- if relatedDatasetItem.typeOfDataset._value == "relatedProducedDatasets" -%}
                         {%- if relatedDatasetItem.typeOfDataset.relatedProducedDataset and relatedDatasetItem.typeOfDataset.relatedProducedDataset._uuid in datasetsMap -%}
-                            {%- do datasetsMap[relatedDatasetItem.typeOfDataset.relatedProducedDataset._uuid].tools.append(tool) -%}
+                            {%- do datasetsMap[relatedDatasetItem.typeOfDataset.relatedProducedDataset._uuid].tools.append(tool.uuid) -%}
+                            {%- do tool.usedBy.append(relatedDatasetItem.typeOfDataset.relatedProducedDataset._uuid) -%}
                         {%- endif -%}
                     {%- elif relatedDatasetItem.typeOfDataset._value == "relatedReusedDatasets" -%}
                         {%- if relatedDatasetItem.typeOfDataset.relatedReusedDataset and relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid in reusedDatasetsMap -%}
-                            {%- do reusedDatasetsMap[relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid].reusedData.tools.append(tool) -%}
+                            {%- do reusedDatasetsMap[relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid].reusedData.tools.append(tool.uuid) -%}
+                            {%- do tool.usedBy.append(relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid) -%}
                         {%- endif -%}
                     {%- endif -%}
                 {%- endfor -%}
+                {%- do result.dmp.sharedResources.tools.append(tool) -%}
             {%- endif -%}
         {%- endfor -%}
     {%- elif data.obj.areToolsForAccessReuse._value is sameas false -%}

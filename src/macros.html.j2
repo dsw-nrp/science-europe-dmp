@@ -35,3 +35,32 @@
     <a href="{{ctx.config.clientUrl}}/projects/{{ctx.questionnaire.uuid}}?questionPath={{questionPath}}" class="footnote" title="Question linked to this text" target="_blank" rel="noopener noreferrer">❓</a>
   {%- endif -%}
 {%- endmacro -%}
+
+{% macro datasetIntro(sharedResource, contextPhrase, allDatasets) -%}
+  {% if sharedResource.usedBy | length == allDatasets | length %}
+    <p>
+      All generated datasets follow the same {{ contextPhrase }}.
+    </p>
+
+  {% else %}
+    {% set datasets = [] %}
+    {% for datasetUuid in sharedResource.usedBy %}
+      {% set ds = allDatasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
+      {% if ds %}
+        {% if ds.name._raw %}
+          {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ linkQuestion(ds.name._path)) %}
+        {% elif ds.name %}
+          {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ linkQuestion(ds.name._path)) %}
+        {% else %}
+          {% do datasets.append('<strong>(no name)</strong>') %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% set datasetText = datasets | join(", ") | safe %}
+    {%- if datasets | length > 1 -%}
+      <p>The following datasets follow the same {{ contextPhrase }}: {{ datasetText }}.</p>
+    {%- elif datasets | length == 1 -%}
+      <p>The following dataset follows the {{ contextPhrase }} described below: {{ datasetText }}.</p>
+    {%- endif -%}
+  {% endif %}
+{%- endmacro %}

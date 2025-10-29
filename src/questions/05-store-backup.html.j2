@@ -17,26 +17,7 @@
         {% for strategy in data.dmp.sharedResources.preservationStrategies %}
         <li style="margin-bottom: 1.5em;">
 
-            {# --- Build the dataset list (if not all) --- #}
-            {% if strategy.usedBy | length == data.dmp.datasets | length %}
-                {% set datasetText = "all datasets generated within " ~ globals.projects %}
-                {% set datasets = [] %}
-            {% else %}
-                {% set datasets = [] %}
-                {% for datasetUuid in strategy.usedBy %}
-                    {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-                    {% if ds %}
-                        {% if ds.name._raw %}
-                            {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                        {% elif ds.name %}
-                            {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                        {% else %}
-                            {% do datasets.append("<strong>(no name)</strong>") %}
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-                {% set datasetText = datasets | join(", ") | safe %}
-            {% endif %}
+            {{macros.datasetIntro(strategy, "storage and backup conditions", data.dmp.datasets) }}
             {% set numDatasets = strategy.usedBy | length %}
 
 
@@ -186,33 +167,7 @@
         {% for environment in data.dmp.sharedResources.processingEnvironments %}
             <li style="margin-bottom: 1.5em;">
 
-            {# Build dataset list applying to this environment #}
-            {% if environment.usedBy | length == data.dmp.datasets | length %}
-                {% set datasetsText = "all datasets generated within " ~ globals.projects %}
-            {% else %}
-                {% set datasets = [] %}
-                {% for datasetUuid in environment.usedBy %}
-                {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-                {% if ds %}
-                    {% if ds.name._raw %}
-                    {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                    {% elif ds.name %}
-                    {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                    {% else %}
-                    {% do datasets.append("<strong>(no name)</strong>") %}
-                    {% endif %}
-                {% endif %}
-                {% endfor %}
-                {% set datasetsText = datasets | join(", ") | safe %}
-            {% endif %}
-
-            {% set n = environment.usedBy | length %}
-            {% set dsThese = "This dataset" if n == 1 else "These datasets" %}
-            {% set dsAre = "is" if n == 1 else "are" %}
-
-            <p>
-                We will process {{ datasetsText }} within the following working environment{{ "" if n == 1 else "s" }}:
-            </p>
+            {{ macros.datasetIntro(environment, "working environment described below", data.dmp.datasets) }}
 
             {# ================================================= #
                 SHARED WORKSPACE

@@ -1,0 +1,148 @@
+<div id="q-data-preservation" class="question">
+  <h3>11. How will data for preservation be selected, and where data will be preserved long-term (for example a data repository or archive)?</h3>
+
+  {# For how long and which data and metadata #}
+
+  <div class="answer">
+    {%- if data.dmp.datasets|length > 0 -%}
+      {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
+        <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.collections | length == 1 else 'are' }} {{ data.dmp.sharedResources.collections | length }} approach{{ 'es' if data.dmp.sharedResources.collections | length != 1 else '' }} towards long-term data preservation, as described below:</p>
+        <ul>
+        {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
+          <li style="margin-bottom: 2em;">
+
+          {{ macros.datasetIntro(preservationStrategy, "long-term preservation", data.dmp.datasets) }}
+          {% set numDatasets = preservationStrategy.usedBy | length %}
+          {%- set accessRestriction = preservationStrategy.accessRestriction -%}
+
+          {%- if preservationStrategy.usesLongTermStorageDuringProject._value is sameas true and preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
+            We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }} but also already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
+          {%- elif preservationStrategy.usesLongTermStorageDuringProject._value is sameas true %}
+            We will be archiving data (using so-called 'cold storage') for long term preservation already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
+          {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
+            We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
+          {%- endif -%}
+
+          {# How long will data be preserved? #}
+          {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
+            {%- if preservationStrategy.longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas true -%}
+              {%- if preservationStrategy.longTermStorageAfterProject.archivePeriod -%}
+                {# How long will be stored data #}
+                {%- set period = preservationStrategy.longTermStorageDuringProject.archivePeriod -%}
+                {%- if period._value -%}
+                  {%- if period._value == "as_long_as_possible" %}
+                    This data set will be kept available as long as technically possible.
+                  {%- elif period._value == "until_needs_delete" %}
+                    This data set will be kept available until it needs to be deleted for legal, contractual or regulatory reasons.
+                  {%- elif period._value %}
+                    This data set will be kept available for a fixed period of {{ period._value }}.
+                  {%- endif -%}
+                  {{ macros.linkQuestion(period._path) }}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
+            {%- if preservationStrategy.longTermStorageAfterProject -%}
+              {%- set longTermStorageAfterProject = preservationStrategy.longTermStorageAfterProject -%}
+              {# Paying #}
+              {%- if longTermStorageAfterProject.funder._value -%}
+                {%- if longTermStorageAfterProject.funder._value == "grant" %}
+                  The costs for archiving data will be paid from the grant.
+                {%- elif longTermStorageAfterProject.funder._value == "department" %}
+                  The costs for archiving data will be paid out of departmental budgets from one or more of the {{globals.projects}} participants.
+                {%- elif longTermStorageAfterProject.funder._value == "institute" %}
+                  The used data archiving service is budgeted by one or more of the participating institutes.
+                {%- endif -%}
+                {{  macros.linkQuestion(longTermStorageAfterProject.funder._path) }}
+              {%- endif -%}
+            {%- endif -%}
+
+            {# Lifetime #}
+            {%- if longTermStorageAfterProject.minimumLifeTimeYears._value == "5" %}
+              The minimum lifetime of the archive is 5 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+            {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value == "10" %}
+              The minimum lifetime of the archive is 10 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+            {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value == "15" %}
+              The minimum lifetime of the archive is 15 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+            {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value -%}
+              {%- set end = " year." if (longTermStorageAfterProject.minimumLifeTimeYears._value == "1") else " years." %}
+              The minimum lifetime of the archive is {{longTermStorageAfterProject.minimumLifeTimeYears._value}} {{end}}{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+            {%- elif longTermStorageAfterProject.minimumLifeTimeOther._value  %}
+              The minimum lifetime of the archive is specially arranged {{longTermStorageAfterProject.minimumLifeTimeOther._value}}. {{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeOther._path) }}
+            {%- endif -%}
+
+            {# Extending #}
+            {%- if longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas true -%}
+              {%- set archivalPeriodExtension = longTermStorageAfterProject.archivalPeriodExtension -%}
+              {%- if archivalPeriodExtension.archivalExtensionDecisionMaker._value == "principle_investigator" %}
+                The archival period can be extended &ndash; one of the principle investigators involved in the {{globals.projects}} will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+              {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "archive_staff" %}
+                The archival period can be extended &ndash; library or archive staff will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+              {%- endif -%}
+
+              {%- set criteria = "" -%}
+              {%- set actual = 'actual' in archivalPeriodExtension.archivalExtensionDecisionCriteria if archivalPeriodExtension.archivalExtensionDecisionCriteria else false -%}
+              {%- set predicted = 'predicted' in archivalPeriodExtension.archivalExtensionDecisionCriteria if archivalPeriodExtension.archivalExtensionDecisionCriteria else false -%}
+              {%- set budget = 'budget' in archivalPeriodExtension.archivalExtensionDecisionCriteria if archivalPeriodExtension.archivalExtensionDecisionCriteria else false -%}
+              {%- if actual and predicted -%}
+                {%- set criteria = "both the actual and predicted use of the archived data" -%}
+              {%- elif actual -%}
+                {%- set criteria = "the actual use of the archived data" -%}
+              {%- elif predicted -%}
+                {%- set criteria = "the predicted use of the archived data" -%}
+              {%- endif -%}
+              {%- if budget and criteria %}
+                The decision whether or not to extend the renewal be based on available budget as well as  ~ {{criteria}}.
+              {%- elif budget %}
+                The decision whether or not to extend the renewal be based on available budget.
+              {%- elif actual or predicted %}
+                The decision whether or not to extend the renewal be based on {{criteria}}.
+              {%- endif -%}
+
+            {%- elif longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas false -%}
+              {%- if longTermStorageAfterProject.noArchivalPeriodExtensionReason._value == "law" %}
+                The archival period cannot be extended as it is limited by law or contract.
+              {%- elif longTermStorageAfterProject.noArchivalPeriodExtensionReason._value == "cost" %}
+                The archival period cannot be extended as it is limited by budget.
+              {%- endif -%}
+              {{ macros.linkQuestion(longTermStorageAfterProject.isArchivalPeriodExtendable._path) }}
+            {%- endif -%}
+
+            {# Upgrades (format) #}
+            {%- if longTermStorageAfterProject.isFormatUpgradePlanned -%}
+              {%- if longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas true %}
+                Data formats of data in cold storage will be upgraded if they become obsolete.
+              {%- elif longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas false %}
+                Data formats of data in cold storage will not be upgraded over time.
+              {%- endif -%}
+              {{ macros.linkQuestion(longTermStorageAfterProject.isFormatUpgradePlanned._path) }}
+            {%- endif -%}
+
+            {# Upgrades (media) #}
+            {%- if longTermStorageAfterProject.isMediaUpgradePlanned -%}
+              {%- if longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas true %}
+                Archived data will be migrated regularly to more modern storage media (e.g. newer tapes).
+              {%- elif longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas false %}
+                Archived data will not be migrated to other storage media over time.
+              {%- endif -%}
+              {{ macros.linkQuestion(longTermStorageAfterProject.isMediaUpgradePlanned._path) }}
+            {%- endif -%}
+          {%- endif -%}
+          </li>
+        {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p>No long-term storage solutions have been defined for this project. Therefore, there is no harmonised approach towards long-term data preservation to report.</p>
+      {%- endif -%}
+
+      {%- if data.dmp.sharedResources.dataStores|length > 0 -%}
+        <p>Details about concrete data storage infrastructures are detailed in Section 4, Question 10.</p>
+      {%- endif -%}
+
+    {%- else -%}
+      <p>No datasets have been defined for this project. Therefore, there is no data preservation to report.</p>
+    {%- endif -%}
+  </div>
+</div>

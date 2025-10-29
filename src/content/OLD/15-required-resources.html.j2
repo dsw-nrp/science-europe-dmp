@@ -2,160 +2,242 @@
   <h3>15. What resources (for example financial and time) will be dedicated to data management and ensuring that data will be FAIR (Findable, Accessible, Interoperable, Re-usable)?</h3>
 
   <div class="answer">
-    {# additional expertise #}
-    {%- set expertisePath = [uuids.adminDetailsCUuid, uuids.additionalExpertiseQUuid]|reply_path -%}
-    {%- set expertiseAUuid = repliesMap[expertisePath]|reply_str_value -%}
-    {%- if expertiseAUuid == uuids.additionalExpertiseNoAUuid -%}
-      <p>To execute the DMP, no additional specialist expertise is required.</p>
-    {%- elif expertiseAUuid == uuids.additionalExpertiseYesAvailableAUuid -%}
-      <p>To execute the DMP, additional specialist expertise is required and we have such trained support staff available.</p>
-    {%- elif expertiseAUuid == uuids.additionalExpertiseYesTrainAUuid -%}
+    {# Costs #}
+    <ul>
+    {%- for project in data.dmp.projects -%}
+      {%- if project.costs|length > 0 -%}
+      <li>
+        <strong>
+          {%- if project.name._value -%}
+            {{project.name._value}}{{ macros.linkQuestion(project.name._path) }}
+            {%- else -%}
+            <em>(no name given)</em>
+          {%- endif -%}
+        </strong>:
+        <p>Following resources will be dedicated to data management and ensuring that data will be FAIR:</p>
+        <ul>
+          {%- for cost in project.costs -%}
+            <li>
+                <p><b>
+                {%- if cost.title._value -%}
+                  {{ cost.title._value }}{{ macros.linkQuestion(cost.title._path) }}:
+                {%- else -%}
+                  <em>(no name given):</em>
+                {%- endif -%}
+                </b>
+                {%- if cost.amount._value is not none -%}
+                &nbsp;{{ cost.amount._value }}{{ macros.linkQuestion(cost.amount._path) }}
+                  {%- if cost.currency._raw %}
+                      {{ cost.currency._raw.code }}{{ macros.linkQuestion(cost.currency._path) }}
+                  {%- elif cost.currency._value %}
+                      {{ cost.currency._value }}{{ macros.linkQuestion(cost.currency._path) }}
+                  {%- else %}
+                      (no currency given)
+                  {%- endif -%}
+                {%- else -%}
+                  (no amount given)
+                {%- endif %}
+                {%- if cost.allocation|length > 0 -%}
+                  <br>This will be used for: 
+                    {{ cost.allocation | join(", ") }}.
+                {%- endif %}
+
+              {# How cost will be covered #}
+                {%- if cost.isCoveredByGrant._value is sameas true -%}
+                  <br>This cost will be covered by funding from grant <em>
+                  {{ cost.coveredBy._label if cost.coveredBy._label else "(no grant given)" }}
+                  {%- if cost.coveredBy._label -%}
+                    {{ macros.linkQuestion(cost.coveredBy._path) }}
+                  {%- else -%}
+                    {{ macros.linkQuestion(cost.isCoveredByGrant._path) }}
+                  {%- endif -%}
+                  </em>
+              {%- elif cost.isCoveredByGrant._value is sameas false and cost.coveredBy -%}
+                <br>This cost will be covered by <em>{{cost.coveredBy._value}}</em>.{{ macros.linkQuestion(cost.coveredBy._path) }}
+              {%- endif %}
+              </p>
+            </li>
+          {%- endfor %}
+        </ul>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}
+    </ul>
+  
+    {# Additional expertise #}
+    {%- set collaboration = data.dmp.collaboration -%}
+    {%- if collaboration.expertiseRequirement._value == "no" -%}
+      <p>To execute the DMP, no additional specialist expertise is required.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}</p>
+    {%- elif collaboration.expertiseRequirement._value == "trainedStaffAvailable" -%}
+      <p>To execute the DMP, additional specialist expertise is required and we have such trained support staff available.{{ macros.linkQuestion(collaboration.trainingDetails._path) }}</p>
+    {%- elif collaboration.expertiseRequirement._value == "trainingExistingStaff" -%}
       <p>
         To execute the DMP, additional specialist expertise is required. We will be training existing staff
-        {%- set expertiseTrainPath = [expertisePath, uuids.additionalExpertiseYesTrainAUuid, uuids.additionalExpertiseYesTrainTrainingQUuid]|reply_path -%}
-        {%- set expertiseTrainText = repliesMap[expertiseTrainPath]|reply_str_value -%}
-        {%- if expertiseTrainText %}
-          {{" "}}on: {{ expertiseTrainText}}
+        {%- if collaboration.trainingDetails %}
+          in: {{ collaboration.trainingDetails._value  }}{{ macros.linkQuestion(collaboration.trainingDetails._path) }}
+        {%- else -%}.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}
         {%- endif -%}
-        .
       </p>
-    {%- elif expertiseAUuid == uuids.additionalExpertiseYesHireAUuid -%}
+    {%- elif collaboration.expertiseRequirement._value == "hiringNewStaff" -%}
       <p>
         To execute the DMP, additional specialist expertise is required. We will be hiring new people with additional expertise
-        {%- set expertiseHirePath = [expertisePath, uuids.additionalExpertiseYesHireAUuid, uuids.additionalExpertiseYesHireExpertiseQUuid]|reply_path -%}
-        {%- set expertiseHireText = repliesMap[expertiseHirePath]|reply_str_value -%}
-        {%- if expertiseHireText %}
-          {{" "}}in: {{ expertiseHireText}}
+        {%- if collaboration.expertiseDetails %}
+          in: {{ collaboration.expertiseDetails._value }}{{ macros.linkQuestion(collaboration.expertiseDetails._path) }}
+        {%- else -%}.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}
         {%- endif -%}
-        .
       </p>
     {%- endif -%}
-    {# additional hw/sw #}
-    {%- set additionalHWSWPath = [uuids.adminDetailsCUuid, uuids.additionalHWSWQUuid]|reply_path -%}
-    {%- set additionalHWSWAUuid = repliesMap[additionalHWSWPath]|reply_str_value -%}
-    {%- if additionalHWSWAUuid == uuids.additionalHWSWNoAUuid -%}
+
+    {# Additional tools/software #}
+    {%- set unavailableToolsUnique = [] -%}
+    {%- set toolNames = [] -%}
+    {%- for dataset in data.dmp.datasets -%}
+      {%- for tool in dataset.tools -%}
+        {%- if tool.isAvailableInInstitution._value is sameas false and tool.name._value not in toolNames -%}
+          {%- do unavailableToolsUnique.append(tool) -%}
+          {%- do toolNames.append(tool.name._value) -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- if unavailableToolsUnique|length > 0 -%}
+      <p>We require the following tool or software in addition to what is usually available in the institute: {{ unavailableToolsUnique|map(attribute='name._value')|join(', ') }}.</p>
+    {%- else -%}
       <p>We do not require any hardware or software in addition to what is usually available in the institute.</p>
-    {%- elif additionalHWSWAUuid == uuids.additionalHWSWYesAUuid -%}
-      {%- set additionalHWSWWhatPath = [additionalHWSWPath, uuids.additionalHWSWYesAUuid, uuids.additionalHWSWYesWhatQUuid]|reply_path -%}
-      {%- set additionalHWSWWhat = repliesMap[additionalHWSWWhatPath]|reply_str_value -%}
-      {%- if additionalHWSWWhat -%}
-        <p>We require the following hardware or software in addition to what is usually available in the institute: {{ additionalHWSWWhat|dot }}</p>
-      {%- else -%}
-        <p>We require hardware or software in addition to what is usually available in the institute.</p>
-      {%- endif -%}
     {%- endif -%}
-    {# charges #}
-    <p>Charges applied by data repositories (if any) are mentioned already in Section 4, Question 11.</p>
-    {# costs #}
-    {%- set projectPath = [uuids.adminDetailsCUuid, uuids.projectsQUuid]|reply_path -%}
-    {%- set projectItems = repliesMap[projectPath]|reply_items -%}
-    {%- if projectItems|length > 0 -%}
-    <p>Following resources will be dedicated to data management and ensuring that data will be FAIR:</p>
-    <ul>
-        {%- for i in projectItems -%}
-            {%- set projectItem = [projectPath, i]|reply_path -%}
-            {%- set projectItemNameQUuid = [projectItem, uuids.projectNameQUuid]|reply_path -%}
-            {%- set projectItemNameReply = repliesMap[projectItemNameQUuid]|reply_str_value -%}
 
-            {%- set projectItemNumberQUuid = [projectItem, uuids.projectNumberQUuid]|reply_path -%}
-            {%- set projectItemNumberReply = repliesMap[projectItemNumberQUuid]|reply_str_value -%}
-            <li> 
-                <strong>{{ projectItemNameReply if projectItemNameReply else "(no name given)" }}{{ " - " + projectItemNumberReply if projectItemNumberReply}} </strong>
+    {# Archiving (Cold storage) #}
+  {%- if data.dmp.datasets|length > 0 -%}
+    <p>The following part describes how data will be archived and preserved for the long term, including funding sources and minimum retention periods for each dataset:</p>
+      <ul>
 
-                {%- set projectCostPath = [projectItem, uuids.costQUuid]|reply_path -%}
-                {%- set projectCostItems = repliesMap[projectCostPath]|reply_items -%}
+      {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
+        <li style="margin-bottom: 2em;">
 
-                {%- if projectCostItems|length > 0  -%}
-                    <ul>
-                    {%- for j in projectCostItems -%}
-                        {%- set projectCostItem = [projectCostPath, j]|reply_path -%}
-                        {%- set projectCostItemTitleQUuid = [projectCostItem, uuids.costTitleQUuid]|reply_path -%}
-                        {%- set projectCostItemTitleReply = repliesMap[projectCostItemTitleQUuid]|reply_str_value -%}
-                        <li>
-                        <strong>{{ projectCostItemTitleReply if projectCostItemTitleReply else "(no name given)" }}</strong>
-                        
-                        {%- set projectCostItemDescriptionQUuid = [projectCostItem, uuids.costDescriptionQUuid]|reply_path -%}
-                        {%- set projectCostItemDescriptionReply = repliesMap[projectCostItemDescriptionQUuid]|reply_str_value  -%}
-                        
-                        {{" - "+projectCostItemDescriptionReply|dot}}
+        {# --- Build the dataset list (if not all) --- #}
+        {% if preservationStrategy.usedBy | length == data.dmp.datasets | length %}
+          {% set datasetText = "all datasets generated within " ~ globals.projects %}
+          {% set datasets = [] %}
+          <p>All datasets generated within {{ globals.projects }} will have be archived and preserved in the same way.</p>
+        {% else %}
+          {% set datasets = [] %}
+          {% for datasetUuid in preservationStrategy.usedBy %}
+            {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
+            {% if ds %}
+              {% if ds.name._raw %}
+                {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
+              {% elif ds.name %}
+                {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
+              {% else %}
+                {% do datasets.append("<strong>(no name)</strong>") %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% set datasetText = datasets | join(", ") | safe %}
+          <p>The following datasets are subject to the same archivation and preservation conditions: {{ datasetText }}. The relevant conditions are detailed below.</p>
+        {% endif %}
+        {% set numDatasets = preservationStrategy.usedBy | length %}
 
-                        {%- set projectCostItemCurrencyQUuid = [projectCostItem, uuids.costCurrencyQUuid]|reply_path  -%}
-                        {%- set projectCostItemCurrencyReply = repliesMap[projectCostItemCurrencyQUuid] -%}
+        {%- if preservationStrategy.usesLongTermStorageDuringProject._value is sameas true and preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
+          We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }} but also already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
+        {%- elif preservationStrategy.usesLongTermStorageDuringProject._value is sameas true %}
+          We will be archiving data (using so-called 'cold storage') for long term preservation already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
+        {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
+          We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
+        {%- endif -%}
 
+        {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
+          {%- if preservationStrategy.longTermStorageAfterProject -%}
+            {%- set longTermStorageAfterProject = preservationStrategy.longTermStorageAfterProject -%}
+            {# Paying #}
+            {%- if longTermStorageAfterProject.funder._value -%}
+              {%- if longTermStorageAfterProject.funder._value == "grant" %}
+                The costs for archiving data will be paid from the grant.
+              {%- elif longTermStorageAfterProject.funder._value == "department" %}
+                The costs for archiving data will be paid out of departmental budgets from one or more of the {{globals.projects}} participants.
+              {%- elif longTermStorageAfterProject.funder._value == "institute" %}
+                The used data archiving service is budgeted by one or more of the participating institutes.
+              {%- endif -%}
+              {{  macros.linkQuestion(longTermStorageAfterProject.funder._path) }}
+            {%- endif -%}
+          {%- endif -%}
 
-                        {%- set projectCostItemAmountQUuid = [projectCostItem, uuids.costAmountQUuid]|reply_path   -%}
-                        {%- set projectCostItemAmountReply = repliesMap[projectCostItemAmountQUuid]|reply_str_value -%}
+          {# Lifetime #}
+          {%- if longTermStorageAfterProject.minimumLifeTimeYears._value == "5" %}
+            The minimum lifetime of the archive is 5 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value == "10" %}
+            The minimum lifetime of the archive is 10 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value == "15" %}
+            The minimum lifetime of the archive is 15 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value -%}
+            {%- set end = " year." if (longTermStorageAfterProject.minimumLifeTimeYears._value == "1") else " years." %}
+            The minimum lifetime of the archive is {{longTermStorageAfterProject.minimumLifeTimeYears._value}} {{end}}{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeOther._value  %}
+            The minimum lifetime of the archive is specially arranged {{longTermStorageAfterProject.minimumLifeTimeOther._value}}. {{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeOther._path) }}
+          {%- endif -%}
 
-                        {%- if  projectCostItemAmountReply and projectCostItemCurrencyReply -%}
-                            <p>The amount is {{projectCostItemAmountReply}} {{projectCostItemCurrencyReply.value.value.value.rsplit(", ")[1]}}.</p>
-                        {%- endif -%}
+          {# Extending #}
+          {%- if longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas true -%}
+            {%- set archivalPeriodExtension = longTermStorageAfterProject.archivalPeriodExtension -%}
+            {%- if archivalPeriodExtension.archivalExtensionDecisionMaker._value == "principle_investigator" %}
+              The archival period can be extended &ndash; one of the principle investigators involved in the {{globals.projects}} will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "archive_staff" %}
+              The archival period can be extended &ndash; library or archive staff will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+            {%- endif -%}
 
-                        {%- set projectCostItemAllocationQUuid = [projectCostItem, uuids.costAllocationQUuid]|reply_path  -%}
-                        {%- set projectCostItemAllocationItems = repliesMap[projectCostItemAllocationQUuid]|reply_items -%}
+            {%- set criteria = "" -%}
+            {%- set actual = 'actual' in archivalPeriodExtension.archivalExtensionDecisionCriteria if archivalPeriodExtension.archivalExtensionDecisionCriteria else false -%}
+            {%- set predicted = 'predicted' in archivalPeriodExtension.archivalExtensionDecisionCriteria if archivalPeriodExtension.archivalExtensionDecisionCriteria else false -%}
+            {%- set budget = 'budget' in archivalPeriodExtension.archivalExtensionDecisionCriteria if archivalPeriodExtension.archivalExtensionDecisionCriteria else false -%}
+            {%- if actual and predicted -%}
+              {%- set criteria = "both the actual and predicted use of the archived data" -%}
+            {%- elif actual -%}
+              {%- set criteria = "the actual use of the archived data" -%}
+            {%- elif predicted -%}
+              {%- set criteria = "the predicted use of the archived data" -%}
+            {%- endif -%}
+            {%- if budget and criteria %}
+              The decision whether or not to extend the renewal be based on available budget as well as  ~ {{criteria}}.
+            {%- elif budget %}
+              The decision whether or not to extend the renewal be based on available budget.
+            {%- elif actual or predicted %}
+              The decision whether or not to extend the renewal be based on {{criteria}}.
+            {%- endif -%}
 
-                        
-                          {%- set projectCostItemAllocations = [] -%}
-                          {%- if uuids.costAllocationFindabilityAUuid in projectCostItemAllocationItems -%}
-                            {%- do projectCostItemAllocations.append("ensuring findability") -%}
-                          {%- endif -%}
-                          {%- if uuids.costAllocationAccessibilityAUuid in projectCostItemAllocationItems -%}
-                            {%- do projectCostItemAllocations.append("ensuring accessibility") -%}
-                          {%- endif -%}
-                          {%- if uuids.costAllocationInteroperabilityAUuid in projectCostItemAllocationItems -%}
-                            {%- do projectCostItemAllocations.append("ensuring interoperability") -%}
-                          {%- endif -%}
-                          {%- if uuids.costAllocationReusabilityAUuid in projectCostItemAllocationItems -%}
-                            {%- do projectCostItemAllocations.append("ensuring reusability") -%}
-                          {%- endif -%}
-                          {%- if uuids.costManagementAUuid in projectCostItemAllocationItems -%}
-                            {%- do projectCostItemAllocations.append("supporting management") -%}
-                          {%- endif -%}
-                        
-                        {%- if projectCostItemAllocations|length > 0 -%}
-                          <p>
-                            This resource is allocated for{{+" "}}
-                            {%- if projectCostItemAllocations|length > 2 -%}
-                              {{ projectCostItemAllocations[0:-1]|join(", ") }}, and {{ projectCostItemAllocations[-1] }} of data.
-                            {%- elif projectCostItemAllocations|length == 2 -%}
-                              {{ projectCostItemAllocations[0] }} and {{ projectCostItemAllocations[1] }} of data.
-                            {%- else -%}
-                              {{ projectCostItemAllocations[0] }} of data.
-                            {%- endif %}
-                          </p>
-                        {%- endif -%}
-                       
- 
-                        {%- set projectCostItemCoverQUuid = [projectCostItem, uuids.costCoverQUuid]|reply_path  -%}
-                        {%- set projectCostItemCoverReply = repliesMap[projectCostItemCoverQUuid]|reply_str_value -%}
+          {%- elif longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas false -%}
+            {%- if longTermStorageAfterProject.noArchivalPeriodExtensionReason._value == "law" %}
+              The archival period cannot be extended as it is limited by law or contract.
+            {%- elif longTermStorageAfterProject.noArchivalPeriodExtensionReason._value == "cost" %}
+              The archival period cannot be extended as it is limited by budget.
+            {%- endif -%}
+            {{ macros.linkQuestion(longTermStorageAfterProject.isArchivalPeriodExtendable._path) }}
+          {%- endif -%}
 
-                        {%- if projectCostItemCoverReply == uuids.costCoverGrantAUuid -%}
-                          {%- set costCoverGrantIdQUuid = [projectCostItemCoverQUuid, uuids.costCoverGrantAUuid, uuids.costCoverGrantIdQUuid]|reply_path -%}
-                          {%- set costCoverGrantIdReply = repliesMap[costCoverGrantIdQUuid]|reply_str_value -%}
-                          <p>This cost will be covered by funding grant
-                          {%- if costCoverGrantIdReply -%}
-                            {{" "}}(grant number: {{costCoverGrantIdReply}})
-                          {%- else -%}
-                            . </p>
-                          {%- endif -%}
-                        {%- elif projectCostItemCoverReply == uuids.costCoverOtherAUuid -%}
-                          {%- set costCoverOtherHowQUuid = [projectCostItemCoverQUuid,uuids.costCoverOtherAUuid, uuids.costCoverOtherHowQUuid]|reply_path  -%}
-                          {%- set costCoverOtherHowReply = repliesMap[costCoverOtherHowQUuid]|reply_str_value -%}
-                          {%- if costCoverOtherHowReply -%}
-                            <p>This cost will be covered as follows: {{costCoverOtherHowReply}}.</p>
-                          {%- endif -%}
+          {# Upgrades (format) #}
+          {%- if longTermStorageAfterProject.isFormatUpgradePlanned -%}
+            {%- if longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas true %}
+              Data formats of data in cold storage will be upgraded if they become obsolete.
+            {%- elif longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas false %}
+              Data formats of data in cold storage will not be upgraded over time.
+            {%- endif -%}
+            {{ macros.linkQuestion(longTermStorageAfterProject.isFormatUpgradePlanned._path) }}
+          {%- endif -%}
 
-                        {%- endif -%}
-
-
-                        </li>
-                    {%- endfor -%}
-                    </ul>
-                {%- endif -%}
-
-            </li>
-
-        {%- endfor -%}
-    </ul>
+          {# Upgrades (media) #}
+          {%- if longTermStorageAfterProject.isMediaUpgradePlanned -%}
+            {%- if longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas true %}
+              Archived data will be migrated regularly to more modern storage media (e.g. newer tapes).
+            {%- elif longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas false %}
+              Archived data will not be migrated to other storage media over time.
+            {%- endif -%}
+            {{ macros.linkQuestion(longTermStorageAfterProject.isMediaUpgradePlanned._path) }}
+          {%- endif -%}
+        {%- endif -%}
+        </p>
+        </li>
+      {%- endfor -%}
+      </ul>
+    {%- else -%}
+      <p>No specific measures for long-term preservation have been defined.</p>
     {%- endif -%}
   </div>
 </div>

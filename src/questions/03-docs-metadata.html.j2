@@ -18,6 +18,8 @@
         {% for metadata in data.dmp.sharedResources.metadataSpecifications %}
         <li style="margin-bottom: 1.5em;">
 
+            {{ macros.datasetIntro(metadata, "metadata specification", data.dmp.datasets) }}
+
             {# --- STANDARD METADATA SCHEMA --- #}
             {% if metadata.isStandardMetadata._value is sameas true %}
             <p>
@@ -98,26 +100,6 @@
                     (because: {{ metadata.noAvailableReason._value }}){{ macros.linkQuestion(metadata.noAvailableReason._path) }}
                 {%- endif -%}
             {%- endif -%}
-
-            {# --- DATASETS USING THIS METADATA SPECIFICATION --- #}
-            {% if metadata.usedBy| length == data.dmp.datasets | length %}
-            <p><em>This metadata specification applies to all datasets generated within {{ globals.projects }}.</em></p>
-            {% elif metadata.usedBy | length > 0 %}
-            {% set datasets = [] %}
-            {% for datasetUuid in metadata.usedBy %}
-                {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-                {% if ds %}
-                {% if ds.name._raw %}
-                    {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                {% elif ds.name %}
-                    {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                {% else %}
-                    {% do datasets.append("<strong>(no name)</strong>") %}
-                {% endif %}
-                {% endif %}
-            {% endfor %}
-            <p>This approach applies to {{ datasets | join(", ") | safe }}.</p>
-            {% endif %}
         </li>
         {% endfor %}
         </ul>
@@ -135,6 +117,10 @@
         <ul>
         {% for documentation in data.dmp.sharedResources.documentationSpecifications %}
             <li style="margin-bottom: 1.5em;">
+
+            {{ macros.datasetIntro(documentation, "documentation approach", data.dmp.datasets) }}
+
+            {# Description #}
 
             {% if documentation.description._value %}
                 <p>
@@ -165,28 +151,6 @@
                 {{ macros.linkQuestion(documentation.format._path) }}
                 </p>
             {% endif %}
-
-            {# --- DATASETS USING THIS DOCUMENTATION APPROACH --- #}
-            {% if documentation.usedBy | length == data.dmp.datasets | length %}
-                <p><em>This documentation approach applies to <strong>all datasets</strong> generated within {{ globals.projects }}.</em></p>
-            {% elif documentation.usedBy | length > 0 %}
-                {% set datasets = [] %}
-                {% for datasetUuid in documentation.usedBy %}
-                {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-                {% if ds %}
-                    {% if ds.name._raw %}
-                    {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                    {% elif ds.name %}
-                    {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                    {% else %}
-                    {% do datasets.append("<strong>(no name given)</strong>") %}
-                    {% endif %}
-                {% endif %}
-                {% endfor %}
-                <p>This documentation approach applies to <em>{{ datasets | join(", ") | safe }}</em>.</p>
-            {% else %}
-                <p>No specific datasets have been linked to this documentation approach.</p>
-            {% endif %}
             </li>
         {% endfor %}
         </ul>
@@ -205,6 +169,8 @@
         <ul>
         {% for organisationStrategy in data.dmp.sharedResources.organisationStrategies %}
         <li style="margin-bottom: 1.5em;">
+
+            {{ macros.datasetIntro(organisationStrategy, "file naming and versioning strategy", data.dmp.datasets) }}
 
             {# Relationships between files #}
             {% if organisationStrategy.fileNamingConvention.isRelationshipsBetweenFiles._value is sameas true %}

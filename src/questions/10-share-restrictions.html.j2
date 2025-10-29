@@ -1,0 +1,279 @@
+<div id="q-share-restrictions" class="question">
+  <h3>10. How and when will data be shared? Are there possible restrictions to data sharing or embargo reasons?</h3>
+
+  <div class="answer">
+    {# How data will be shared #}
+    {# Produced datasets #}
+    <h4>How the data will be shared</h4>
+    <ul>
+    {%- for dataset in data.dmp.datasets -%}
+        <li>
+        {%- if dataset.name._raw -%}
+            <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
+        {%- elif dataset.name -%}
+            <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
+        {%- else -%}
+            <strong>(no name given)</strong>
+        {%- endif -%}
+        {# If will be published #}
+        {%- if dataset.isPublished._value is sameas true %} (published){{ macros.linkQuestion(dataset.isPublished._path) }}
+        {%- elif dataset.isPublished._value is sameas false %} (not published){{ macros.linkQuestion(dataset.isPublished._path) }}
+        {%- endif -%}:
+        {# Identifiers #}
+        {%- if dataset.metadata -%}
+            {%- set metadata = data.dmp.sharedResources.metadataSpecifications | selectattr("uuid", "equalto", dataset.metadata) | first -%}
+            {%- if metadata.usesPids._value is sameas true -%}
+                {%- if metadata.whoProvidesPids._value -%}
+                    <p>
+                    {%- if metadata.whoProvidesPids._value == "project" -%}
+                        A persistent identifier (PID) for this dataset will be assigned by the project’s data steward or principal investigator.
+                    {%- elif metadata.whoProvidesPids._value == "institutional" -%}
+                        A persistent identifier (PID) for this dataset will be assigned by the institutional data steward.
+                    {%- elif metadata.whoProvidesPids._value == "repository" -%}
+                        A persistent identifier (PID) for this dataset will be assigned automatically by the data repository upon submission.
+                    {%- elif metadata.whoProvidesPids._value == "provider" -%}
+                        A persistent identifier (PID) for this dataset will be assigned by the national or international PID service provider.
+                    {%- else -%}
+                        A persistent identifier (PID) for this dataset will be assigned by {{ metadata.whoProvidesPids._value }}.
+                    {%- endif -%}
+                    {{ macros.linkQuestion(metadata.whoProvidesPids._path) }}
+                    </p>
+                {%- endif -%}
+            {%- elif metadata.usesPids._value is sameas false -%}
+                <p>A persistent identifier (PID) for this dataset will not be assigned.{{ macros.linkQuestion(dataset.metadata.usesPids._path) }}</p>
+            {%- endif -%}
+        {%- endif -%}
+        {%- if dataset.identifiers|length > 0 %}
+            <p>The dataset has the following identifiers:
+            <ul>
+                {%- for identifier in dataset.identifiers -%}
+                    <li>
+                    {%- if identifier.type._raw and identifier.value._value-%}
+                        <em><a href="{{ identifier.type._raw.homepage }}/{{identifier.value._value}}" target="_blank">{{ identifier.type._raw.homepage }}/{{identifier.value._value}}</a></em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
+                    {%- else -%}
+                        <em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
+                    {%- endif -%}
+                    </li>
+                {%- endfor -%}
+            </ul>
+            </p>
+        {%- endif -%}
+        {# Distributions #}
+        {%- if dataset.distributions|length > 0 -%}
+            <p>This dataset has {{ dataset.distributions|length }} distribution{{ 's' if dataset.distributions|length != 1 else '' }}:
+            <ul>
+            {%- for distribution in dataset.distributions -%}
+                <li>
+                    {%- if distribution.name -%}
+                        <strong>{{ distribution.name._value }}</strong>{{ macros.linkQuestion(distribution.name._path) }}
+                    {%- else -%}
+                        <strong>(no distribution name given)</strong>
+                    {%- endif -%}
+                    {# Sharing mode #}
+                    {%- if distribution.technicalAvailability.accessMode -%}
+                        {%- if distribution.technicalAvailability.accessMode._value == "open" -%}
+                            will be shared openly (available to anyone){{ macros.linkQuestion(distribution.technicalAvailability.accessMode._path) }}.
+                        {%- elif distribution.technicalAvailability.accessMode._value == "shared" -%}
+                            will be shared with specific individuals or groups{{ macros.linkQuestion(distribution.technicalAvailability.accessMode._path) }}.
+                        {%- elif distribution.technicalAvailability.accessMode._value == "closed" -%}
+                            will be shared in a closed manner (e.g., with a specific project team){{ macros.linkQuestion(distribution.technicalAvailability.accessMode._path) }}.
+                        {%- endif -%}
+                    {%- endif -%}
+                    {# When published? #}
+                    {%- if distribution.whenAvailable -%}
+                        <p>
+                        {%- if distribution.whenAvailable.isAvailableImmediately._value is sameas true %}
+                            This distribution will be published as soon as possible after collecting it.{{ macros.linkQuestion(distribution.whenAvailable.isAvailableImmediately._path) }}
+                        {%- elif distribution.whenAvailable.isAvailableImmediately._value is sameas false -%}
+                            {%- set postponedAvailability = distribution.whenAvailable.postponedAvailability %}
+                            This distribution will not be available immediately after collection.{{ macros.linkQuestion(distribution.whenAvailable.isAvailableImmediately._path) }}
+                            {%- if postponedAvailability.isExactStartDateKnown._value is sameas true and postponedAvailability.exactStartDate._value %}
+                                It will be available starting from {{ postponedAvailability.exactStartDate._value }}.{{ macros.linkQuestion(postponedAvailability.exactStartDate._path) }}
+                            {%- elif postponedAvailability.isExactStartDateKnown._value is sameas false and postponedAvailability.availabilityDelayAfterProjectEnd._value %}
+                                It will be available {{ postponedAvailability.availabilityDelayAfterProjectEnd._value }} after the end of the project.{{ macros.linkQuestion(postponedAvailability.availabilityDelayAfterProjectEnd._path) }}
+                            {%- endif -%}
+                            {%- if postponedAvailability.isEmbargoPeriod._value is sameas true %}
+                                There will be an embargo period{{ macros.linkQuestion(postponedAvailability.isEmbargoPeriod._path) }}
+                                    {%- if postponedAvailability.embargoPeriod.durationEmbargoPeriod._value %}
+                                        of {{ postponedAvailability.embargoPeriod.durationEmbargoPeriod._value }}{{ macros.linkQuestion(postponedAvailability.embargoPeriod.durationEmbargoPeriod._path) }}
+                                    {%- endif -%}
+                                    {%- if postponedAvailability.embargoPeriod.reason._value %}
+                                        (reason: {{ postponedAvailability.embargoPeriod.reason._value }}){{ macros.linkQuestion(postponedAvailability.embargoPeriod.reason._path) }}
+                                    {%- endif -%}.
+                            {%- elif postponedAvailability.isEmbargoPeriod._value is sameas false and postponedAvailability.noEmbargoReasonForPostponedAvailability._value %}
+                                There is no embargo period; the postponed availability is due to: {{ postponedAvailability.noEmbargoReasonForPostponedAvailability._value }}{{ macros.linkQuestion(postponedAvailability.noEmbargoReasonForPostponedAvailability._path) }}.
+                            {%- endif -%}
+                        {%- else %}
+                            The availability date for this distribution has not been specified.
+                        {%- endif -%}
+                        </p>
+                    {%- endif -%}
+
+                    {# Free and Standard Protocol #}
+                    {%- if distribution.technicalAvailability -%}
+                        {%- set technicalAvailability = distribution.technicalAvailability -%}
+                        {%- if technicalAvailability.isAccessibleViaStandardProtocol._value is sameas true -%}
+                            <p>This distribution will be accessible via a standard protocol{{ macros.linkQuestion(technicalAvailability.isAccessibleViaStandardProtocol._path) }}
+                            {%- if technicalAvailability.usedStandardProtocol._value %} ({{ technicalAvailability.usedStandardProtocol._value }}){{ macros.linkQuestion(technicalAvailability.usedStandardProtocol._path) }}
+                            {%- endif -%}.</p>
+                        {%- elif technicalAvailability.isAccessibleViaStandardProtocol._value is sameas false -%}
+                            <p>This distribution will not be accessible via a standard protocol{{ macros.linkQuestion(technicalAvailability.isAccessibleViaStandardProtocol._path) }}
+                            {%- if technicalAvailability.notAccessibleViaStandardProtocolReason._value %} because: {{ technicalAvailability.notAccessibleViaStandardProtocolReason._value }}{{ macros.linkQuestion(technicalAvailability.notAccessibleViaStandardProtocolReason._path) }}{%- endif -%}.</p>
+                        {%- endif -%}
+                    {%- endif -%}
+
+                    {# Licenses #}
+                    <p>
+                    {%- if distribution.isLicenseAssignedForDistribution._value is sameas true -%}
+                        {%- if distribution.licensing.isLicenseChosen._value is sameas true and distribution.licensing.licenses|length > 0 -%}
+                            The distribution will be available under the following {{ "licenses" if licensesItems|length > 1 else "license" }}:
+                            <ul>
+                            {%- for license in distribution.licensing.licenses -%}
+                                <li>
+                                    {%- if license.license._raw -%}
+                                        <strong>{{ license.license._raw.name }}</strong>{{ macros.linkQuestion(license.license._path) }}
+                                    {%- elif license.license -%}
+                                        <strong>{{ license.license._value }}</strong>{{ macros.linkQuestion(license.license._path) }}
+                                    {%- else -%}
+                                        <strong>(no name given):</strong>
+                                    {%- endif -%}
+                                    {%- if license.startDate -%}
+                                        <br>Start date: {{ license.startDate._value }}{{ macros.linkQuestion(license.startDate._path) }}
+                                    {%- endif -%}
+                                </li>
+                            {%- endfor -%}
+                            </ul>
+
+                        {%- elif distribution.licensing.isLicenseChosen._value is sameas false %}
+                            No license has been selected for this distribution yet.{{ macros.linkQuestion(distribution.licensing.isLicenseChosen._path) }}
+                            {%- if distribution.licensing.notYetDecidedLicense -%}
+                                {%- if distribution.licensing.notYetDecidedLicense.isOpenLicense._value is sameas true %}
+                                    We intend to use an open license for this distribution.{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense.isOpenLicense._path) }}
+                                    {%- if distribution.licensing.notYetDecidedLicense.licenseBasedOnLicenseSelector %}
+                                        We have used the License Selector tool to help us decide, and as a result, we are considering the following license: {{ distribution.licensing.notYetDecidedLicense.licenseBasedOnLicenseSelector._value }}.{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense.licenseBasedOnLicenseSelector._path) }}
+                                    {%- endif -%}
+                                {%- elif distribution.licensing.notYetDecidedLicense.isOpenLicense._value is sameas false %}
+                                    We do not plan to use an open license for this distribution{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense._path) }} {%- if distribution.licensing.notYetDecidedLicense.noOpenLicenseReason %} because: {{ distribution.licensing.notYetDecidedLicense.noOpenLicenseReason._value }}{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense.noOpenLicenseReason._path) }}{%- endif -%}
+                                {%- endif -%}
+                            {%- endif -%}
+                        {%- else -%}
+                            We plan to assign a license to this distribution, but it has not been specified yet.{{ macros.linkQuestion(distribution.licensing.isLicenseChosen._path) }}
+                        {%- endif -%}
+                    {%- elif distribution.isLicenseAssignedForDistribution._value is sameas false -%}
+                        No license specified for this distribution.{{ macros.linkQuestion(distribution.isLicenseAssignedForDistribution._path) }}
+                    {%- endif -%}
+                    </p>
+                </li>
+            {%- endfor -%}
+            </ul>
+            </p>
+        {%- endif -%}
+        </li>
+    {%- endfor -%}
+    </ul>
+
+    {# Repository #}
+    <h4>Where the data will be shared</h4>
+    {%- if data.dmp.sharedResources.dataStores | length == 0 -%}
+        <p>No data repositories have been specified for sharing the data.</p>
+    {%- else -%}
+        <p>Below, the individual distributions are listed together with information on the repositories in which they will be stored or shared.</p>
+    {%- endif -%}
+    <ul>
+    {%- for dataStorage in data.dmp.sharedResources.dataStores -%}
+        <li>
+        <em>
+            {%- if dataStorage.name -%}
+                {{ dataStorage.name._value }}{{ macros.linkQuestion(dataStorage.name._path) }}
+            {%- else -%}
+                (no name given)
+            {%- endif -%}
+        </em>
+        {%- if dataStorage.url %}
+            (<a href="{{ dataStorage.url._value }}" target="_blank">{{ dataStorage.url._value }}</a>){{ macros.linkQuestion(dataStorage.url._path) }}
+        {%- endif -%}
+        {% if dataStorage.type|length > 0 -%}(
+            {%- for type in dataStorage.type -%}
+                {{ type._label|lower }}{{ ", " if not loop.last else "" }}
+            {%- endfor -%}) {% endif %}
+
+
+        {%- if dataStorage.usedBy | length > 0 -%}
+            <p>The following repository will be used to share the following distributions:</p>
+            {%- for distributionUuid in dataStorage.usedBy -%}
+                {%- for datasetItem in data.dmp.datasets -%}
+                    {%- for distributionItem in datasetItem.distributions -%}
+                        {%- if distributionItem.uuid == distributionUuid -%}
+                            {%- if distributionItem.name -%}
+                            <em>{{ distributionItem.name._value }}</em>{{ macros.linkQuestion(distributionItem.name._path) }}
+                            {%- else -%}
+                                <em>(no distribution name given)</em>
+                            {%- endif -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+                {%- endfor -%}
+                {%- if not loop.last %}, {% endif %}
+            {%- endfor -%}
+        {%- endif -%}
+
+        {# Certification #}
+        {%- if dataStorage.storage.isCertified or dataStorage.storage.supportsVersioning  -%}
+            The repository
+            {% if dataStorage.storage.isCertified._value is sameas true %}
+                is certified{{ macros.linkQuestion(dataStorage.storage.certification._path) }}{% if dataStorage.storage.certification %} ({{ dataStorage.storage.certification._label }}){{ macros.linkQuestion(dataStorage.storage.certification._path) }}{% endif %}
+            {% elif dataStorage.storage.isCertified._value is sameas false %}
+                is not certified{{ macros.linkQuestion(dataStorage.storage.certification._path) }}
+            {% endif %}
+
+            {%- if  dataStorage.storage.isCertified and dataStorage.storage.supportsVersioning %} and{% else %}.{% endif %}
+
+            {# Versioning #}
+            {% if dataStorage.storage.supportsVersioning._value is sameas true %}
+                supports versioning of the data.{{ macros.linkQuestion(dataStorage.storage.supportsVersioning._path) }}
+            {% elif dataStorage.storage.supportsVersioning._value is sameas false %}
+                does not support versioning of the data.{{ macros.linkQuestion(dataStorage.storage.supportsVersioning._path) }}
+            {% endif %}
+        {%- endif -%}
+
+        {# PID systems #}
+        {% if dataStorage.storage.pidSystems|length > 0 %}
+            It uses the following persistent identifier system{% if dataStorage.storage.pidSystems|length > 1 %}s{% endif %}: {{ macros.linkQuestion(dataStorage.storage.pidSystems[0]._path) }}
+            <em>
+            {%- for pidSystemItem in dataStorage.storage.pidSystems -%}
+                {%- if pidSystemItem.pidSystem._raw -%}
+                    {{ pidSystemItem.pidSystem._raw.name  }} - {{ pidSystemItem.pidSystem._raw.homepage }}
+                {%- else -%}
+                    {{ pidSystemItem.pidSystem._value }}
+                {%- endif -%}
+                {{ ", " if not loop.last else "" }}
+            {%- endfor -%}
+            </em>
+            {# Resolvable PID #}
+            {% if dataStorage.storage.resolvablePid._value is sameas true %}
+                with resolvable persistent identifiers.{{ macros.linkQuestion(dataStorage.storage.resolvablePid._path) }}
+            {% elif dataStorage.storage.resolvablePid._value is sameas false %}
+                but does not use resolvable persistent identifiers.{{ macros.linkQuestion(dataStorage.storage.resolvablePid._path) }}
+            {% endif %}
+        {% else %}
+            {% if dataStorage.storage.resolvablePid._value is sameas true %}
+                It supports resolvable persistent identifiers.{{ macros.linkQuestion(dataStorage.storage.resolvablePid._path) }}
+            {% elif dataStorage.storage.resolvablePid._value is sameas false %}
+                It does not support resolvable persistent identifiers.{{ macros.linkQuestion(dataStorage.storage.resolvablePid._path) }}
+            {% endif %}
+        {% endif %}
+
+        {# Repository requirements #}
+        {%- if dataStorage.agreementOnStorageInfrastructureUse._value -%}
+            Accessing and using the hosting infrastructure may require following steps and agreements: {{ dataStorage.agreementOnStorageInfrastructureUse._value }}.{{ macros.linkQuestion(dataStorage.agreementOnStorageInfrastructureUse._path) }}
+        {%- endif -%}
+
+        </li>
+    {%- endfor -%}
+    </ul>
+
+
+    {# Restrictions #}
+    <h4>Restrictions on data sharing</h4>
+    <p>Ethical and legal restrictions are documented under Section 4. We have used the {{ globals.fullName }}, which made us aware of options to minimize the restrictions.</p>
+  </div>
+</div>

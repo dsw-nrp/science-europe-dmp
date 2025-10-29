@@ -14,6 +14,9 @@
             <ul>
             {% for collection in data.dmp.sharedResources.collections %}
                 <li style="margin-bottom: 2em;">
+
+                {{ macros.datasetIntro(collection, "data collection processes", data.dmp.datasets) }}
+
                 {# --- Measuring equipment collection --- #}
                 {% if collection.isEquipmentCollection._value is sameas true %}
                     {% set equipmentCollection = collection.equipmentCollection %}
@@ -227,34 +230,16 @@
                 {% else %}
                 <p>No specific validation steps were defined for verifying the integrity of results.</p>
                 {% endif %}
-                {% if env.usedBy | length == data.dmp.datasets | length %}
-                    <p>This validation process applies to all datasets generated within {{ globals.projects }}.</p>
-                {% else %}
-                    {% set datasets = [] %}
-                    {% for datasetUuid in env.usedBy %}
-                    {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-                    {% if ds %}
-                        {% if ds.name._raw %}
-                        {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                        {% elif ds.name %}
-                        {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-                        {% else %}
-                        {% do datasets.append("<strong>(no name)</strong>") %}
-                        {% endif %}
-                    {% endif %}
-                    {% endfor %}
-                    <p>Applies to {{ datasets | join(", ") | safe }}.</p>
-                {% endif %}
                 </li>
             {% endfor %}
             </ul>
 
         {% else %}
-        <p>No validation of data integrity is planned for this {{ globals.projects }}.</p>
+        <p>No validation of data integrity is planned for the {{ globals.projects }}.</p>
         {% endif %}
 
     {% else %}
-    <p>No datasets are expected to be generated in this {{ globals.projects }}.</p>
+    <p>No datasets are expected to be generated in the {{ globals.projects }}.</p>
     {% endif %}
 
     {# Re-used datasets #}

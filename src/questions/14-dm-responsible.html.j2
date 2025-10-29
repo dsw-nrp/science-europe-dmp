@@ -1,0 +1,77 @@
+<div id="q-dm-responsible" class="question">
+  <h3>14. Who (for example role, position, and institution) will be responsible for data management (i.e. the data steward)?</h3>
+
+  <div class="answer">
+
+    {# Contributors and responsibilities #}
+    {%- set contributors = data.dmp.collaboration.contributors -%}
+    {%- if contributors|length > 0 -%}
+      {%- set roles = {} -%}
+      {%- for contributor in contributors -%}
+        {%- set name = contributor.name if contributor.name and contributor.name else "(no name given)" -%}
+        {%- if contributor.roles and contributor.roles|length > 0 -%}
+          {%- for role in contributor.roles -%}
+            {%- set role_name = role if role else "(no role given)" -%}
+            {%- if roles[role_name] is defined -%}
+              {%- set _ = roles[role_name].append(name) -%}
+            {%- else -%}
+              {%- set _ = roles.update({role_name: [name]}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- else -%}
+          {%- set role_name = "(no role given)" -%}
+          {%- if roles[role_name] is defined -%}
+            {%- set _ = roles[role_name].append(name) -%}
+          {%- else -%}
+            {%- set _ = roles.update({role_name: [name]}) -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {# Role definitions mapping #}
+      {%- set role_definitions = {
+        "Project Manager": "responsible for implementing the DMP, and ensuring it is reviewed and revised.",
+        "Data Curator": "responsible for reviewing, enhancing, cleaning, or standardizing metadata and the associated data submitted for storage, use and maintenance within a data centre or repository.",
+        "Data Collector": "responsible for finding, gathering, and collecting data.",
+        "Data Manager": "responsible for maintaining the finished resource.",
+        "Data Steward": "responsible for the management and proficiency of data including data processing, data policies, data guidelines, and data availability.",
+        "Distributor": "responsible for generating and disseminating copies of the resource in either electronic or print form.",
+        "Data Protection Officer": "responsible for all issues relating to the protection of personal data and data protection policies in general.",
+        "Contact Person": "responsible for responding to inquiries regarding the resource and providing additional information when necessary.",
+        "Editor": "responsible for reviewing, revising, and preparing content for publication or distribution, ensuring quality and consistency.",
+        "Producer": "responsible for overseeing the production of the data or resource, including managing workflows, quality, and outputs.",
+        "Project Leader": "responsible for overall direction, strategic decisions, and the success of the project.",
+        "Project Member": "responsible for contributing to the execution of the project tasks under the guidance of project leadership.",
+        "Researcher": "responsible for conducting research activities, generating and analyzing data, and contributing domain expertise.",
+        "Rights Holder": "responsible for holding the legal rights to the data or resource, including intellectual property or licensing.",
+        "Sponsor": "responsible for funding or supporting the project, either financially or through in-kind contributions.",
+        "Supervisor": "responsible for overseeing and mentoring researchers or team members to ensure scientific and ethical integrity.",
+        "Work Package Leader": "responsible for coordinating a specific work package within a larger project, ensuring tasks and deliverables are met.",
+        "Creator of DMP": "responsible for drafting and maintaining the Data Management Plan (DMP), ensuring alignment with funder and institutional policies.",
+        "Other": "responsible for contributing to the project in a role that does not fall under the standard set of defined responsibilities, but is essential to its success."
+      } -%}
+
+      {%- if roles|length > 0 -%}
+      Contributors and their responsibilities within the {{ globals.projects }}:
+        {%- for role, names in roles.items() -%}
+          {%- if names|length > 0 -%}
+          <p>
+            {%- set nNames = names|length -%}
+              {%- for i in names -%}
+                {{ i._value }}{{ macros.linkQuestion(i._path) }}
+                {%- if loop.index < nNames - 1 -%}, 
+                {%- elif loop.index == nNames - 1 -%} and {{" "}}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if nNames > 1 -%} are
+              {%- else -%} is
+              {%- endif -%}
+            {# Print definition if available, else fallback to role name #}
+            {{ role_definitions[role] if role_definitions[role] is defined else role }}
+          </p>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>

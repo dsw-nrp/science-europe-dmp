@@ -5,33 +5,12 @@
 <div class="answer">
   {%- if data.dmp.datasets | length > 0 -%}
     {%- if data.dmp.sharedResources.reuseRestrictions | length > 0 -%}
-      <p>In our {{ globals.project }}, there {{ 'is' if data.dmp.sharedResources.reuseRestrictions | length == 1 else 'are' }} {{ data.dmp.sharedResources.reuseRestrictions | length }} approach{{ 'es' if data.dmp.sharedResources.reuseRestrictions | length != 1 else '' }} towards ownership, intellectual property rights, and access conditions, as described below:</p>
+      <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.reuseRestrictions | length == 1 else 'are' }} {{ data.dmp.sharedResources.reuseRestrictions | length }} approach{{ 'es' if data.dmp.sharedResources.reuseRestrictions | length != 1 else '' }} towards ownership, intellectual property rights, and access conditions, as described below:</p>
       <ul>
       {%- for reuseRestriction in data.dmp.sharedResources.reuseRestrictions -%}
         <li style="margin-bottom: 2em;">
 
-        {# --- Build the dataset list (if not all) --- #}
-        {% if reuseRestriction.usedBy | length == data.dmp.datasets | length %}
-          {% set datasetText = "all datasets generated within " ~ globals.projects %}
-          {% set datasets = [] %}
-          <p>All datasets generated within {{ globals.projects }} will follow harmonised access governance, applying consistent rules for ownership, reuse, security controls, licensing, and retention.</p>
-        {% else %}
-          {% set datasets = [] %}
-          {% for datasetUuid in reuseRestriction.usedBy %}
-            {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-            {% if ds %}
-              {% if ds.name._raw %}
-                {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-              {% elif ds.name %}
-                {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-              {% else %}
-                {% do datasets.append("<strong>(no name)</strong>") %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {% set datasetText = datasets | join(", ") | safe %}
-          <p>The following datasets are subject to the same ownership, access, and reuse restrictions: {{ datasetText }}. The relevant conditions are detailed below.</p>
-        {% endif %}
+        {{ macros.datasetIntro(reuseRestriction, "ownership, intellectual property rights, and access conditions", data.dmp.datasets) }}
         {% set numDatasets = reuseRestriction.usedBy | length %}
         {%- set accessRestriction = reuseRestriction.accessRestriction -%}
 

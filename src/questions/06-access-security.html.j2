@@ -24,26 +24,7 @@
         <li style="margin-bottom: 2em;">
 
         {# --- Build the dataset list (if not all) --- #}
-        {% if collection.usedBy | length == data.dmp.datasets | length %}
-            {% set datasetText = "all datasets generated within " ~ globals.projects %}
-            {% set datasets = [] %}
-            <p>All datasets generated within {{ globals.projects }} will have the same access and security measures for sensitive data in place.</p>
-        {% else %}
-          {% set datasets = [] %}
-          {% for datasetUuid in collection.usedBy %}
-            {% set ds = data.dmp.datasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
-            {% if ds %}
-              {% if ds.name._raw %}
-                {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ macros.linkQuestion(ds.name._path)) %}
-              {% elif ds.name %}
-                  {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ macros.linkQuestion(ds.name._path)) %}
-              {% else %}
-                  {% do datasets.append("<strong>(no name)</strong>") %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {% set datasetText = datasets | join(", ") | safe %}
-        {% endif %}
+        {{ macros.datasetIntro(collection, "sensitive data handling", data.dmp.datasets) }}
         {% set numDatasets = collection.usedBy | length %}
 
         {# Personal Data #}

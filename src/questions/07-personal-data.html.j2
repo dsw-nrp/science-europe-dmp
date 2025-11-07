@@ -16,14 +16,13 @@
         {%- endfor -%}
 
         {%- if personalDataCollections | length > 0 -%}
-            <p>There {{ 'is' if personalDataCollections | length == 1 else 'are' }} {{ personalDataCollections | length }} approach{{ 'es' if personalDataCollections | length != 1 else '' }} to handling personal data in this project, as outlined below:</p>
+            <p>There {{ 'is' if personalDataCollections | length == 1 else 'are' }} {{ personalDataCollections | length }} approach{{ 'es' if personalDataCollections | length != 1 else '' }} towards handling personal data in the {{ globals.projects }}, as outlined below:</p>
             <ul>
             {%- for collection in personalDataCollections -%}
             <li style="margin-bottom: 2em;">
 
                 {{ macros.datasetIntro(collection, "personal data handling", data.dmp.datasets) }}
                 {% set numDatasets = collection.usedBy | length %}
-
 
                 {%- set personalDataCollection = collection.sensitiveDataCollection.personalDataCollection -%}
                 {# Legal base #}
@@ -37,7 +36,7 @@
                     {%- endif -%}
                     {%- if personalDataCollection.subjectConsent.isAvailableForReuse._value is sameas true %}
                         The consent form will be available for re-users.{{ macros.linkQuestion(personalDataCollection.subjectConsent.isAvailableForReuse._path) }}
-                        {%- if personalDataCollection.subjectConsent.availableForReuse.howOrganized -%}
+                        {%- if personalDataCollection.subjectConsent.availableForReuse.howOrganized %}
                             The consent form files are organised as follows:
                             {{ personalDataCollection.subjectConsent.availableForReuse.howOrganized._value }}.{{ macros.linkQuestion(personalDataCollection.subjectConsent.availableForReuse.howOrganized._path) }}
                         {%- endif -%}
@@ -104,7 +103,7 @@
                                 </ul>
                             {%- endif -%}
                             {%- if nonAnonymizedDataset.dpia.conducted|length > 0 %}
-                                The DPIA was conducted for the following parts of the data:{{ macros.linkQuestion(nonAnonymizedDataset.dpia.conducted[0].dataSubject._path) }}
+                                The DPIA covers the following components of the data:{{ macros.linkQuestion(nonAnonymizedDataset.dpia.conducted[0].dataSubject._path) }}
                                 <ul>
                                     {%- for dataPart in nonAnonymizedDataset.dpia.conducted -%}
                                         {%- set details = [] -%}

@@ -3,8 +3,10 @@
 
   <div class="answer">
     {# How data will be shared #}
-    {# Produced datasets #}
     <h4>How the data will be shared</h4>
+    {%- if data.dmp.datasets|length == 0 -%}
+        <p>There are no datasets described in the {{ globals.projects }}.</p>
+    {%- endif -%}
     <ul>
     {%- for dataset in data.dmp.datasets -%}
         <li>
@@ -167,6 +169,8 @@
             {%- endfor -%}
             </ul>
             </p>
+        {%- else -%}
+            <p>This dataset has no distributions defined yet.</p>
         {%- endif -%}
         </li>
     {%- endfor -%}
@@ -270,7 +274,6 @@
         </li>
     {%- endfor -%}
     </ul>
-
 
     {# Restrictions #}
     <h4>Restrictions on data sharing</h4>

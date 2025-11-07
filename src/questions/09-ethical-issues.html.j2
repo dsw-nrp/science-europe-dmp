@@ -5,12 +5,12 @@
 
   {%- if data.dmp.datasets | length > 0 -%}
     {%- if data.dmp.sharedResources.collections | length > 0 -%}
-      <p>In our {{ globals.project }}, there {{ 'is' if data.dmp.sharedResources.collections | length == 1 else 'are' }} {{ data.dmp.sharedResources.collections | length }} approach{{ 'es' if data.dmp.sharedResources.collections | length != 1 else '' }} towards ownership, intellectual property rights, and access conditions, as described below:</p>
+      <p>In our {{ globals.projects }}, ethical considerations and codes of conduct have been identified and are detailed below.</p>
       <ul>
       {%- for collection in data.dmp.sharedResources.collections -%}
         <li style="margin-bottom: 2em;">
 
-        {{ macros.datasetIntro(collection, "ethical issues", data.dmp.datasets) }}
+        {{ macros.datasetIntro(collection, "ethical issues and codes of conduct", data.dmp.datasets) }}
         {% set numDatasets = collection.usedBy | length %}
         {%- set accessRestriction = collection.accessRestriction -%}
 
@@ -48,10 +48,10 @@
       {%- endfor -%}
       </ul>
     {%- else -%}
-      <p>No shared resource collections have been defined for this project. Therefore, there are no harmonised ethical issues or codes of conduct to report.</p>
+      <p>No shared resource collections have been defined for the {{ globals.projects }}. Therefore, there are no harmonised ethical issues or codes of conduct to report.</p>
     {%- endif -%}
   {%- else -%}
-    <p>No datasets have been defined for this project. Therefore, there are no ethical issues or codes of conduct to report.</p>
+    <p>No datasets have been defined for the {{ globals.projects }}. Therefore, there are no ethical issues or codes of conduct to report.</p>
   {%- endif -%}
 
   {# projects - legislation #}
@@ -65,7 +65,7 @@
   {%- endfor -%}
 
   {%- if filtered_policies | length > 0 -%}
-  The following institutional, national, or funder policies and procedures relevant to ethics and research integrity are applicable to {{ globals.project }}:
+  The following institutional, national, or funder policies and procedures relevant to ethics and research integrity are applicable to {{ globals.projects }}:
     <ul>
     {%- for policyItem in filtered_policies -%}
       <li>
@@ -79,8 +79,7 @@
     {%- endfor -%}
     </ul>
   {%- else -%}
-    <p>No policies found with scope of ethics and research integrity.</p>
+    <p>There are no policies applicable to the scope of ethics and research integrity for the {{ globals.projects }}.</p>
   {%- endif -%}
-
   </div>
 </div>

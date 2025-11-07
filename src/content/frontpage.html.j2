@@ -1,26 +1,121 @@
 <header>
-  <center>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/European_Commission_Document_SVG.svg/320px-European_Commission_Document_SVG.svg.png" height="78" width="160" class="eu-header" />
-  </center>
-  <h1>{{data.meta.document.name}}</h1>
-  <center>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/320px-Flag_of_Europe.svg.png" height="213" width="320" class="eu-flag" />
-  </center>
-  <h3>
-    Horizon Europe<br/>
-    Data Management Plan
-  </h3>
+  <p class="dmp"></p>
+  <h1>
+    {{ ctx.questionnaire.name }}
+  </h1>
+  <div class="dmp-info">
+    <dl>
+      {%- if data.dmp.collaboration.contributors|length > 0 -%}
+        {%- set contacts = [] -%}
+        {%- set creators = [] -%}
+        {%- for i in data.dmp.collaboration.contributors -%}
+          {%- if "Contact Person" in i.roles -%}
+            {% do contacts.append(i)  %}
+          {%- endif -%}
+          {%- if "Creator of DMP" in i.roles -%}
+            {% do creators.append(i)  %}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- set nContacts = contacts|length -%}
+        <dt>Contact {{ "people" if (nContacts > 1) else "person" }}</dt>
+        <dd>
+          {%- if nContacts > 0 -%}
+            <ul>
+              {%- for i in contacts -%}
+                <li>
+                  {%- if i.name -%}
+                    <span class="name"><strong>{{ i.name._value }}</strong>{{ macros.linkQuestion(i.name._path) }}</span>
+                  {%- else -%}
+                    <span class="name"><strong>(no name given)</strong></span>
+                  {%- endif -%}
+                  {{- " (" if i.email or i.orcid else "" -}}
+                  {%- if i.email -%}
+                      {{macros.formatEmail(i.email) }}{{ macros.linkQuestion(i.email._path) }}
+                  {%- endif -%}
+                  {{ ", " if i.email and i.orcid else "" }}
+                  {%- if i.orcid -%}
+                      {{ macros.formatOrcid(i.orcid) }}{{ macros.linkQuestion(i.orcid._path) }}
+                  {%- endif -%}
+                  {{- ") " if i.email or i.orcid else "" -}}
+                  {%- if i.affiliation -%}
+                      {%- if i.affiliation._raw-%}
+                          {% for name in i.affiliation._raw.names -%}
+                              {% if "ror_display" in name.types %}
+                                  <br>Affiliation: <span class="affiliation"><a href="{{ i.affiliation._raw.id }}">{{ name.value }}</a></span>{{ macros.linkQuestion(i.affiliation._path) }}
+                              {% endif %}
+                          {%- endfor %}
+                      {%- else -%}
+                          <br>Affiliation: <span class="affiliation"> {{ i.affiliation._value }}</span>{{ macros.linkQuestion(i.affiliation._path) }}
+                      {%- endif -%}
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <span class="empty-value">There is no contact person specified yet</span>
+          {%- endif -%}
+        </dd>
+      {%- endif -%}
 
-  <div class="info">
-    <div class="version-info">
-      {% for version in dc.qtn.versions if version.uuid == dc.qtn.version %}
-        <div class="version">{{version.name}}</div>
+      <dt>Based on</dt>
+      <dd>{{ ctx.package.name }}, {{ ctx.package.version }} (<span class="package-id"><span class="organization-id">{{ ctx.package.organizationId }}</span>:<span class="km-id">{{ ctx.package.kmId }}</span>:<span class="version">{{ ctx.package.version }}</span></span>)</dd>
+
+      {%- if ctx.phaseUuid -%}
+      <dt>Project phase</dt>
+      <dd>{{ km.entities.phases[ctx.phaseUuid].title }}</dd>
+      {%- endif -%}
+
+      {%- set nCreators = creators|length -%}
+      <dt>Created by</dt>
+        <dd>
+          {%- if nCreators > 0 -%}
+            <ul>
+                {%- for i in creators -%}
+                  <li>
+                    {%- if i.name -%}
+                      <span class="name"><strong>{{ i.name._value }}</strong>{{ macros.linkQuestion(i.name._path) }}</span>
+                    {%- else -%}
+                      <span class="name"><strong>(no name given)</strong></span>
+                    {%- endif -%}
+                    {{- " (" if i.email or i.orcid else "" -}}
+                    {%- if i.email -%}
+                        {{macros.formatEmail(i.email) }}{{ macros.linkQuestion(i.email._path) }}
+                    {%- endif -%}
+                    {{ ", " if i.email and i.orcid else "" }}
+                    {%- if i.orcid -%}
+                        {{ macros.formatOrcid(i.orcid) }}{{ macros.linkQuestion(i.orcid._path) }}
+                    {%- endif -%}
+                    {{- ") " if i.email or i.orcid else "" -}}
+                    {%- if i.affiliation -%}
+                        {%- if i.affiliation._raw-%}
+                            {% for name in i.affiliation._raw.names -%}
+                                {% if "ror_display" in name.types %}
+                                    <br>Affiliation: <span class="affiliation"><a href="{{ i.affiliation._raw.id }}">{{ name.value }}</a></span>{{ macros.linkQuestion(i.affiliation._path) }}
+                                {% endif %}
+                            {%- endfor %}
+                        {%- else -%}
+                            <br>Affiliation: <span class="affiliation"> {{ i.affiliation._value }}</span>{{ macros.linkQuestion(i.affiliation._path) }}
+                        {%- endif -%}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- else -%}
+              <span class="empty-value">There is no creator specified yet</span>
+          {%- endif -%}
+        </dd>
+      
+
+      {% for version in ctx.questionnaire.versions if version.uuid == ctx.questionnaire.versionUuid %}
+      <dt>Version</dt>
+      <dd>{{version.name}} ({{ version.createdAt|datetime_format("%d %b %Y") }})</dd>
       {% endfor %}
-      <div class="date">{{ data.meta.document.createdAt|datetime_format("%d %B %Y") }}</div>
-    </div>
 
+      <dt>Generated on</dt>
+      <dd>{{ ctx.document.createdAt|datetime_format("%d %b %Y") }}</dd>
+    </dl>
     <p class="note">
-      Data Management Plan created in {{ globals.fullName }} &laquo;<a href="{{ globals.linkUrl }}" target="_blank">{{ globals.link }}</a>&raquo;<br/> using {{ dc.pkg.name }} v{{ dc.pkg.version }} (<span class="package-id"><span class="organization-id">{{ dc.pkg.org_id }}</span>:<span class="km-id">{{ dc.pkg.km_id }}</span>:<span class="version">{{ dc.pkg.version }}</span></span>).
+      Data Management Plan created in {{ globals.fullName }} &laquo;<a href="{{ globals.linkUrl }}" target="_blank">{{ globals.link }}</a>&raquo;
     </p>
   </div>
 </header>

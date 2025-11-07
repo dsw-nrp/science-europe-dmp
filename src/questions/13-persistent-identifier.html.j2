@@ -4,7 +4,7 @@
     <div class="answer">
     {%- if data.dmp.sharedResources.metadataSpecifications |length > 0 -%}
 
-        <p>In our {{ globals.projects }}, the following approaches to PID assignment will be used:</p>
+        <p>In our {{ globals.projects }}, the following approaches to persistent identifiers assignment will be used:</p>
 
         <ul>
         {%- for metadata in data.dmp.sharedResources.metadataSpecifications -%}
@@ -16,15 +16,15 @@
                 {%- if metadata.whoProvidesPids._value -%}
                     <p>
                     {%- if metadata.whoProvidesPids._value == "project" -%}
-                        A persistent identifier (PID) for this dataset will be assigned by the project’s data steward or principal investigator.
+                        A persistent identifier (PID) for this data will be assigned by the project’s data steward or principal investigator.
                     {%- elif metadata.whoProvidesPids._value == "institutional" -%}
-                        A persistent identifier (PID) for this dataset will be assigned by the institutional data steward.
+                        A persistent identifier (PID) for this data will be assigned by the institutional data steward.
                     {%- elif metadata.whoProvidesPids._value == "repository" -%}
-                        A persistent identifier (PID) for this dataset will be assigned automatically by the data repository upon submission.
+                        A persistent identifier (PID) for this data will be assigned automatically by the data repository upon submission.
                     {%- elif metadata.whoProvidesPids._value == "provider" -%}
-                        A persistent identifier (PID) for this dataset will be assigned by the national or international PID service provider.
+                        A persistent identifier (PID) for this data will be assigned by the national or international PID service provider.
                     {%- else -%}
-                        A persistent identifier (PID) for this dataset will be assigned by {{ metadata.whoProvidesPids._value }}.
+                        A persistent identifier (PID) for this data will be assigned by {{ metadata.whoProvidesPids._value }}.
                     {%- endif -%}
                     {{ macros.linkQuestion(metadata.whoProvidesPids._path) }}
                     </p>
@@ -36,7 +36,6 @@
         {%- endfor -%}
         </ul>
     {%- endif -%}
-
 
     <h4>Generated Datasets</h4>
     {%- if data.dmp.datasets|length > 0 -%}
@@ -63,7 +62,7 @@
                     {% if not loop.last %}, {% endif %}
                 {%- endfor -%}
                 )
-            {%- else -%}
+            {%- else %}
                 (No persistent identifier (PID) has been assigned yet.)
             {%- endif %}
             </li>
@@ -74,6 +73,6 @@
         identifiers (PIDs) are needed.</p>
     {%- endif -%}
 
-    <p>What PID systems are used in different repositories is detailed in Section 4, Question 10.</p>
+    <p>Details on which PID systems are used in different repositories are provided in Section 4, Question 10.</p>
     </div>
 </div>

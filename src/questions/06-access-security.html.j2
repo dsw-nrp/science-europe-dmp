@@ -18,7 +18,7 @@
     {%- endfor -%}
 
     {%- if sensitiveDataCollections | length > 0 -%}
-      <p>There are datasets that will have specific access and security measures for sensitive data in place:</p>
+      <p>In our {{globals.projects}}, we will implement specific access and security measures for sensitive data collections:</p>
       <ul>
       {%- for collection in sensitiveDataCollections -%}
         <li style="margin-bottom: 2em;">
@@ -29,9 +29,9 @@
 
         {# Personal Data #}
         {%- if collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas true -%}
-          <p>We are collecting personal data in {{ datasetText }}
-          {%- if collection.sensitiveDataCollection.personalDataCollection.purpose -%}
-            , for the purpose: {{ collection.sensitiveDataCollection.personalDataCollection.purpose._value }}{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.purpose._path) }}
+          <p>We are collecting personal data
+          {%- if collection.sensitiveDataCollection.personalDataCollection.purpose %}
+            for the purpose: {{ collection.sensitiveDataCollection.personalDataCollection.purpose._value }}{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.purpose._path) }}
           {%- else -%}.{{ macros.linkQuestion(collection.sensitiveDataCollection.isPersonalDataCollection._path) }}
           {%- endif -%}
           {%- if collection.sensitiveDataCollection.personalDataCollection.isFullyAnonymized._value is sameas true %}
@@ -77,7 +77,7 @@
           {%- if collection.sensitiveDataCollection.isOtherSensitiveDataCollection._value is sameas true -%}
             {%- set otherSensitiveData = collection.sensitiveDataCollection.otherSensitiveDataCollection -%}
             <p>
-                contains also sensitive data that is not personal data.{{ macros.linkQuestion(collection.sensitiveDataCollection.isOtherSensitiveDataCollection._path) }}
+                The collected data contains also sensitive data that is not personal data.{{ macros.linkQuestion(collection.sensitiveDataCollection.isOtherSensitiveDataCollection._path) }}
             {%- if otherSensitiveData.typeOfSensitiveData %}
                 The type of sensitive data is: {{ otherSensitiveData.typeOfSensitiveData._value }}.{{ macros.linkQuestion(otherSensitiveData.typeOfSensitiveData._path) }}
             {%- endif -%}
@@ -85,7 +85,7 @@
           {%- endif -%}                
 
         {%- elif collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas false and collection.sensitiveDataCollection.isOtherSensitiveDataCollection._value is sameas true -%}
-            <p>We are collecting sensitive data that is not personal data in {{ datasetText }}.</p>
+            <p>We are collecting sensitive data that is not personal data.</p>
             {%- set otherSensitiveData = collection.sensitiveDataCollection.otherSensitiveDataCollection -%}
             {%- if otherSensitiveData.typeOfSensitiveData %}
                 The type of sensitive data is: {{ otherSensitiveData.typeOfSensitiveData._value }}.{{ macros.linkQuestion(otherSensitiveData.typeOfSensitiveData._path) }}
@@ -108,9 +108,10 @@
     {%- else -%}
       <p>No sensitive data will be collected during the {{ globals.projects }}.{{ macros.linkQuestion(data.dmp.sharedResources.collections[0].isSensitiveDataCollection._path) }}</p>
     {%- endif -%}
+  {%- else -%}
+    <p>There are no details about sensitive data collections defined for the {{ globals.projects }}.</p>
   {%- endif -%}
 {% else %}
-  <p>There are no datasets described in this {{ globals.dmp }}.</p>
+  <p>There are no datasets described in the {{ globals.projects }}.</p>
 {% endif %}
-
 </div>

@@ -7,7 +7,7 @@
   {%- if reply._raw -%}
     <span class="orcid">ORCID: <a href="https://orcid.org/{{ reply._raw['orcid-id'] }}" target="_blank">{{ reply._raw['orcid-id'] }}</a></span>
   {%- else -%}
-    <span class="orcid">ORCID: {{ reply._value }} </span>
+    <span class="orcid">ORCID: {{ reply._value }}</span>
   {%- endif -%}
 {%- endmacro -%}
 
@@ -58,9 +58,9 @@
     {% endfor %}
     {% set datasetText = datasets | join(", ") | safe %}
     {%- if datasets | length > 1 -%}
-      <p>The following datasets follow the same {{ contextPhrase }}: {{ datasetText }}.</p>
+      <p>The {{ contextPhrase }} described below applies to the following datasets: {{ datasetText }}.</p>
     {%- elif datasets | length == 1 -%}
-      <p>The following dataset follows the {{ contextPhrase }} described below: {{ datasetText }}.</p>
+      <p>The {{ contextPhrase }} described below applies to the following dataset: {{ datasetText }}.</p>
     {%- endif -%}
   {% endif %}
 {%- endmacro %}

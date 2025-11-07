@@ -42,21 +42,10 @@
   @bottom-center { content: none }
   @bottom-right { content: none }
 }
-@page :first {
-  @top-center { content: none }
-  @bottom-left { content: none }
-  @bottom-center { content: none }
-  @bottom-right { content: none }
-}
 
 h1, h2, h3, h4, h5, h6 {
   page-break-inside: avoid !important;
   page-break-after: avoid !important;
-}
-
-html, body {
-  height: 100%;
-  padding: 1em;
 }
 
 body {
@@ -86,44 +75,131 @@ section {
 /* First page */
 
 header {
+  padding-top: 5cm;
   height: 24cm;
   box-sizing: border-box;
   page-break-after: always;
   position: relative;
 }
 
-header h1 {
-  margin: 2em;
-  font-size: 24pt;
-  text-align: center;
-}
-
-header h3 {
-  margin-top: 2em;
+header .dmp::after {
   font-size: 18pt;
-  color: #333;
-  text-align: center;
+  content: 'Data Management Plan';
 }
 
-header > div.info {
-  width: 100%;
+h1 {
+  font-size: 24pt;
+}
+
+header div {
   position: absolute;
   bottom: 0;
-  text-align: center;
+}
+
+header .contact-orcid {
+  white-space: nowrap;
 }
 
 header .note {
   margin-top: 2cm;
+  text-align: center;
   font-size: 10pt;
   font-style: italic;
 }
 
-header img.eu-header {
-  max-width: 160px;
+div.dmp-info {
+  width: 100%;
 }
 
-header img.eu-flag {
-  max-width: 320px;
+dl {
+  border: 1px solid #bdc8ca;
+  background-color: #f7fafa;
+  overflow: hidden;
+  width: 100%;
+}
+
+dt,
+dd {
+    box-sizing: border-box;
+    padding: 10px;
+}
+dd ~ dt,
+dd ~ dd {
+    border-top: 1px solid #bdc8ca;
+}
+dt {
+    float: left;
+    width: 25%;
+    padding-bottom: 0;
+}
+dd {
+    margin-left: 25%;
+    width: 75%;
+    border-left: 1px dotted #bdc8ca;
+    background-color: #fff;
+}
+dd:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+dl dd ul {
+  padding: 0;
+  margin: 0;
+}
+
+dl dd ul li {
+  list-style: none;
+}
+
+dl dd ul li:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+
+dl .contact-name {
+  font-weight: bold;
+}
+
+/* Contributors */
+
+.contributor .name {
+  font-weight: bold;
+}
+
+.contributor .role,
+.contributor .affiliation {
+  font-style: italic;
+  display: inline-block;
+}
+
+/* Abstract */
+
+.abstract {
+  page-break-after: always;
+}
+
+.abstract p {
+  text-align: justify;
+}
+
+/* custom */
+
+.orcid-svg {
+  width: 0.5cm;
+  height: 0.5cm;
+  display: inline-block;
+  margin: 0px -4px -2px 2px;
+}
+
+div#dmp-content {
+  page-break-before: always;
+}
+
+div#dmp-projects,
+div#dmp-contributors,
+div#dmp-content {
+  page-break-before: always;
 }
 
 /* Versions */
@@ -136,7 +212,7 @@ div#dmp-versions table {
 div#dmp-versions table,
 div#dmp-versions td,
 div#dmp-versions th {
-  border: 1px solid black;
+  border: 1px solid #bdc8ca;
 }
 
 div#dmp-versions td,
@@ -146,8 +222,8 @@ div#dmp-versions th {
 
 div#dmp-versions th.title {
   text-transform: uppercase;
-  text-align: center;
   padding: 0.4em;
+  text-align: center;
 }
 
 div#dmp-versions td.version-name {
@@ -170,89 +246,6 @@ div#dmp-versions td.no-versions {
   text-align: center;
 }
 
-/* Contributors */
-
-.contributor .name {
-  font-weight: bold;
-}
-
-.contributor .role,
-.contributor .affiliation {
-  font-style: italic;
-  display: inline-block;
-}
-
-/* Projects */
-
-.abstract {
-  page-break-after: always;
-}
-
-.abstract p {
-  text-align: justify;
-}
-
-/* custom */
-
-.orcid-svg {
-  width: 0.5cm;
-  height: 0.5cm;
-  display: inline-block;
-  margin: 0px -4px -2px 2px;
-}
-
-div#dmp-projects,
-div#dmp-contributors,
-div#dmp-content {
-  page-break-before: always;
-}
-
-/* definition lists */
-
-dl::after {
-  content: ' ';
-  display: table;
-  clear: both;
-}
-
-dl dt {
-  display: inline-block;
-  width: 20%;
-  margin: 0;
-  margin-bottom: 0.5rem;
-  float: left;
-  white-space: nowrap;
-}
-
-dl dt::after {
-  content: ":";
-}
-
-dl dd {
-  display: inline-block;
-  width: 80%;
-  margin: 0;
-  margin-bottom: 0.5rem;
-  float: left;
-  font-style: italic;
-}
-
-dl dd ul {
-  padding: 0;
-  margin: 0;
-}
-
-dl dd ul li {
-  list-style: none;
-}
-
-dl dd ul li:not(:last-child) {
-  margin-bottom: 0.5rem;
-}
-
-dl .contact-name {
-  font-weight: bold;
-}
 
 /* Style for the floating note */
 .footnote {

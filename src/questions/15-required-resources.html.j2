@@ -103,7 +103,7 @@
       <p>We do not require any hardware or software in addition to what is usually available in the institute.</p>
     {%- endif -%}
 
-    {# Archiving (Cold storage) #}
+  {# Archiving (Cold storage) #}
   {%- if data.dmp.datasets|length > 0 -%}
     <p>The following part describes how data will be archived and preserved for the long term, including funding sources and minimum retention periods for each dataset:</p>
       <ul>
@@ -119,6 +119,12 @@
           We will be archiving data (using so-called 'cold storage') for long term preservation already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
         {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
           We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
+        {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas false  and preservationStrategy.usesLongTermStorageDuringProject._value is sameas false %}
+          We will not be archiving data (using so-called 'cold storage') for long term preservation during or after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
+        {%- elif preservationStrategy.usesLongTermStorageDuringProject._value is sameas false -%}
+          We will not be archiving data (using so-called 'cold storage') for long term preservation during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
+        {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas false -%}
+          We will not be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
         {%- endif -%}
 
         {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
@@ -188,25 +194,6 @@
             {{ macros.linkQuestion(longTermStorageAfterProject.isArchivalPeriodExtendable._path) }}
           {%- endif -%}
 
-          {# Upgrades (format) #}
-          {%- if longTermStorageAfterProject.isFormatUpgradePlanned -%}
-            {%- if longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas true %}
-              Data formats of data in cold storage will be upgraded if they become obsolete.
-            {%- elif longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas false %}
-              Data formats of data in cold storage will not be upgraded over time.
-            {%- endif -%}
-            {{ macros.linkQuestion(longTermStorageAfterProject.isFormatUpgradePlanned._path) }}
-          {%- endif -%}
-
-          {# Upgrades (media) #}
-          {%- if longTermStorageAfterProject.isMediaUpgradePlanned -%}
-            {%- if longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas true %}
-              Archived data will be migrated regularly to more modern storage media (e.g. newer tapes).
-            {%- elif longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas false %}
-              Archived data will not be migrated to other storage media over time.
-            {%- endif -%}
-            {{ macros.linkQuestion(longTermStorageAfterProject.isMediaUpgradePlanned._path) }}
-          {%- endif -%}
         {%- endif -%}
         </p>
         </li>

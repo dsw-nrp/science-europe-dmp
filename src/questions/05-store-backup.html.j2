@@ -17,18 +17,15 @@
         {% for strategy in data.dmp.sharedResources.preservationStrategies %}
         <li style="margin-bottom: 1.5em;">
 
-            {{macros.datasetIntro(strategy, "storage and backup conditions", data.dmp.datasets) }}
+            {{macros.datasetIntro(strategy, "preservation and backup conditions", data.dmp.datasets) }}
             {% set numDatasets = strategy.usedBy | length %}
 
-
-            {# ====================================================================== #}
-            {#  NO LONG-TERM STORAGE DURING THE PROJECT                               #}
-            {# ====================================================================== #}
+            {# No long-term storage during the project #}
 
             {% if strategy.usesLongTermStorageDuringProject._value is sameas false %}
                 {% set noStorage = strategy.noLongTermStorageDuringProject %}
                 <p>
-                We will <strong>not</strong> archive {{ datasetText }} in long-term (<em>cold</em>) storage during the runtime of {{ globals.projects }}.
+                We will <strong>not</strong> archive the data in long-term (<em>cold</em>) storage during the runtime of {{ globals.projects }}.
                 {% if noStorage.canRegenerateOriginalData._value is sameas true %}
                     The original data can be regenerated if needed.{{ macros.linkQuestion(noStorage.canRegenerateOriginalData._path) }}
                 {% elif noStorage.canRegenerateOriginalData._value is sameas false %}
@@ -45,13 +42,11 @@
                 {%- endif -%}
                 </p>
 
-            {# ====================================================================== #}
-            {#  LONG-TERM STORAGE DURING THE PROJECT                                  #}
-            {# ====================================================================== #}
+            {# Long-term storage during the project #}
 
             {% elif strategy.usesLongTermStorageDuringProject._value is sameas true %}
                 <p>
-                We will archive {{ datasetText }} in long-term (<em>cold</em>) storage during the runtime of {{ globals.projects }} to ensure durability and protection.{{ macros.linkQuestion(strategy.usesLongTermStorageDuringProject._path) }}
+                We will archive the data in long-term (<em>cold</em>) storage during the runtime of {{ globals.projects }} to ensure durability and protection.{{ macros.linkQuestion(strategy.usesLongTermStorageDuringProject._path) }}
 
                 {% set period = strategy.longTermStorageDuringProject.archivePeriod %}
                 {% if period._value %}
@@ -87,7 +82,7 @@
 
                 {# Archive online availability #}
                 {%- if storage.isArchiveAccessOnlineRequired._value is sameas true -%}
-                    <p>Online access to the archived data is needed.{{ macros.linkQuestion(storage.isArchiveOnlineAvailabilityProvided._path) }}
+                    <p>Online access to the archived data is needed.{{ macros.linkQuestion(storage.isArchiveAccessOnlineRequired._path) }}
                     {%- if storage.archiveAccessOnline.isDataIntegrityGuaranteed._value is sameas true -%}
                         The integrity of the archived data is guaranteed with relation to the online version.{{ macros.linkQuestion(storage.archiveAccessOnline.isDataIntegrityGuaranteed._path) }}
                     {% endif %}
@@ -140,8 +135,8 @@
                     {%- if storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._value is sameas true %}
                         Backups will be used to recover from human errors.{{ macros.linkQuestion(storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
                     {% elif storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._value is sameas false %}
-                        Backups will not be used to recover from human errors.{{ macros.linkQuestion(storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
-                        {%- if storage.dataChangingOverTime.humanErrorRecoveryPlan is not none -%}, instead, the following plan will be implemented: {{ storage.dataChangingOverTime.humanErrorRecoveryPlan._value }}{% endif %}</p>
+                        Backups will not be used to recover from human errors{{ macros.linkQuestion(storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
+                        {%- if storage.dataChangingOverTime.humanErrorRecoveryPlan is not none -%}, instead the following plan will be implemented: {{ storage.dataChangingOverTime.humanErrorRecoveryPlan._value }}{% endif %}.</p>
                     {%- endif -%}
                     </p>
 
@@ -152,9 +147,11 @@
             </li>
         {% endfor %}
         </ul>
+    {%- else -%}
+        <p>No specific data preservation strategy has been defined for the {{ globals.projects }}.</p>
     {% endif %}
 
-    {# --- Processing / Working Environments (Workspaces) --- #}
+    {# Processing / Working Environments (Workspaces) #}
     {% if data.dmp.sharedResources.processingEnvironments | length > 0 %}
 
         {% if data.dmp.sharedResources.processingEnvironments | length > 1 %}
@@ -167,29 +164,26 @@
         {% for environment in data.dmp.sharedResources.processingEnvironments %}
             <li style="margin-bottom: 1.5em;">
 
-            {{ macros.datasetIntro(environment, "working environment described below", data.dmp.datasets) }}
+            {{ macros.datasetIntro(environment, "working environment", data.dmp.datasets) }}
 
-            {# ================================================= #
-                SHARED WORKSPACE
-            # ================================================= #}
+            {# Shared Workspace #}
             {% if environment.isSharedWorkingSpace %}
                 {% if environment.isSharedWorkingSpace._value is sameas true %}
                 <p>
-                    A shared workspace will be used
+                    We will use a shared workspace
                     {% if environment.sharedWorkingSpace.controlledAccess %}
                         {% set access = environment.sharedWorkingSpace.controlledAccess %}
-                        {% if access._value == "membersReadWrite" %}
-                            , where only project members have read/write access to the data
-                        {% elif access._value == "anyoneReadMembersWrite" %}
-                            , where anyone in the institute has read access and project members have read/write access
-                        {% elif access._value == "membersReadSelectMembersWrite" %}
-                            , where only project members can read the data and only certain members can write
-                        {% elif access._value == "anyoneReadRequestWrite" %}
-                            , where anyone in the institute may read the data and only project members may request write access
-                        {% elif access._value %}
-                            , where access rights are defined as: {{ access._value }}
-                        {% endif -%}
-                        .{{ macros.linkQuestion(access._path) }}
+                        {%- if access._value == "membersReadWrite" %}
+                             where only project members have read/write access to the data
+                        {%- elif access._value == "anyoneReadMembersWrite" %}
+                             where anyone in the institute has read access and project members have read/write access
+                        {%- elif access._value == "membersReadSelectMembersWrite" %}
+                             where only project members can read the data and only certain members can write
+                        {%- elif access._value == "anyoneReadRequestWrite" %}
+                             where anyone in the institute may read the data and only project members may request write access
+                        {%- elif access._value %}
+                             where access rights are defined as: {{ access._value }}
+                        {%- endif -%}.{{ macros.linkQuestion(access._path) }}
                     {% else %}
                     .{{ macros.linkQuestion(environment.isSharedWorkingSpace._path) }}
                     {% endif %}
@@ -213,9 +207,8 @@
                 {% endif %}
             {% endif %}
 
-            {# ================================================= #
-                INFORMATION LOSS, LEAK, VANDALISM IMPACT
-            # ================================================= #}
+            {# Information loss, validation impact #}
+
             {% set impactSentences = {
                 'zero': "negligible",
                 'low': "acceptably low",

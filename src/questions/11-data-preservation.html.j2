@@ -2,11 +2,10 @@
   <h3>11. How will data for preservation be selected, and where data will be preserved long-term (for example a data repository or archive)?</h3>
 
   {# For how long and which data and metadata #}
-
   <div class="answer">
     {%- if data.dmp.datasets|length > 0 -%}
       {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
-        <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.collections | length == 1 else 'are' }} {{ data.dmp.sharedResources.collections | length }} approach{{ 'es' if data.dmp.sharedResources.collections | length != 1 else '' }} towards long-term data preservation, as described below:</p>
+        <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.collections | length == 1 else 'are' }} {{ data.dmp.sharedResources.collections | length }} approach{{ 'es' if data.dmp.sharedResources.collections | length != 1 else '' }} towards long-term data preservation.</p>
         <ul>
         {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
           <li style="margin-bottom: 2em;">
@@ -21,26 +20,27 @@
             We will be archiving data (using so-called 'cold storage') for long term preservation already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
           {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
             We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
+          {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas false  and preservationStrategy.usesLongTermStorageDuringProject._value is sameas false %}
+            We will not be archiving data (using so-called 'cold storage') for long term preservation during or after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
+          {%- elif preservationStrategy.usesLongTermStorageDuringProject._value is sameas false -%}
+            We will not be archiving data (using so-called 'cold storage') for long term preservation during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
+          {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas false -%}
+            We will not be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
           {%- endif -%}
 
-          {# How long will data be preserved? #}
-          {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
-            {%- if preservationStrategy.longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas true -%}
-              {%- if preservationStrategy.longTermStorageAfterProject.archivePeriod -%}
-                {# How long will be stored data #}
-                {%- set period = preservationStrategy.longTermStorageDuringProject.archivePeriod -%}
-                {%- if period._value -%}
-                  {%- if period._value == "as_long_as_possible" %}
-                    This data set will be kept available as long as technically possible.
-                  {%- elif period._value == "until_needs_delete" %}
-                    This data set will be kept available until it needs to be deleted for legal, contractual or regulatory reasons.
-                  {%- elif period._value %}
-                    This data set will be kept available for a fixed period of {{ period._value }}.
-                  {%- endif -%}
-                  {{ macros.linkQuestion(period._path) }}
-                {%- endif -%}
-              {%- endif -%}
-            {%- endif -%}
+          {# How long will data be preserved during project? #}
+          {%- if preservationStrategy.usesLongTermStorageDuringProject._value is sameas true -%}
+            {% set period = preservationStrategy.longTermStorageDuringProject.archivePeriod %}
+            {% if period._value %}
+                {% if period._value == "as_long_as_possible" %}
+                    This data will be retained during {{ globals.projects }} for as long as technically feasible.
+                {% elif period._value == "until_needs_delete" %}
+                    This data will be retained during {{ globals.projects }} until deletion is required due to legal, contractual, or regulatory constraints.
+                {% else %}
+                    This data will be retained during {{ globals.projects }} for a fixed period of {{ period._value }}.
+                {% endif %}
+                    {{ macros.linkQuestion(period._path) }}
+            {% endif %}
           {%- endif -%}
 
           {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
@@ -142,7 +142,7 @@
       {%- endif -%}
 
     {%- else -%}
-      <p>No datasets have been defined for this project. Therefore, there is no data preservation to report.</p>
+      <p>No datasets have been defined for the {{ globals.projects }}. Therefore, there is no data preservation to report.</p>
     {%- endif -%}
   </div>
 </div>

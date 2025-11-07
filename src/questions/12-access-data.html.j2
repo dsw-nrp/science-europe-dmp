@@ -2,43 +2,47 @@
   <h3>12. What methods or software tools are needed to access and use data?</h3>
 
   <div class="answer">
-    {%- if data.dmp.sharedResources.tools|length > 0 -%}
-        <p>In our {{ globals.projects }}, the following methods or software tools are needed to access and use the data:</p>
-        <ul>
-        {%- for tool in data.dmp.sharedResources.tools -%}
-            <li style="margin-bottom: 2em;">
+    {%- if data.dmp.areSpecialToolsRequired._value is sameas true -%}
+        <p>In our {{ globals.projects}} there are special tools required to access and use the data.</p>
+        {%- if data.dmp.sharedResources.tools|length > 0 -%}
+            <ul>
+            {%- for tool in data.dmp.sharedResources.tools -%}
+                <li style="margin-bottom: 2em;">
 
-            <strong>{{ tool.name._value if tool.name._value else "(no name given)" }}</strong>{{ macros.linkQuestion(tool.name._path) }}
-            <br>{{tool.description._value if tool.description._value else "(no description given)"}}{{ macros.linkQuestion(tool.description._path) }}<br>
-            {%- if tool.isFreeAndAvailable._value is sameas true %}
-                This tool is free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
-            {%- elif tool.isFreeAndAvailable._value is sameas false %}
-                This tool is not free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
-                {%- if tool.noAvailableSolution %}
-                    However, there is an alternative solution that allows omitting this tool: {{tool.noAvailableSolution._value}}{{ macros.linkQuestion(tool.noAvailableSolution._path) }}
+                <strong>{{ tool.name._value if tool.name._value else "(no name given)" }}</strong>{{ macros.linkQuestion(tool.name._path) }}
+                <br>{{tool.description._value if tool.description._value else "(no description given)"}}{{ macros.linkQuestion(tool.description._path) }}<br>
+                {%- if tool.isFreeAndAvailable._value is sameas true %}
+                    This tool is free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
+                {%- elif tool.isFreeAndAvailable._value is sameas false %}
+                    This tool is not free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
+                    {%- if tool.noAvailableSolution %}
+                        However, there is an alternative solution that allows omitting this tool: {{tool.noAvailableSolution._value}}{{ macros.linkQuestion(tool.noAvailableSolution._path) }}
+                    {%- endif -%}
                 {%- endif -%}
-            {%- endif -%}
-            {%- if tool.hasAccessLink._value is sameas true and tool.accessLink %}
-                This tool can be accessed at {{tool.accessLink._value}}{{ macros.linkQuestion(tool.accessLink._path) }}
-            {%- elif tool.hasAccessLink._value is sameas false %}
-                This tool cannot be accessed directly, but it can be obtained through other means.{{ macros.linkQuestion(tool.hasAccessLink._path) }}
-                {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}
-                    The documentation of this software will be included in the metadata of data set.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}
-                {%- elif tool.noAccessLinkAlternatives.includesDocumentation._value is sameas false %}
-                    The documentation of this software will not be included in the metadata of this data set{{" because: " ~ tool.noAccessLinkAlternatives.noDocumentationReason._value if tool.noAccessLinkAlternatives.noDocumentationReason else '.'}}{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}
+                {%- if tool.hasAccessLink._value is sameas true and tool.accessLink %}
+                    This tool can be accessed at {{tool.accessLink._value}}{{ macros.linkQuestion(tool.accessLink._path) }}
+                {%- elif tool.hasAccessLink._value is sameas false %}
+                    This tool cannot be accessed directly, but it can be obtained through other means.{{ macros.linkQuestion(tool.hasAccessLink._path) }}
+                    {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}
+                        The documentation of this software will be included in the metadata of data set.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}
+                    {%- elif tool.noAccessLinkAlternatives.includesDocumentation._value is sameas false %}
+                        The documentation of this software will not be included in the metadata of this data set{{" because: " ~ tool.noAccessLinkAlternatives.noDocumentationReason._value if tool.noAccessLinkAlternatives.noDocumentationReason else '.'}}{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}
+                    {%- endif -%}
+                    {%- if tool.noAccessLinkAlternatives.includesSoftware._value is sameas true %}
+                        The software (e.g. in open source code) will be included.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}
+                    {%- elif tool.noAccessLinkAlternatives.includesSoftware._value is sameas false %}
+                        The software (e.g. in open source code) will not be included.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}
+                    {%- endif -%}
                 {%- endif -%}
-                {%- if tool.noAccessLinkAlternatives.includesSoftware._value is sameas true %}
-                    The software (e.g. in open source code) will be included.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}
-                {%- elif tool.noAccessLinkAlternatives.includesSoftware._value is sameas false %}
-                    The software (e.g. in open source code) will not be included.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}
-                {%- endif -%}
-            {%- endif -%}
-            </li>
-        {%- endfor -%}
-        </ul>
-    {%- else -%}
-        <p>No specific methods or software tools are needed to access and use the data in this {{ globals.projects }}.</p>
+                </li>
+            {%- endfor -%}
+            </ul>
+        {%- else -%}
+            <p>No specific tools has been defined.</p>
+        {%- endif -%}
+    {%- elif data.dmp.areSpecialToolsRequired._value is sameas false -%}
+        <p>In our {{ globals.projects}} there are no special tools required to access and use the data{%- if data.dmp.noSpecialToolsReason -%}, because: {{ data.dmp.noSpecialToolsReason._value }}{{ macros.linkQuestion(data.dmp.noSpecialToolsReason._path) }}{%- else -%}{{ macros.linkQuestion(data.dmp.areSpecialToolsRequired._path) }}{% endif -%}.</p>
     {%- endif -%}
-    <p>Details on how access requests are handled are describe in Section 4, Question 8.</p>
+    <p>Details on the handling of access requests are provided in Section 4, Question 8.</p>
     </div>
 </div>

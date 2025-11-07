@@ -225,6 +225,7 @@
         {%- if consideredData.isReused._value is sameas true -%}
                 {%- do consideredData.update({
                     "reusedData": {
+                        "uuid" : consideredDataItem._uuid,
                         "maintainer": consideredDataItem.isReused.maintainer|default(None),
                         "dataVolume": consideredDataItem.isReused.dataVolume|default(None),
                         "purpose": consideredDataItem.isReused.purpose|default(None),
@@ -1267,7 +1268,6 @@
     {%- elif metadataSpecification.isStandardMetadata._value is sameas false -%}
         {%- do metadataSpecification.noStandardMetadata.update({
             "reason": metadataItem.isStandardMetadata.reason|default(None),
-            "description": None,
             "metadataElements": metadataItem.isStandardMetadata.metadataElements|map(attribute="metadataElement")|list,
             "canBeHarvestedIndexed": metadataItem.isStandardMetadata.canBeHarvestedIndexed|default(None),
         }) -%}
@@ -1849,8 +1849,10 @@
                         {%- endif -%}
                     {%- elif relatedDatasetItem.typeOfDataset._value == "relatedReusedDatasets" -%}
                         {%- if relatedDatasetItem.typeOfDataset.relatedReusedDataset and relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid in reusedDatasetsMap -%}
-                            {%- do reusedDatasetsMap[relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid].reusedData.tools.append(tool.uuid) -%}
-                            {%- do tool.usedBy.append(relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid) -%}
+                            {%- if reusedDatasetsMap[relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid].reusedData -%}
+                                {%- do reusedDatasetsMap[relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid].reusedData.tools.append(tool.uuid) -%}
+                                {%- do tool.usedBy.append(relatedDatasetItem.typeOfDataset.relatedReusedDataset._uuid) -%}
+                            {%- endif -%}
                         {%- endif -%}
                     {%- endif -%}
                 {%- endfor -%}

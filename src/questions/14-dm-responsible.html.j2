@@ -65,12 +65,12 @@
               {%- endfor -%}
               {%- if nNames > 1 -%} are
               {%- else -%} is
-              {%- endif -%}
-            {# Print definition if available, else fallback to role name #}
-            {{ role_definitions[role] if role_definitions[role] is defined else role }}
+              {%- endif %} {{ role_definitions[role] if role_definitions[role] is defined else role }}
           </p>
           {%- endif -%}
         {%- endfor -%}
+      {%- else -%}
+        <p>No contributors have been defined for the {{ globals.projects }}.</p>
       {%- endif -%}
     {%- endif -%}
   </div>

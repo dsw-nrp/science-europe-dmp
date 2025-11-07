@@ -51,19 +51,16 @@
                   {% else %}
                   no funder given
                   {% endif %}
-                  : 
-                  {% if funding.grantId %}
-                  {{ funding.grantId._value }}{{ macros.linkQuestion(funding.grantId._path) }}
-                  {% else %}
-                  no grant number given
+                  {%- if funding.grantId -%}
+                  : {{ funding.grantId._value }}{{ macros.linkQuestion(funding.grantId._path) }}
+                  {%- else -%}
+                  : no grant number given
                   {% endif %}
-                  (
                   {% if funding.status %}
-                  {{ funding.status._value }}{{ macros.linkQuestion(funding.status._path)}}
+                  ({{ funding.status._value }}){{ macros.linkQuestion(funding.status._path)}}
                   {% else %}
-                  status is unknown
+                  (status is unknown)
                   {% endif %}
-                  )
                 </li>
               {%- endfor %}
               </ul>

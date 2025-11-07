@@ -5,7 +5,7 @@
   {# Generated Datasets #}
     <h4>Generated Datasets</h4>
     {%- if data.dmp.datasets|length > 0 -%}
-    The following dataset{{ "s" if data.dmp.datasets|length > 1 }} will be generated in this {{globals.projects}}:
+    The following dataset{{ "s" if data.dmp.datasets|length > 1 }} will be generated in {{globals.projects}}:
         <ul>
         {%- for dataset in data.dmp.datasets -%}
             <li>
@@ -16,6 +16,18 @@
             {%- else -%}
                 <strong>(no name given)</strong>
             {%- endif -%}
+            {# Identifier #}
+            {%- if dataset.identifiers|length > 0 %} (
+                {%- for identifier in dataset.identifiers -%}
+                    {%- if identifier.type._raw and identifier.value._value-%}
+                        <em><a href="{{ identifier.type._raw.homepage }}/{{identifier.value._value}}" target="_blank">{{ identifier.type._raw.homepage }}/{{identifier.value._value}}</a></em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
+                    {%- else -%}
+                        <em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
+                    {%- endif -%}
+                    {% if not loop.last %}, {% endif %}
+                {%- endfor -%}
+                )
+            {%- endif %}:
 
             {# Type #}
             {%- if dataset.type -%}
@@ -50,7 +62,7 @@
         {%- if data.dmp.reusingData.consideredDatasets|length > 0 -%}
         <div>
             <h4>Re-used datasets</h4>
-            <p>Datasets considered for reuse and actually reused are described in Question 1.</p>
+            <p>Datasets considered for reuse and actually reused are described in Section 1, Question 1.</p>
         </div>
         {%- endif -%}
     {%- endif -%}
@@ -130,13 +142,13 @@
                     standard format{{ macros.linkQuestion(format.isStandard._path) }}
                 {%- elif format.isStandard._value is sameas false %}
                     {%- if format.noStandardReason._value == "no_format" %}
-                        non-standard format because there is no standardized format for this data type{{ macros.linkQuestion(format.noStandardReason._path) }}
+                        non-standard because there is no standardized format for this data type{{ macros.linkQuestion(format.noStandardReason._path) }}
                     {%- elif format.noStandardReason._value == "optimalization" %}
-                        non-standard format but it is optimized for processing speed and/or volume{{ macros.linkQuestion(format.noStandardReason._path) }}
+                        non-standard but it is optimized for processing speed and/or volume{{ macros.linkQuestion(format.noStandardReason._path) }}
                     {%- elif format.noStandardReason and format.noStandardReason._value %}
-                        non-standard format because: {{ format.noStandardReason._value }}{{ macros.linkQuestion(format.noStandardReason._path) }}
+                        non-standard because: {{ format.noStandardReason._value }}{{ macros.linkQuestion(format.noStandardReason._path) }}
                     {%- else %}
-                        non-standard format{{ macros.linkQuestion(format.isStandard._path) }}
+                        non-standard{{ macros.linkQuestion(format.isStandard._path) }}
                     {%- endif %}
                 {%- endif -%}
                 .

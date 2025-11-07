@@ -1,23 +1,26 @@
-{%- import "src/mapping/prepare-data.j2" as json with context -%}
-{%- import "src/mapping/object.j2" as obj with context -%}
-{%- import "src/macros.html.j2" as macros with context -%}
-{%- set dc = ctx|to_context_obj -%}
-{%- set data = obj.result -%}
-{%- import "src/globals.j2" as globals with context -%}
 <!DOCTYPE HTML>
+{%- set km = ctx.knowledgeModel -%}
+{%- set repliesMap = ctx.questionnaire.replies -%}
+{%- set report = ctx.report -%}
+{%- set dc = ctx|to_context_obj -%}
+{% import "src/macros.html.j2" as macros with context %}
+{% import "src/uuids.j2" as uuids with context %}
+{% import "src/globals.j2" as globals with context %}
 <html lang="en">
   <head>
+    <title>{{ ctx.questionnaire.name }}</title>
     <meta charset="utf-8">
-
-    <title>{{ ctx.document.name }}</title>
+    <style>
+      {% include "src/style.css" %}
+    </style>
   </head>
   <body>
-    <article class="smp">
+    <article class="dmp">
       {% include "src/word/frontpage.html.j2" with context %}
       {% include "src/word/versions.html.j2" with context %}
-      {% include "src/word/contributors.html.j2" with context %}
-      {% include "src/word/projects.html.j2" with context %}
-      {% include "src/content/content.html.j2" with context %}
+      {% include "src/contributors.html.j2" with context %}
+      {% include "src/projects.html.j2" with context %}
+      {% include "src/content.html.j2" with context %}
     </article>
   </body>
 </html>

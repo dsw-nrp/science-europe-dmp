@@ -98,14 +98,14 @@
           {%- endif -%}
           </p>
 
-          {%- if reuseRestriction.canDataOpen._value is sameas false -%}
-            {%- set dataCannotOpen = reuseRestriction.dataCannotOpen -%}
+          {%- if accessRestriction.canDataOpen._value is sameas false -%}
+            {%- set dataCannotOpen = accessRestriction.dataCannotOpen -%}
             
             {# Data Access #}
             {%- if dataCannotOpen.isAccessProcessDefined._value is sameas true -%}
               <p>
               {%- set accessProcess = dataCannotOpen.accessProcess -%}
-              Access to this dataset is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
+              Access to this data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
               {%- if accessProcess.timeFrame._value %}
                 The process will take place within {{ accessProcess.timeFrame._value }}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.timeFrame._path) }}
               {%- endif -%}
@@ -138,25 +138,27 @@
                   {%- elif dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value == "sso" %}
                     Single Sign-On (SSO) will be used for authentication.
                   {%- elif dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess %}
-                    Other authentication process will be used: {{ dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value }}.
+                    Following authentication process will be used: {{ dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value }}.
                   {%- endif -%}
                 {{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._path) }}
                 {%- endif -%}
               {%- endif -%}
-              {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value -%}
+              {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate -%}
                 {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "project_member" %}
                   People can apply to one of the project members.
-                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "new_data_access_committe" %}
+                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "new_data_access_committee" %}
                   People can apply to the data access committee that we will set up.
-                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "existing_data_access_committe" %}
+                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "existing_data_access_committee" %}
                   People can apply to {{ "the <em>" ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte._value ~ "</em>" if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte else "existing" }} data access committee.
                 {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther %}
                   For the authorization of potential users, we will make special arrangements{{ ": " ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther._value if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther  else "." }}
                 {%- endif -%}
                 {{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._path) }}
               {%- endif -%}
-              {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._value is sameas true %}
-                The criteria for authentication will be openly available.{{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._path) }}
+              {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable -%}
+                {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._value is sameas true %}
+                  The criteria for authentication will be openly available.{{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._path) }}
+                {%- endif -%}
               {%- endif -%}
               </p>
             {%- endif -%}

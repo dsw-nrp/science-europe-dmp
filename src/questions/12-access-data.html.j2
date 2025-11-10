@@ -16,11 +16,11 @@
                 {%- elif tool.isFreeAndAvailable._value is sameas false %}
                     This tool is not free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
                     {%- if tool.noAvailableSolution %}
-                        However, there is an alternative solution that allows omitting this tool: {{tool.noAvailableSolution._value}}{{ macros.linkQuestion(tool.noAvailableSolution._path) }}
+                        However, there is an alternative solution that allows omitting this tool: {{tool.noAvailableSolution._value}}.{{ macros.linkQuestion(tool.noAvailableSolution._path) }}
                     {%- endif -%}
                 {%- endif -%}
                 {%- if tool.hasAccessLink._value is sameas true and tool.accessLink %}
-                    This tool can be accessed at {{tool.accessLink._value}}{{ macros.linkQuestion(tool.accessLink._path) }}
+                    This tool can be accessed at <a href="{{ tool.accessLink._value }}" target="_blank">{{tool.accessLink._value}}</a>.{{ macros.linkQuestion(tool.accessLink._path) }}
                 {%- elif tool.hasAccessLink._value is sameas false %}
                     This tool cannot be accessed directly, but it can be obtained through other means.{{ macros.linkQuestion(tool.hasAccessLink._path) }}
                     {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}

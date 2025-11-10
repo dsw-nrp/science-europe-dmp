@@ -73,11 +73,11 @@
                     {%- endif -%}
                     {# Sharing mode #}
                     {%- if distribution.technicalAvailability.accessMode -%}
-                        {%- if distribution.technicalAvailability.accessMode._value == "open" -%}
+                        {%- if distribution.technicalAvailability.accessMode._value == "open" %}
                             will be shared openly (available to anyone){{ macros.linkQuestion(distribution.technicalAvailability.accessMode._path) }}.
-                        {%- elif distribution.technicalAvailability.accessMode._value == "shared" -%}
+                        {%- elif distribution.technicalAvailability.accessMode._value == "shared" %}
                             will be shared with specific individuals or groups{{ macros.linkQuestion(distribution.technicalAvailability.accessMode._path) }}.
-                        {%- elif distribution.technicalAvailability.accessMode._value == "closed" -%}
+                        {%- elif distribution.technicalAvailability.accessMode._value == "closed" %}
                             will be shared in a closed manner (e.g., with a specific project team){{ macros.linkQuestion(distribution.technicalAvailability.accessMode._path) }}.
                         {%- endif -%}
                     {%- endif -%}
@@ -85,10 +85,10 @@
                     {%- if distribution.whenAvailable -%}
                         <p>
                         {%- if distribution.whenAvailable.isAvailableImmediately._value is sameas true %}
-                            This distribution will be published as soon as possible after collecting it.{{ macros.linkQuestion(distribution.whenAvailable.isAvailableImmediately._path) }}
+                            This distribution will be published as soon as possible after it has been collected.{{ macros.linkQuestion(distribution.whenAvailable.isAvailableImmediately._path) }}
                         {%- elif distribution.whenAvailable.isAvailableImmediately._value is sameas false -%}
                             {%- set postponedAvailability = distribution.whenAvailable.postponedAvailability %}
-                            This distribution will not be available immediately after collection.{{ macros.linkQuestion(distribution.whenAvailable.isAvailableImmediately._path) }}
+                            This distribution will not be available immediately after it has been collected.{{ macros.linkQuestion(distribution.whenAvailable.isAvailableImmediately._path) }}
                             {%- if postponedAvailability.isExactStartDateKnown._value is sameas true and postponedAvailability.exactStartDate._value %}
                                 It will be available starting from {{ postponedAvailability.exactStartDate._value }}.{{ macros.linkQuestion(postponedAvailability.exactStartDate._path) }}
                             {%- elif postponedAvailability.isExactStartDateKnown._value is sameas false and postponedAvailability.availabilityDelayAfterProjectEnd._value %}
@@ -155,7 +155,7 @@
                                         We have used the License Selector tool to help us decide, and as a result, we are considering the following license: {{ distribution.licensing.notYetDecidedLicense.licenseBasedOnLicenseSelector._value }}.{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense.licenseBasedOnLicenseSelector._path) }}
                                     {%- endif -%}
                                 {%- elif distribution.licensing.notYetDecidedLicense.isOpenLicense._value is sameas false %}
-                                    We do not plan to use an open license for this distribution{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense._path) }} {%- if distribution.licensing.notYetDecidedLicense.noOpenLicenseReason %} because: {{ distribution.licensing.notYetDecidedLicense.noOpenLicenseReason._value }}{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense.noOpenLicenseReason._path) }}{%- endif -%}
+                                    We do not plan to use an open license for this distribution{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense._path) }} {%- if distribution.licensing.notYetDecidedLicense.noOpenLicenseReason %} because: {{ distribution.licensing.notYetDecidedLicense.noOpenLicenseReason._value }}.{{ macros.linkQuestion(distribution.licensing.notYetDecidedLicense.noOpenLicenseReason._path) }}{%- else -%}.{%- endif -%}
                                 {%- endif -%}
                             {%- endif -%}
                         {%- else -%}
@@ -206,30 +206,36 @@
             <p>The following repository will be used to share the following distributions:</p>
             {%- for distributionUuid in dataStorage.usedBy -%}
                 {%- for datasetItem in data.dmp.datasets -%}
+                    <ul>
                     {%- for distributionItem in datasetItem.distributions -%}
                         {%- if distributionItem.uuid == distributionUuid -%}
+                        <li>
                             {%- if distributionItem.name -%}
                             <em>{{ distributionItem.name._value }}</em>{{ macros.linkQuestion(distributionItem.name._path) }}
                             {%- else -%}
                                 <em>(no distribution name given)</em>
                             {%- endif -%}
+                        </li>
                         {%- endif -%}
                     {%- endfor -%}
+                    </ul>
                 {%- endfor -%}
                 {%- if not loop.last %}, {% endif %}
             {%- endfor -%}
+        {%- else -%}
+            <p>No distributions have been assigned to this repository yet.</p>
         {%- endif -%}
 
         {# Certification #}
         {%- if dataStorage.storage.isCertified or dataStorage.storage.supportsVersioning  -%}
             The repository
             {% if dataStorage.storage.isCertified._value is sameas true %}
-                is certified{{ macros.linkQuestion(dataStorage.storage.certification._path) }}{% if dataStorage.storage.certification %} ({{ dataStorage.storage.certification._label }}){{ macros.linkQuestion(dataStorage.storage.certification._path) }}{% endif %}
+                is certified{{ macros.linkQuestion(dataStorage.storage.certification._path) }}{%- if dataStorage.storage.certification %} ({{ dataStorage.storage.certification._label }}){{ macros.linkQuestion(dataStorage.storage.certification._path) }}{%- endif -%}
             {% elif dataStorage.storage.isCertified._value is sameas false %}
                 is not certified{{ macros.linkQuestion(dataStorage.storage.certification._path) }}
-            {% endif %}
+            {%- endif -%}
 
-            {%- if  dataStorage.storage.isCertified and dataStorage.storage.supportsVersioning %} and{% else %}.{% endif %}
+            {%- if dataStorage.storage.isCertified and dataStorage.storage.supportsVersioning %} and{%- elif dataStorage.storage.isCertified -%}.{% endif %}
 
             {# Versioning #}
             {% if dataStorage.storage.supportsVersioning._value is sameas true %}
@@ -246,8 +252,10 @@
             {%- for pidSystemItem in dataStorage.storage.pidSystems -%}
                 {%- if pidSystemItem.pidSystem._raw -%}
                     {{ pidSystemItem.pidSystem._raw.name  }} - {{ pidSystemItem.pidSystem._raw.homepage }}
-                {%- else -%}
+                {%- elif pidSystemItem.pidSystem._value -%}
                     {{ pidSystemItem.pidSystem._value }}
+                {%- else -%}
+                    (no name given)
                 {%- endif -%}
                 {{ ", " if not loop.last else "" }}
             {%- endfor -%}

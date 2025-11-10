@@ -43,15 +43,14 @@
                 {%- endif %}
 
               {# How cost will be covered #}
-                {%- if cost.isCoveredByGrant._value is sameas true -%}
-                  <br>This cost will be covered by funding from grant <em>
+              {%- if cost.isCoveredByGrant._value is sameas true -%}
+                  <br>This cost will be covered by funding from grant<em>
                   {{ cost.coveredBy._label if cost.coveredBy._label else "(no grant given)" }}
                   {%- if cost.coveredBy._label -%}
                     {{ macros.linkQuestion(cost.coveredBy._path) }}
                   {%- else -%}
                     {{ macros.linkQuestion(cost.isCoveredByGrant._path) }}
-                  {%- endif -%}
-                  </em>
+                  {%- endif -%}.</em>
               {%- elif cost.isCoveredByGrant._value is sameas false and cost.coveredBy -%}
                 <br>This cost will be covered by <em>{{cost.coveredBy._value}}</em>.{{ macros.linkQuestion(cost.coveredBy._path) }}
               {%- endif %}
@@ -98,7 +97,7 @@
       {%- endif -%}
     {%- endfor -%}
     {%- if unavailableToolsUnique|length > 0 -%}
-      <p>We require the following tool or software in addition to what is usually available in the institute: {{ unavailableToolsUnique|map(attribute='name._value')|join(', ') }}.</p>
+      <p>We require the following tool or software in addition to what is usually available in the institute: <em>{{ unavailableToolsUnique|map(attribute='name._value')|join(', ') }}</em>.</p>
     {%- else -%}
       <p>We do not require any hardware or software in addition to what is usually available in the institute.</p>
     {%- endif -%}

@@ -5,7 +5,7 @@
   <div class="answer">
     {%- if data.dmp.datasets|length > 0 -%}
       {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
-        <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.collections | length == 1 else 'are' }} {{ data.dmp.sharedResources.collections | length }} approach{{ 'es' if data.dmp.sharedResources.collections | length != 1 else '' }} towards long-term data preservation.</p>
+        <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.preservationStrategies | length == 1 else 'are' }} {{ data.dmp.sharedResources.preservationStrategies | length }} approach{{ 'es' if data.dmp.sharedResources.preservationStrategies | length != 1 else '' }} towards long-term data preservation.</p>
         <ul>
         {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
           <li style="margin-bottom: 2em;">
@@ -94,7 +94,7 @@
                 {%- set criteria = "the predicted use of the archived data" -%}
               {%- endif -%}
               {%- if budget and criteria %}
-                The decision whether or not to extend the renewal be based on available budget as well as  ~ {{criteria}}.
+                The decision whether or not to extend the renewal be based on available budget as well as {{criteria}}.
               {%- elif budget %}
                 The decision whether or not to extend the renewal be based on available budget.
               {%- elif actual or predicted %}

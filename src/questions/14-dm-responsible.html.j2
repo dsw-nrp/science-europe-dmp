@@ -60,11 +60,11 @@
               {%- for i in names -%}
                 {{ i._value }}{{ macros.linkQuestion(i._path) }}
                 {%- if loop.index < nNames - 1 -%}, 
-                {%- elif loop.index == nNames - 1 -%} and {{" "}}
+                {%- elif loop.index == nNames - 1 %} and {{" "}}
                 {%- endif -%}
               {%- endfor -%}
-              {%- if nNames > 1 -%} are
-              {%- else -%} is
+              {%- if nNames > 1 %} are
+              {%- else %} is
               {%- endif %} {{ role_definitions[role] if role_definitions[role] is defined else role }}
           </p>
           {%- endif -%}

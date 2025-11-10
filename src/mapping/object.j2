@@ -863,7 +863,69 @@
     {%- endif -%}
 {%- endfor -%}
 
+{# Mapping [Data Storage Infrastructure] #}
+{%- for dataStorageItem in data.obj.dataStorageInfrastructures -%}
+    {%- set dataStorage = {
+        "uuid": dataStorageItem._uuid|default(None),
+        "usedBy": [],
+        "name": dataStorageItem.name|default(None),
+        "description": dataStorageItem.description|default(None),
+        "url": dataStorageItem.url|default(None),
+        "availability": dataStorageItem.availability|default(None),
+        "geographicalLocation": dataStorageItem.geographicalLocation|default(None),
+        "type": dataStorageItem.type|list,
+        "agreementOnStorageInfrastructureUse": dataStorageItem.agreementOnStorageInfrastructureUse|default(None),
+        "storage": {
+            "backupType": dataStorageItem.storage.backupType|default(None),
+            "backupFrequency": dataStorageItem.storage.backupFrequency|default(None),
+            "recoveryProcess": dataStorageItem.storage.recoveryProcess|default(None),
+            "personResponsibleBackup": [],
+            "supportsVersioning": dataStorageItem.storage.supportsVersioning|default(None),
+            "pidSystems": [],
+            "resolvablePid": dataStorageItem.storage.resolvablePid|default(None),
+            "isCertified": dataStorageItem.storage.isCertified|default(None),
+            "certification": None,
+        },
+    } -%}
+    {%- if dataStorage.type._value == "other" -%}
+        {%- do dataStorage.update({
+            "type": dataStorageItem.type.other|default(None),
+        }) -%}
+    {%- endif -%}
+    {%- if dataStorage.storage.backupType._value == "other" -%}
+        {%- do dataStorage.storage.update({
+            "backupType": dataStorageItem.storage.backupType.other|default(None),
+        }) -%}
+    {%- endif -%}
+    {%- if dataStorage.storage.backupFrequency._value == "other" -%}
+        {%- do dataStorage.storage.update({
+            "backupFrequency": dataStorageItem.storage.backupFrequency.other|default(None),
+        }) -%}
+    {%- endif -%}
+    {%- for person in dataStorageItem.storage.peopleResponsibleBackup -%}
+        {%- if person.personResponsibleBackup and person.personResponsibleBackup._uuid in contributorsMap -%}
+            {%- do dataStorage.storage.personResponsibleBackup.append(contributorsMap[person.personResponsibleBackup._uuid]) -%}
+        {%- endif -%}
+    {%- endfor -%}
+    {%- if dataStorage.storage.isCertified._value is sameas true -%}
+        {%- do dataStorage.storage.update({
+            "certification": dataStorageItem.storage.isCertified.certification|default(None),
+        }) -%}
+        {%- if dataStorage.storage.certification._label == "Other" -%}
+            {%- do dataStorage.storage.update({
+                "certification": dataStorageItem.storage.isCertified.certification.other|default(None),
+            }) -%}
+        {%- endif -%}
+    {%- endif -%}
+    {%- for pidSystemItem in dataStorageItem.storage.pidSystems -%}
+        {%- do dataStorage.storage.pidSystems.append(pidSystemItem) -%}
+    {%- endfor -%}
+    {%- do result.dmp.sharedResources.dataStores.append(dataStorage) -%}
+{%- endfor -%}
+
+
 {# Mapping [Distributions] #}
+{%- set distributionsMap = {} -%}
 {%- for distributionItem in data.obj.distributions -%}
     {%- set distribution = {
         "uuid": distributionItem._uuid,
@@ -887,6 +949,7 @@
             "risksOfAvailabilityDelay": [],
         },
         "dataVolume": {},
+        "dataStorage": distributionItem.dataStorageInfrastructure|default(None),
     } -%}
     {%- if distributionItem.contactPerson and distributionItem.contactPerson._uuid in contributorsMap -%}
             {%- do distribution.update({
@@ -1075,88 +1138,21 @@
     {%- endif -%}
 
     {# Mapping [Data Storage] #}
-
-    {# Mapping [Data Storage Infrastructure] #}
-    {%- for dataStorageItem in data.obj.dataStorageInfrastructures -%}
-        {%- set dataStorage = {
-            "uuid": dataStorageItem._uuid|default(None),
-            "usedBy": [],
-            "name": dataStorageItem.name|default(None),
-            "description": dataStorageItem.description|default(None),
-            "url": dataStorageItem.url|default(None),
-            "availability": dataStorageItem.availability|default(None),
-            "geographicalLocation": dataStorageItem.geographicalLocation|default(None),
-            "type": dataStorageItem.type|list,
-            "agreementOnStorageInfrastructureUse": dataStorageItem.agreementOnStorageInfrastructureUse|default(None),
-            "storage": {
-                "backupType": dataStorageItem.storage.backupType|default(None),
-                "backupFrequency": dataStorageItem.storage.backupFrequency|default(None),
-                "recoveryProcess": dataStorageItem.storage.recoveryProcess|default(None),
-                "personResponsibleBackup": [],
-                "supportsVersioning": dataStorageItem.storage.supportsVersioning|default(None),
-                "pidSystems": [],
-                "resolvablePid": dataStorageItem.storage.resolvablePid|default(None),
-                "isCertified": dataStorageItem.storage.isCertified|default(None),
-                "certification": None,
-            },
-        } -%}
-        {%- if dataStorage.type._value == "other" -%}
-            {%- do dataStorage.update({
-                "type": dataStorageItem.type.other|default(None),
+    {%- if distribution.dataStorage -%}
+        {%- set dataStorage = result.dmp.sharedResources.dataStores | selectattr("uuid", "equalto", distribution.dataStorage._uuid) | list | first -%}
+        {%- if dataStorage -%}
+            {%- do distribution.update({
+                "dataStorage": dataStorage,
             }) -%}
-        {%- endif -%}
-        {%- if dataStorage.storage.backupType._value == "other" -%}
-            {%- do dataStorage.storage.update({
-                "backupType": dataStorageItem.storage.backupType.other|default(None),
-            }) -%}
-        {%- endif -%}
-        {%- if dataStorage.storage.backupFrequency._value == "other" -%}
-            {%- do dataStorage.storage.update({
-                "backupFrequency": dataStorageItem.storage.backupFrequency.other|default(None),
-            }) -%}
-        {%- endif -%}
-        {%- for person in dataStorageItem.storage.peopleResponsibleBackup -%}
-            {%- if person.personResponsibleBackup and person.personResponsibleBackup._uuid in contributorsMap -%}
-                {%- do dataStorage.storage.personResponsibleBackup.append(contributorsMap[person.personResponsibleBackup._uuid]) -%}
-            {%- endif -%}
-        {%- endfor -%}
-        {%- if dataStorage.storage.isCertified._value is sameas true -%}
-            {%- do dataStorage.storage.update({
-                "certification": dataStorageItem.storage.isCertified.certification|default(None),
-            }) -%}
-            {%- if dataStorage.storage.certification._label == "Other" -%}
-                {%- do dataStorage.storage.update({
-                    "certification": dataStorageItem.storage.isCertified.certification.other|default(None),
-                }) -%}
-            {%- endif -%}
-        {%- endif -%}
-        {%- for pidSystemItem in dataStorageItem.storage.pidSystems -%}
-            {%- do dataStorage.storage.pidSystems.append(pidSystemItem) -%}
-        {%- endfor -%}
-
-        {%- do distribution.update({
-            "dataStorage": dataStorage.uuid,
-        }) -%}
-`
-        {# check if dataStorage already exists in result.dmp.sharedResources.dataStores #}
-        {%- set existingDataStores = result.dmp.sharedResources.dataStores| selectattr("uuid", "equalto", dataStorage.uuid)|list  -%}
-        {%- if existingDataStores | length > 0 -%}
-            {%- set existingDataStore = existingDataStores | first -%}
-            {%- do existingDataStore.usedBy.append(distribution.uuid) -%}
-        {%- else -%}
             {%- do dataStorage.usedBy.append(distribution.uuid) -%}
-            {%- do result.dmp.sharedResources.dataStores.append(dataStorage) -%}
         {%- endif -%}
+    {%- endif -%}
 
-    {%- endfor -%}
-
-     {# what datasets? #}
+    {# what dataset? #}
     {%- set relatedDataset = distributionItem.relatedDataset -%}
     {%- if relatedDataset and relatedDataset._uuid in datasetsMap -%}
         {%- do datasetsMap[relatedDataset._uuid].distributions.append(distribution) -%}
     {%- endif -%}
-
-
 {%- endfor -%}
 
 {# Mapping [Organisation Strategy] #}

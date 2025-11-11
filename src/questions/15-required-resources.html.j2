@@ -68,7 +68,7 @@
     {%- if collaboration.expertiseRequirement._value == "no" -%}
       <p>To execute the DMP, no additional specialist expertise is required.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}</p>
     {%- elif collaboration.expertiseRequirement._value == "trainedStaffAvailable" -%}
-      <p>To execute the DMP, additional specialist expertise is required and we have such trained support staff available.{{ macros.linkQuestion(collaboration.trainingDetails._path) }}</p>
+      <p>To execute the DMP, additional specialist expertise is required and we have such trained support staff available.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}</p>
     {%- elif collaboration.expertiseRequirement._value == "trainingExistingStaff" -%}
       <p>
         To execute the DMP, additional specialist expertise is required. We will be training existing staff
@@ -103,7 +103,7 @@
     {%- endif -%}
 
   {# Archiving (Cold storage) #}
-  {%- if data.dmp.datasets|length > 0 -%}
+  {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
     <p>The following part describes how data will be archived and preserved for the long term, including funding sources and minimum retention periods for each dataset:</p>
       <ul>
 

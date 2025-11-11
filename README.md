@@ -26,6 +26,6 @@ Contribute to the document template by adding new information, refining existing
 
 ### 0.0.1
 
-*Released*: 2025-X-Y
+*Released*: 2025-11-11
 
 * Initial version for testing and further development

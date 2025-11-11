@@ -19,7 +19,15 @@
         <br>{% if contributor.roles|length == 0 %}Role{% else %}Roles{% endif %}: {% for role in contributor.roles %}<span class="role">{{ role }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
       {%- endif %}
       {%- if contributor.affiliation %}
-        <br>Affiliation: <span class="affiliation">{{ macros.integrationValue(contributor.affiliation) }}</span>
+        {%- if contributor.affiliation._raw-%}
+            {% for name in contributor.affiliation._raw.names -%}
+                {% if "ror_display" in name.types %}
+                    <br>Affiliation: <span class="affiliation"><a href="{{ contributor.affiliation._raw.id }}">{{ name.value }}</a></span>{{ macros.linkQuestion(contributor.affiliation._path) }}
+                {% endif %}
+            {%- endfor %}
+        {%- else -%}
+            <br>Affiliation: <span class="affiliation"> {{ contributor.affiliation._value }}</span>{{ macros.linkQuestion(contributor.affiliation._path) }}
+        {%- endif -%}
       {%- endif %}
     </li>
   {% endfor %}

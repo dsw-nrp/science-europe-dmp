@@ -4,17 +4,17 @@
 <div class="answer">
 <p>Data security protection is described in Section 3, Question 6. The detailed conditions for controlling access and reuse rights, including licensing, are provided in Section 4, Question 2.</p>
 
-{% if data.dmp.datasets | length > 0 %}
     {%- if data.dmp.sharedResources.collections | length > 0 -%}
         {%- set personalDataCollections = []  -%}
         {%- for collection in data.dmp.sharedResources.collections -%}
-        {%- if collection.isSensitiveDataCollection._value is sameas true -%}
-            {%- if collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas true -%}
-            {%- do personalDataCollections.append(collection) -%}
+            {%- if collection.isSensitiveDataCollection._value is sameas true -%}
+                {%- if collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas true -%}
+                {%- do personalDataCollections.append(collection) -%}
+                {%- endif -%}
             {%- endif -%}
-        {%- endif -%}
         {%- endfor -%}
 
+        {# Personal Data Collections #}
         {%- if personalDataCollections | length > 0 -%}
             <p>There {{ 'is' if personalDataCollections | length == 1 else 'are' }} {{ personalDataCollections | length }} approach{{ 'es' if personalDataCollections | length != 1 else '' }} towards handling personal data in the {{ globals.projects }}, as outlined below:</p>
             <ul>
@@ -211,8 +211,8 @@
         {%- else -%}
             <p>No personal data will be collected during the {{ globals.projects }}.{{ macros.linkQuestion(data.dmp.sharedResources.collections[0].isSensitiveDataCollection._path) }}</p>
         {%- endif -%}
+    {%- else -%}
+        <p>No personal data will be collected during the {{ globals.projects }}.</p>
     {%- endif -%}
-{%- endif -%}
-
 </div>
-
+</div>

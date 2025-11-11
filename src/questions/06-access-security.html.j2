@@ -3,7 +3,6 @@
 
 <div class="answer">
 
-{% if data.dmp.datasets | length > 0 %}
   {# Cold Storage #}
   {% if data.dmp.sharedResources.preservationStrategies | length > 0 or data.dmp.sharedResources.processingEnvironments | length > 0 %}
     <p>Data security and protection during the {{ globals.projects }} will be ensured through various measures of processing environment and long-term storage systems. These measures, together with potential risks, are described in Section 3, Question 5.</p>
@@ -23,7 +22,7 @@
       {%- for collection in sensitiveDataCollections -%}
         <li style="margin-bottom: 2em;">
 
-        {# --- Build the dataset list (if not all) --- #}
+        {# Build the dataset list (if not all) #}
         {{ macros.datasetIntro(collection, "sensitive data handling", data.dmp.datasets) }}
         {% set numDatasets = collection.usedBy | length %}
 
@@ -111,7 +110,5 @@
   {%- else -%}
     <p>There are no details about sensitive data collections defined for the {{ globals.projects }}.</p>
   {%- endif -%}
-{% else %}
-  <p>There are no datasets described in the {{ globals.projects }}.</p>
-{% endif %}
+</div>
 </div>

@@ -37,12 +37,14 @@
 {%- endmacro -%}
 
 {% macro datasetIntro(sharedResource, contextPhrase, allDatasets) -%}
-  {% if sharedResource.usedBy | length == allDatasets | length %}
+  {%- if sharedResource.isPlanned._value is sameas true -%}
+    <p>The {{ contextPhrase }} described below outlines the <strong>planned</strong> approach, and no datasets are currently associated with it.</p>
+  {%- elif sharedResource.usedBy | length == allDatasets | length -%}
     <p>
       All generated datasets follow the same {{ contextPhrase }}.
     </p>
 
-  {% else %}
+  {% elif sharedResource.usedBy | length > 0 %}
     {% set datasets = [] %}
     {% for datasetUuid in sharedResource.usedBy %}
       {% set ds = allDatasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
@@ -62,5 +64,5 @@
     {%- elif datasets | length == 1 -%}
       <p>The {{ contextPhrase }} described below applies to the following dataset: {{ datasetText }}.</p>
     {%- endif -%}
-  {% endif %}
+  {%- endif -%}
 {%- endmacro %}

@@ -2,8 +2,8 @@
     <h3>13. How will the application of a unique and persistent identifier (such as a Digital Object Identifier (DOI)) to each data set be ensured?</h3>
 
     <div class="answer">
+    {# Metadata specification #}
     {%- if data.dmp.sharedResources.metadataSpecifications |length > 0 -%}
-
         <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.metadataSpecifications | length == 1 else 'are' }} {{ data.dmp.sharedResources.metadataSpecifications | length }} approach{{ 'es' if data.dmp.sharedResources.metadataSpecifications | length != 1 else '' }} towards persistent identifiers assignment.</p>
         <ul>
         {%- for metadata in data.dmp.sharedResources.metadataSpecifications -%}
@@ -35,7 +35,7 @@
         {%- endfor -%}
         </ul>
     {%- endif -%}
-
+    {# Generated Datasets #}
     <h4>Generated Datasets</h4>
     {%- if data.dmp.datasets|length > 0 -%}
     The following dataset{{ "s" if data.dmp.datasets|length > 1 }} will be generated in this {{globals.projects}}, for which persistent identifiers (PIDs) will be assigned:
@@ -70,7 +70,7 @@
         {%- endfor -%}
         </ul>
     {%- else -%}
-        <p>No datasets will be generated in this {{ globals.projects }}; therefore, no persistent identifiers (PIDs) are needed.</p>
+        <p>No datasets will be generated in this {{ globals.projects }}; therefore, no persistent identifiers (PIDs) are defined.</p>
     {%- endif -%}
 
     <p>Details on which PID systems are used in different repositories are provided in Section 4, Question 10.</p>

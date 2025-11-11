@@ -18,8 +18,12 @@
             <strong>(no name given)</strong>
         {%- endif -%}
         {# If will be published #}
-        {%- if dataset.isPublished._value is sameas true %} (published){{ macros.linkQuestion(dataset.isPublished._path) }}
-        {%- elif dataset.isPublished._value is sameas false %} (not published){{ macros.linkQuestion(dataset.isPublished._path) }}
+        {%- if dataset.willBePublished._value is sameas true -%}
+            {%- if dataset.isPublished._value is sameas true %} (published){{ macros.linkQuestion(dataset.isPublished._path) }}
+            {%- elif dataset.isPublished._value is sameas false %} (will be published){{ macros.linkQuestion(dataset.isPublished._path) }}
+            {%- endif -%}
+        {%- elif dataset.willBePublished._value is sameas false %}
+            (will not be published){{ macros.linkQuestion(dataset.willBePublished._path) }}
         {%- endif -%}:
         {# Identifiers #}
         {%- if dataset.metadata -%}
@@ -196,7 +200,7 @@
         {%- if dataStorage.url %}
             (<a href="{{ dataStorage.url._value }}" target="_blank">{{ dataStorage.url._value }}</a>){{ macros.linkQuestion(dataStorage.url._path) }}
         {%- endif -%}
-        {% if dataStorage.type|length > 0 -%}(
+        {% if dataStorage.type|length > 0 %} (
             {%- for type in dataStorage.type -%}
                 {{ type._label|lower }}{{ ", " if not loop.last else "" }}
             {%- endfor -%}) {% endif %}

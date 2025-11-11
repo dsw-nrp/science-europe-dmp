@@ -55,6 +55,8 @@
             </li>
         {%- endfor -%}
         </ul>
+    {%- else -%}
+        <p>No datasets will be generated in this {{ globals.projects }}.</p>
     {%- endif -%}
 
     {# Reusing Data #}
@@ -114,11 +116,10 @@
             {%- endfor -%}
         {%- endfor -%}
     {%- endfor -%}
-    {# Remove duplicates based on .name._value for formats and usedOntologies #}
+    {# Remove duplicates based on .name._value for formats and used Ontologies #}
     {%- set formats = formats | unique(attribute='name._value') | list -%}
     {%- set usedOntologies = usedOntologies | unique(attribute='name._value') | list -%}
     
-
     {# Formats #}
     {%- if formats|length > 0 -%}
     <h4>Formats</h4>

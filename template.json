@@ -10,7 +10,7 @@
         {
             "orgId": "dmp.eosc.cz",
             "kmId": "czech-nrp-km",
-            "minVersion": "0.1.5",
+            "minVersion": "0.1.7",
             "maxVersion": null
         }
     ],
@@ -47,7 +47,7 @@
         },
         {
             "uuid": "68c26e34-5e77-4e15-9bf7-06ff92582257",
-            "name": "PDF",
+            "name": "PDF Document",
             "icon": "fas fa-file-pdf",
             "steps": [
                 {
@@ -83,21 +83,6 @@
                         "from": "html",
                         "to": "docx",
                         "args": "--filter=pandoc-docx-pagebreakpy --reference-doc=src/word/reference.docx"
-                    }
-                }
-            ]
-        },
-        {
-            "uuid": "5aa7b468-a035-42ae-84e5-01e76119cde1",
-            "name": "JSON",
-            "icon": "fas fa-file-word",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/index.json.j2",
-                        "content-type": "application/json",
-                        "extension": "json"
                     }
                 }
             ]

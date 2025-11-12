@@ -10,6 +10,10 @@ Responsible for the overall management and development of the document template,
   * [jana.martinkova@cvut.cz](mailto:jana.martinkova@cvut.cz)
   * ORCID: [0000-0001-8575-6533](https://orcid.org/0000-0001-8575-6533)
   * *Czech Technical University in Prague*
+* **Kryštof Komanec** 
+  * [krystof.komanec@fit.cvut.cz](mailto:krystof.komanec@fit.cvut.cz)
+  * ORCID: [0000-0003-3856-1682](https://orcid.org/0000-0003-3856-1682) 
+  * *Czech Technical University in Prague*
 
 ## Contributors
 
@@ -26,6 +30,6 @@ Contribute to the document template by adding new information, refining existing
 
 ### 0.1.0
 
-*Released*: 2025-11-11
+*Released*: 2025-12-11
 
 * Initial version for testing and further development

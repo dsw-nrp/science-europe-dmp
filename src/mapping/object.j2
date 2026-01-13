@@ -155,14 +155,21 @@
         "roles": contributorItem.roles|map(attribute="_label")|list,
         "projectsName": [],
     } -%}
-    {%- for project in contributorItem.projects -%}
-        {%- if project.project and project.project._uuid in projectsMap -%}
-            {%- set project_name = projectsMap[project.project._uuid].name._value if projectsMap[project.project._uuid].name else None -%}
-            {%- if project_name is not none -%}
-                {%- do contributor.projectsName.append(project_name) -%}
+    {%- if contributorItem.projects|length > 0 -%}
+        {%- for project in contributorItem.projects -%}
+            {%- if project.project and project.project._uuid in projectsMap -%}
+                {%- set project_name = projectsMap[project.project._uuid].name._value if projectsMap[project.project._uuid].name else None -%}
+                {%- if project_name is not none -%}
+                    {%- do contributor.projectsName.append(project_name) -%}
+                {%- endif -%}
             {%- endif -%}
+        {%- endfor -%}
+    {%- elif result.dmp.projects|length == 1 -%}
+        {%- set project_name = result.dmp.projects[0].name._value if result.dmp.projects[0].name else None -%}
+        {%- if project_name is not none -%}
+            {%- do contributor.projectsName.append(project_name) -%}
         {%- endif -%}
-    {%- endfor -%}
+    {%- endif -%}
     {%- do contributorsMap.update({contributor.uuid: contributor}) -%}
     {%- do result.dmp.collaboration.contributors.append(contributor) -%}
 {%- endfor -%}

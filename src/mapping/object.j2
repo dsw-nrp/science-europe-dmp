@@ -1549,6 +1549,11 @@
                 "archivalExtensionDecisionMaker": preservationItem.usesLongTermStorageAfterProject.isArchivalPeriodExtendable.archivalExtensionDecisionMaker|default(None),
                 "archivalExtensionDecisionCriteria": preservationItem.usesLongTermStorageAfterProject.isArchivalPeriodExtendable.archivalExtensionDecisionCriteria|map(attribute="_value")|list,
             }) -%}
+            {%- if preservationStrategy.longTermStorageAfterProject.archivalPeriodExtension.archivalExtensionDecisionMaker._value == "other" -%}
+                {%- do preservationStrategy.longTermStorageAfterProject.archivalPeriodExtension.update({
+                    "archivalExtensionDecisionMaker": preservationItem.usesLongTermStorageAfterProject.isArchivalPeriodExtendable.archivalExtensionDecisionMaker.other|default(None),
+                }) -%}
+            {%- endif -%}
         {%- elif preservationStrategy.longTermStorageAfterProject.isArchivalPeriodExtendable._value is sameas false -%}
             {%- do preservationStrategy.longTermStorageAfterProject.update({
                 "noArchivalPeriodExtensionReason": preservationItem.usesLongTermStorageAfterProject.isArchivalPeriodExtendable.noArchivalPeriodExtensionReason|default(None),

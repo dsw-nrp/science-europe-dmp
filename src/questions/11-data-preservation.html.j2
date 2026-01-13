@@ -79,6 +79,12 @@
               The archival period can be extended &ndash; one of the principle investigators involved in the {{globals.projects}} will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
             {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "archive_staff" %}
               The archival period can be extended &ndash; library or archive staff will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "data_steward" -%}
+              The archival period can be extended &ndash; a designated data steward will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value -%}
+              The archival period can be extended and the decision will be made by: {{ archivalPeriodExtension.archivalExtensionDecisionMaker._value }}.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
+            {%- else -%}
+              The archival period can be extended.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
             {%- endif -%}
 
             {%- set criteria = "" -%}

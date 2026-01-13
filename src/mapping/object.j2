@@ -1276,7 +1276,7 @@
         "howAvailableGuaranteed": None,
         "isFindable": metadataItem.isFindable|default(None),
         "noFindableReason": None,
-        "howConnectionToData": metadataItem.howConnectionToData|default(None),
+        "howConnectionToData": metadataItem.howConnectionToData|map(attribute="_label")|list,
         "isProvenanceDocumented": metadataItem.isProvenanceDocumented|default(None),
         "provenanceDocumented": {},
         "noProvenanceReason": None,
@@ -1315,10 +1315,8 @@
             "noFindableReason": metadataItem.isFindable.noFindableReason|default(None),
         }) -%}
     {%- endif -%}
-    {%- if metadataSpecification.howConnectionToData._value == "other" -%}
-        {%- do metadataSpecification.update({
-            "howConnectionToData": metadataItem.howConnectionToData.other|default(None),
-        }) -%}
+    {%- if metadataItem.howConnectionToDataOther._value -%}
+        {%- do metadataSpecification.howConnectionToData.append( metadataItem.howConnectionToDataOther._value|default(None)) -%}
     {%- endif -%}
     {%- if metadataSpecification.isProvenanceDocumented._value is sameas true -%}
         {%- do metadataSpecification.provenanceDocumented.update({

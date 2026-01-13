@@ -61,10 +61,14 @@
         {% endif %}
 
         {# Connection to data #}
-        {% if metadata.howConnectionToData._label %}
-            <p>The connection between the metadata and the associated data will be ensured as follows: {{ metadata.howConnectionToData._label }}{{ macros.linkQuestion(metadata.howConnectionToData._path) }}.</p>
-        {% elif metadata.howConnectionToData._value %}
-            <p>The connection between the metadata and the associated data will be ensured as follows: {{ metadata.howConnectionToData._value }}{{ macros.linkQuestion(metadata.howConnectionToData._path) }}.</p>
+        {% if metadata.howConnectionToData|length > 0 %}
+            <p>The connection between the metadata and the associated data will be ensured as follows:
+            <ul>
+            {%- for connection in metadata.howConnectionToData -%}
+                <li>{{ connection }}</li>
+            {%- endfor -%}
+            </ul>
+            </p>
         {% endif %}
 
         {# Language #}

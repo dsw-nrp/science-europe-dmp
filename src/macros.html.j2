@@ -49,9 +49,7 @@
     {% for datasetUuid in sharedResource.usedBy %}
       {% set ds = allDatasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
       {% if ds %}
-        {% if ds.name._raw %}
-          {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ linkQuestion(ds.name._path)) %}
-        {% elif ds.name %}
+        {% if ds.name %}
           {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ linkQuestion(ds.name._path)) %}
         {% else %}
           {% do datasets.append('<strong>(no name)</strong>') %}

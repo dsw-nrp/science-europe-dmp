@@ -23,12 +23,9 @@
         {% if metadata.isStandardMetadata._value is sameas true %}
         <p>
             This metadata specification follows a standard metadata schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}.
-            {% if metadata.standardMetadata.identifier._value %}
-                {% if metadata.standardMetadata.type._label == "url" %}
-                    The standard can be accessed at
-                    <a href="{{ metadata.standardMetadata.identifier._value }}" target="_blank">{{ metadata.standardMetadata.identifier._value }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
-                {% elif metadata.standardMetadata.type._label == "other" %}
-                    The identifier of the standard is: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+            {% if metadata.standardMetadata.identifier %}
+                {% if metadata.standardMetadata.identifier._raw %}: <a href="https://fairsharing.org/{{ metadata.standardMetadata.identifier._raw.id }}" target="_blank">{{ metadata.standardMetadata.identifier._raw.name }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+                {% elif metadata.standardMetadata.identifier._value %}: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
                 {% endif %}
             {% endif %}
         </p>

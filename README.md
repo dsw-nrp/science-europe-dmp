@@ -28,6 +28,13 @@ Contribute to the document template by adding new information, refining existing
 
 ## Changelog
 
+### 0.2.0
+
+*Released*: 2026-X-X
+
+* Initial version for testing and further development
+* 
+
 ### 0.1.0
 
 *Released*: 2025-12-11

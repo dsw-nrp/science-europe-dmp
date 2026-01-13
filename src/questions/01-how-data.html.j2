@@ -268,10 +268,8 @@
         <ul>
         {%- for consideredData in data.dmp.reusingData.consideredDatasets -%}
             <li>
-            {%- if consideredData.name._raw -%}
-                <strong><a href="{{ consideredData.name._raw.homepage }}" target="_blank">{{ consideredData.name._raw.name }}</a></strong>{{ macros.linkQuestion(consideredData.name._path) }}
-            {%- elif consideredData.name._value -%}
-                <strong>{{ consideredData.name._value }}{{ macros.linkQuestion(consideredData.name._path) }}</strong>
+            {%- if consideredData.name -%}
+                <strong>{{ consideredData.name._value }}</strong>{{ macros.linkQuestion(consideredData.name._path) }}
             {%- else -%}
                 <strong>(no name given)</strong>
             {%- endif -%}
@@ -332,7 +330,7 @@
                         {%- if reusedData.formatting.formats -%}
                         <p>The data are available in the following {{ "format" if reusedData.formatting.formats|length == 1 else "formats" }}:  
                         {%- for format in reusedData.formatting.formats -%}
-                            {%- if format._raw %} <em>{{format._raw.name }}</a></em>
+                            {%- if format._raw %} <em><a href="https://fairsharing.org/{{ format._raw.id }}" target="_blank">{{format._raw.name }}</a></em>
                             {%- elif format._value %} <em>{{ format._value }}</em>
                             {%- endif -%}{{ macros.linkQuestion(format._path) }}{%- if not loop.last -%}, {%- endif -%}
                         {%- endfor -%}.

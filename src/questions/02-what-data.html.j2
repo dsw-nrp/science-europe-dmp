@@ -9,9 +9,7 @@
         <ul>
         {%- for dataset in data.dmp.datasets -%}
             <li>
-            {%- if dataset.name._raw -%}
-                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- elif dataset.name -%}
+            {%- if dataset.name -%}
                 <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
             {%- else -%}
                 <strong>(no name given)</strong>
@@ -127,9 +125,10 @@
         <ul>
         {%- for format in formats -%}
         <li>
-            {%- if format.name._url %} <em><a href="{{ format.name._url }}" target="_blank">{{format.name._value }}</a></em>{{ macros.linkQuestion(format.name._path) }}
+            {%- if format.name._raw %} <em><a href="https://fairsharing.org/{{ format.name._raw.id }}" target="_blank">{{format.name._raw.name }}</a></em>{{ macros.linkQuestion(format.name._path) }}
             {%- elif format.name._value %} <em>{{ format.name._value }}</em>{{ macros.linkQuestion(format.name._path) }}
-            {%- else -%}<em>(no name given)</em>{% endif %}
+            {%- else %} <em>(no name given)</em>
+            {%- endif -%}
             <p>
             {# Well described? Standard?#}
             {%- if format.isDescribed or format.isStandard -%}

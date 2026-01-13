@@ -192,7 +192,11 @@
         <li>
         <em>
             {%- if dataStorage.name -%}
-                {{ dataStorage.name._value }}{{ macros.linkQuestion(dataStorage.name._path) }}
+                {%- if dataStorage.name._raw -%}
+                    <a href="https://fairsharing.org/{{ dataStorage.name._raw.id }}" target="_blank">{{ dataStorage.name._raw.name }}</a>{{ macros.linkQuestion(dataStorage.name._path) }}
+                {%- elif dataStorage.name._value -%}
+                    {{ dataStorage.name._value }}{{ macros.linkQuestion(dataStorage.name._path) }}
+                {%- endif -%}
             {%- else -%}
                 (no name given)
             {%- endif -%}

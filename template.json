@@ -5,7 +5,7 @@
     "name": "Science Europe DMP",
     "description": "Science Europe Data Management Plan for Czech National Repository Platform",
     "license": "Apache-2.0",
-    "metamodelVersion": "17.0",
+    "metamodelVersion": "17.1",
     "allowedPackages": [
         {
             "orgId": "dmp.eosc.cz",

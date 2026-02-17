@@ -19,13 +19,13 @@
   <body>
     <article class="dmp">
       {%- if macros.formatDetection() == "HTML_with_warnings" -%}
-        {% include "src/validation.html.j2" with context %}
+        {% include "src/content/validation.html.j2" with context %}
       {%- endif -%}
-      {% include "src/frontpage.html.j2" with context %}
-      {% include "src/versions.html.j2" with context %}
-      {% include "src/contributors.html.j2" with context %}
-      {% include "src/projects.html.j2" with context %}
-      {% include "src/content.html.j2" with context %}
+      {% include "src/content/frontpage.html.j2" with context %}
+      {% include "src/content/versions.html.j2" with context %}
+      {% include "src/content/contributors.html.j2" with context %}
+      {% include "src/content/projects.html.j2" with context %}
+      {% include "src/content/questions.html.j2" with context %}
     </article>
   </body>
 

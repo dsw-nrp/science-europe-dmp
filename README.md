@@ -33,7 +33,9 @@ Contribute to the document template by adding new information, refining existing
 *Released*: 2026-X-X
 
 * Initial version for testing and further development
-* 
+* Update metamodel version to 17.1
+* Remove object-reference file
+* Update identifiers of data and reused data to include value and type of identifier
 
 ### 0.1.0
 

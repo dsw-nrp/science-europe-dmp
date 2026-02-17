@@ -22,11 +22,12 @@
         {# Standard Metadata Specification #}
         {% if metadata.isStandardMetadata._value is sameas true %}
         <p>
-            This metadata specification follows a standard metadata schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}.
+            This metadata specification follows a standard metadata schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}
             {% if metadata.standardMetadata.identifier %}
                 {% if metadata.standardMetadata.identifier._raw %}: <a href="https://fairsharing.org/{{ metadata.standardMetadata.identifier._raw.id }}" target="_blank">{{ metadata.standardMetadata.identifier._raw.name }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
                 {% elif metadata.standardMetadata.identifier._value %}: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
                 {% endif %}
+            {%- else -%}.
             {% endif %}
         </p>
 

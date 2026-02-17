@@ -276,9 +276,13 @@
             {# Not Re-used datasets #}
             {%- if consideredData.isReused._value is sameas false -%}
                 <p>We considered reusing this standard reference data
-                {%- if consideredData.hasIdentifier._value is sameas true and consideredData.identifier %} available via: <a href="{{ consideredData.identifier._value }}" target="_blank">{{ consideredData.identifier._value }}</a>{{ macros.linkQuestion(consideredData.identifier._path) }}
-                {%- else -%}.
-                {%- endif -%}
+                {%- if consideredData.identifier %} (
+                    {%- if consideredData.identifier.type._raw and consideredData.identifier.value._value-%}
+                        <em><a href="{{ consideredData.identifier.type._raw.homepage }}" target="_blank">{{ consideredData.identifier.type._raw.homepage }}</a></em>: {{ consideredData.identifier.value._value }}{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
+                    {%- else -%}
+                        <em>{{ consideredData.identifier.type._value if consideredData.identifier.type._value else "no type given" }}: {{ consideredData.identifier.value._value if consideredData.identifier.value else "no value given" }}</em>{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
+                    {%- endif -%})
+                {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
                 {%- if consideredData.noReusedReason._value -%}
                     {%- if consideredData.noReusedReason._value == "missesNeededData" -%}
                         <p>We decided not use this dataset because it misses the data we need.
@@ -298,7 +302,12 @@
             {# Re-used datasets #}
             {%- elif consideredData.isReused._value is sameas true -%}
                 <p>We will re-use this standard reference data
-                {%- if consideredData.hasIdentifier._value is sameas true and consideredData.identifier %}  available via: <a href="{{ consideredData.identifier._value }}" target="_blank">{{ consideredData.identifier._value }}</a>{{ macros.linkQuestion(consideredData.identifier._path) }}
+                {%- if consideredData.identifier %} (
+                    {%- if consideredData.identifier.type._raw and consideredData.identifier.value._value-%}
+                        <em><a href="{{ consideredData.identifier.type._raw.homepage }}" target="_blank">{{ consideredData.identifier.type._raw.homepage }}</a></em>: {{ consideredData.identifier.value._value }}{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
+                    {%- else -%}
+                        <em>{{ consideredData.identifier.type._value if consideredData.identifier.type._value else "no type given" }}: {{ consideredData.identifier.value._value if consideredData.identifier.value else "no value given" }}</em>{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
+                    {%- endif -%})
                 {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
 
                 {# Data Use #}

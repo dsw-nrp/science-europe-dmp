@@ -70,11 +70,17 @@
 
             {# Archive format #}
             {% if storage.archiveType %}
-                {%- if storage.archiveType._value == "tape" -%}
-                    <p>The data will be stored on tape to ensure long-term durability and cost-effective storage.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
-                {%- elif storage.archiveType._value == "disk" -%}
-                    <p>The data will be stored on disk to ensure fast access and retrieval.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
-                {% endif %}
+                {%- if storage.archiveType._value == "tapes" -%}
+                    <p>The data will be archived on tapes to ensure long-term durability and cost-effective storage.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "media" -%}
+                    <p>The data will be archived on media (CDs, DVDs, flash drives, ...) to ensure fast access and retrieval.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "cloud" -%}
+                    <p>The data will be archived in the cloud to ensure scalability and accessibility.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "hard_drive" -%}
+                    <p>The data will be archived on a hard disk to ensure durability and accessibility.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "other" and storage.archiveType.other._value -%}
+                    <p>The data will be archived using the following method: {{ storage.archiveType.other._value }}.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- endif -%}
             {% endif %}
 
             {# Archive online availability #}

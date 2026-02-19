@@ -346,7 +346,10 @@
     {%- endfor -%}
     {%- for qualifiedReferenceItem in datasetItem.qualifiedReferences -%}
         {%- set qualifiedReference = ({
-            "identifier": qualifiedReferenceItem.identifier|default(None),
+            "identifier": {
+                "type": qualifiedReferenceItem.type|default(None),
+                "value": qualifiedReferenceItem.value|default(None),
+            },
             "relationship": qualifiedReferenceItem.relationship|default(None),
         }) -%}
         {%- do dataset.qualifiedReferences.append(qualifiedReference) -%}

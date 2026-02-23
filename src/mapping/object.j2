@@ -1542,7 +1542,6 @@
         {%- do preservationStrategy.longTermStorageAfterProject.update({
             "funder": preservationItem.usesLongTermStorageAfterProject.funder|default(None),
             "minimumLifeTimeYears": preservationItem.usesLongTermStorageAfterProject.minimumLifeTime|default(None),
-            "minimumLifeTimeOther": None,
             "isArchivalPeriodExtendable": preservationItem.usesLongTermStorageAfterProject.isArchivalPeriodExtendable|default(None),
             "archivalPeriodExtension": {},
             "noArchivalPeriodExtensionReason": None,
@@ -1553,7 +1552,7 @@
             {%- do preservationStrategy.longTermStorageAfterProject.update({
                 "minimumLifeTimeYears": preservationItem.usesLongTermStorageAfterProject.minimumLifeTime.otherPeriod|default(None),
             }) -%}
-        {%- elif preservationStrategy.longTermStorageAfterProject.minimumLifeTimeYears._value == "other"  -%}
+        {%- elif preservationStrategy.longTermStorageAfterProject.minimumLifeTimeYears._value == "other_way"  -%}
             {%- do preservationStrategy.longTermStorageAfterProject.update({
                 "minimumLifeTimeYears": None,
                 "minimumLifeTimeOther": preservationItem.usesLongTermStorageAfterProject.minimumLifeTime.other|default(None),
@@ -1854,7 +1853,7 @@
                 "isFreeAndAvailable": toolItem.isFreeAndAvailable|default(None),
                 "noAvailableSolution": None,
                 "hasAccessLink": toolItem.hasAccessLink|default(None),
-                "accessLink": None,
+                "identifier": {},
                 "noAccessLinkAlternatives": {},
                 "isAvailableInInstitution": toolItem.isAvailableInInstitution|default(None),
                 "usedBy": [],
@@ -1866,7 +1865,10 @@
             {%- endif -%}
             {%- if tool.hasAccessLink._value is sameas true -%}
                 {%- do tool.update({
-                    "accessLink": toolItem.hasAccessLink.accessLink|default(None),
+                    "identifier": {
+                        "value": toolItem.hasAccessLink.value|default(None),
+                        "type": toolItem.hasAccessLink.type|default(None),
+                    },
                 }) -%}
             {%- elif tool.hasAccessLink._value is sameas false -%}
                 {%- do tool.noAccessLinkAlternatives.update({

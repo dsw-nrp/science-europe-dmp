@@ -332,7 +332,7 @@
         }) -%}
         {%- if dataset.isCompletePublished._value is sameas false -%}
             {%- do dataset.update({
-                "partialPublishedDetails": datasetItem.willBePublished.partialPublishedDetails|default(None),
+                "partialPublishedDetails": datasetItem.willBePublished.isCompletePublished.partialPublishedDetails|default(None),
             }) -%}
         {%- endif -%}
         {%- do dataset.update({

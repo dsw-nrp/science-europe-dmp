@@ -6,26 +6,25 @@
 
 {# Metadata specifications #}
 {% if data.dmp.sharedResources.metadataSpecifications | length > 0 %}
-
+    <h4>Metadata Specification</h4>
+    {%- set n = data.dmp.sharedResources.metadataSpecifications | length -%}
     {% if data.dmp.sharedResources.metadataSpecifications | length > 1 %}
-        <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.metadataSpecifications | length }} different approaches to metadata description will be applied to ensure the proper documentation and discoverability of research data.</p>
-    {% elif data.dmp.sharedResources.metadataSpecifications | length == 1 %}
-        <p>In our {{ globals.projects }}, a single shared approach to metadata description will be used to ensure consistent documentation and discoverability of all research data.</p>
+        <p>Within {{ globals.projects }}, {{ data.dmp.sharedResources.metadataSpecifications | length }} different approaches to metadata description will be applied to ensure the proper documentation and discoverability of research data.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for metadata in data.dmp.sharedResources.metadataSpecifications %}
-    <li style="margin-bottom: 1.5em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{ macros.datasetIntro(metadata, "metadata specification", data.dmp.datasets) }}
 
         {# Standard Metadata Specification #}
         {% if metadata.isStandardMetadata._value is sameas true %}
         <p>
-            This metadata specification follows a standard metadata schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}
-            {% if metadata.standardMetadata.identifier %}
-                {% if metadata.standardMetadata.identifier._raw %}: <a href="https://fairsharing.org/{{ metadata.standardMetadata.identifier._raw.id }}" target="_blank">{{ metadata.standardMetadata.identifier._raw.name }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
-                {% elif metadata.standardMetadata.identifier._value %}: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+            This metadata specification follows a recognised metadata standard schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}
+            {%- if metadata.standardMetadata.identifier -%}
+                {%- if metadata.standardMetadata.identifier._raw -%}: <a href="https://fairsharing.org/{{ metadata.standardMetadata.identifier._raw.id }}" target="_blank">{{ metadata.standardMetadata.identifier._raw.name }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+                {%- elif metadata.standardMetadata.identifier._value -%}: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
                 {% endif %}
             {%- else -%}.
             {% endif %}
@@ -33,14 +32,14 @@
 
         {% elif metadata.isStandardMetadata._value is sameas false %}
         <p>
-            This metadata specification does not follow any existing standard schema.
+            This metadata specification does not rely on an established metadata standard.
             {% if metadata.noStandardMetadata.reason._value == "no_standard" %}
-            No standards are available in this project area{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}.
+            No suitable metadata standards are currently available in this research domain{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}.
             {% elif metadata.noStandardMetadata.reason._value %}, because: {{ metadata.noStandardMetadata.reason._value }}{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}.
             {% endif %}
 
             {% if metadata.noStandardMetadata.metadataElements | length > 0 %}
-                The following metadata elements will be captured as part of this custom schema:
+                The following metadata elements will be included in the custom schema:
                 <ul>
                 {% for element in metadata.noStandardMetadata.metadataElements %}
                     <li>{{ element._value }}{{ macros.linkQuestion(element._path) }}</li>
@@ -97,34 +96,33 @@
             Metadata will <strong>not</strong> be available after the data is no longer available{{ macros.linkQuestion(metadata.isAvailableAfterDataNotAvailable._path) }}
             {%- if metadata.noAvailableReason._value %}
                 (because: {{ metadata.noAvailableReason._value }}){{ macros.linkQuestion(metadata.noAvailableReason._path) }}
-            {%- endif -%}
+            {%- endif -%}.
         {%- endif -%}
-    </li>
+    {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {%- else -%}
     <p>No metadata specifications have been defined for our {{ globals.projects }}.</p>
 {% endif %}
 
 {# Documentation Specifications #}
 {% if data.dmp.sharedResources.documentationSpecifications | length > 0 %}
-
+    <h4>Documentation Specification</h4>
+    {%- set n = data.dmp.sharedResources.documentationSpecifications | length -%}
     {% if data.dmp.sharedResources.documentationSpecifications | length > 1 %}
         <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.documentationSpecifications | length }} different approaches to documentation will be applied to ensure the completeness, clarity, and discoverability of research outputs.</p>
-    {% elif data.dmp.sharedResources.documentationSpecifications | length == 1 %}
-        <p>In our {{ globals.projects }}, a single shared documentation approach will be used to ensure consistent description and discoverability of all research outputs.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for documentation in data.dmp.sharedResources.documentationSpecifications %}
-        <li style="margin-bottom: 1.5em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{ macros.datasetIntro(documentation, "documentation approach", data.dmp.datasets) }}
 
         {# Description #}
         {% if documentation.description._value %}
             <p>
-            This documentation approach will cover: {{ documentation.description._value | e }}.
+            This documentation approach will cover: {{ documentation.description._value | e |dot}}
             {{ macros.linkQuestion(documentation.description._path) }}
             </p>
         {% endif %}
@@ -148,29 +146,28 @@
         {% if documentation.format._value %}
             <p>
             The documentation will be available in the following format:
-            <strong>{{ documentation.format._value | e }}</strong>.
+            <strong>{{ documentation.format._value | e |dot}}</strong>
             {{ macros.linkQuestion(documentation.format._path) }}
             </p>
         {% endif %}
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {% else %}
     <p>No documentation specifications have been defined for our {{ globals.projects }}.</p>
 {% endif %}
 
 {# Organisations - versions, file names #}
 {% if data.dmp.sharedResources.organisationStrategies | length > 0 %}
-
+    <h4>Data Organisation Strategies</h4>
+    {%- set n = data.dmp.sharedResources.organisationStrategies | length -%}
     {% if data.dmp.sharedResources.organisationStrategies | length > 1 %}
-    <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.organisationStrategies | length }} different approaches to data organisation will be applied to ensure the proper documentation and discoverability of research data.</p>
-    {% elif data.dmp.sharedResources.organisationStrategies | length == 1 %}
-    <p>In our {{ globals.projects }}, a single shared approach to data organisation will be used to ensure consistent documentation and discoverability of all research data.</p>
+        <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.organisationStrategies | length }} different approaches to data organisation will be applied to ensure the proper documentation and discoverability of research data.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for organisationStrategy in data.dmp.sharedResources.organisationStrategies %}
-    <li style="margin-bottom: 1.5em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{ macros.datasetIntro(organisationStrategy, "file naming and versioning strategy", data.dmp.datasets) }}
 
@@ -215,9 +212,9 @@
             </ul>
             </p>
         {%- endif -%}
-    </li>
+    {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {%- else -%}
     <p>No file naming and versioning strategies have been defined for our {{ globals.projects }}.</p>
 {%- endif -%}

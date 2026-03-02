@@ -5,16 +5,15 @@
 
 {# Cold Storage #}
 {% if data.dmp.sharedResources.preservationStrategies | length > 0 %}
-
+    <h4>Data preservation and backup conditions</h4>
+    {%- set n = data.dmp.sharedResources.preservationStrategies | length -%}
     {% if data.dmp.sharedResources.preservationStrategies | length > 1 %}
-    <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.preservationStrategies | length }} different data preservation strategies will be applied during the course of the project.</p>
-    {% elif data.dmp.sharedResources.preservationStrategies | length == 1 %}
-    <p>In our {{ globals.projects }}, a single preservation strategy will be applied during the course of the project.</p>
+        <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.preservationStrategies | length }} different data preservation strategies will be applied during the course of the project.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for strategy in data.dmp.sharedResources.preservationStrategies %}
-    <li style="margin-bottom: 1.5em;">
+    {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{macros.datasetIntro(strategy, "preservation and backup conditions", data.dmp.datasets) }}
         {% set numDatasets = strategy.usedBy | length %}
@@ -147,25 +146,24 @@
                 <p>The data is not expected to change over time, so frequent backups are not anticipated to be needed.{{ macros.linkQuestion(storage.isDataChangingOverTime._path) }}</p>
             {%- endif -%}
         {% endif %}
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {%- else -%}
     <p>No specific data preservation strategy has been defined for the {{ globals.projects }}.</p>
 {% endif %}
 
 {# Processing / Working Environments (Workspaces) #}
 {% if data.dmp.sharedResources.processingEnvironments | length > 0 %}
-
+    <h4>Working environments (workspaces) for handling and processing data</h4>
+    {%- set n = data.dmp.sharedResources.processingEnvironments | length -%}
     {% if data.dmp.sharedResources.processingEnvironments | length > 1 %}
         <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.processingEnvironments | length }} different working environments (workspaces) will be used to handle and process research data.</p>
-    {% elif data.dmp.sharedResources.processingEnvironments | length == 1 %}
-        <p>In our {{ globals.projects }}, a single working environment (workspace) will be used to handle and process research data.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for environment in data.dmp.sharedResources.processingEnvironments %}
-        <li style="margin-bottom: 1.5em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{ macros.datasetIntro(environment, "working environment", data.dmp.datasets) }}
 
@@ -213,8 +211,8 @@
         {# Information loss, validation impact #}
         {% set impactSentences = {
             'zero': "negligible",
-            'low': "acceptably low",
-            'medium': "moderate",
+            'low': "very low",
+            'medium': "acceptably low",
             'high': "significant"
         } %}
         {% set impacts = [] %}
@@ -235,9 +233,9 @@
             </p>
         {% endif %}
 
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {%- else -%}
     <p>No storage and backup environments have been defined for our {{ globals.projects }}.</p>
 {% endif %}

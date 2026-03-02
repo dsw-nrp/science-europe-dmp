@@ -137,7 +137,7 @@
                     not well described{{ macros.linkQuestion(format.isDescribed._path) }}
                 {%- endif -%}
                 {%- if format.isStandard._value is sameas true %}
-                    standard format{{ macros.linkQuestion(format.isStandard._path) }}
+                    standard{{ macros.linkQuestion(format.isStandard._path) }}
                 {%- elif format.isStandard._value is sameas false %}
                     {%- if format.noStandardReason._value == "no_format" %}
                         non-standard because there is no standardized format for this data type{{ macros.linkQuestion(format.noStandardReason._path) }}

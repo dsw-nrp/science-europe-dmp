@@ -4,10 +4,13 @@
 
 <div class="answer">
   {%- if data.dmp.sharedResources.reuseRestrictions | length > 0 -%}
-    <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.reuseRestrictions | length == 1 else 'are' }} {{ data.dmp.sharedResources.reuseRestrictions | length }} approach{{ 'es' if data.dmp.sharedResources.reuseRestrictions | length != 1 else '' }} towards ownership, intellectual property rights, and access conditions, as described below:</p>
-    <ul>
+    {%- set n = data.dmp.sharedResources.reuseRestrictions | length -%}
+    {%- if n > 1 -%}
+      <p>In our {{ globals.projects }}, there are {{ data.dmp.sharedResources.reuseRestrictions | length }} approaches towards ownership, intellectual property rights, and access conditions, as described below:</p>
+    {%- endif -%}
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {%- for reuseRestriction in data.dmp.sharedResources.reuseRestrictions -%}
-      <li style="margin-bottom: 2em;">
+      {%- if n > 1 -%}<li style="margin-bottom: 2em;">90{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
       {{ macros.datasetIntro(reuseRestriction, "ownership, intellectual property rights, and access conditions", data.dmp.datasets) }}
       {% set numDatasets = reuseRestriction.usedBy | length %}
@@ -104,7 +107,7 @@
           {%- if dataCannotOpen.isAccessProcessDefined._value is sameas true -%}
             <p>
             {%- set accessProcess = dataCannotOpen.accessProcess -%}
-            Access to this data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
+            Access to this data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value|dot }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
             {%- if accessProcess.timeFrame._value %}
               The process will take place within {{ accessProcess.timeFrame._value }}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.timeFrame._path) }}
             {%- endif -%}
@@ -124,7 +127,7 @@
           {%- endif -%}
           {%- if dataCannotOpen.collaboratorAccessProcess -%}
             <p>
-            For internal collaborators within {{globals.projects}}, access is regulated as follows: {{ dataCannotOpen.collaboratorAccessProcess._value }}.{{ macros.linkQuestion(dataCannotOpen.collaboratorAccessProcess._path) }}
+            For internal collaborators within {{globals.projects}}, access is regulated as follows: {{ dataCannotOpen.collaboratorAccessProcess._value|dot }}{{ macros.linkQuestion(dataCannotOpen.collaboratorAccessProcess._path) }}
             </p>
           {%- endif -%}
           {%- if dataCannotOpen.legalReason -%}
@@ -203,9 +206,9 @@
           {%- endif -%}
         {%- endif -%}
       {%- endif -%}
-      </li>
+      {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
       {%- endfor -%}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
   {%- else -%}
     <p>No data generated during the {{ globals.projects }} will have specific restrictions regarding ownership, access, or use.</p>
   {%- endif -%}

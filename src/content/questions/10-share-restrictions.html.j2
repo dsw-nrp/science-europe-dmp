@@ -135,7 +135,7 @@
                             {%- for license in distribution.licensing.licenses -%}
                                 <li>
                                     {%- if license.license._raw -%}
-                                        <strong>{{ license.license._raw.name }}</strong>{{ macros.linkQuestion(license.license._path) }}
+                                        <strong><a href="{{ license.license._raw.url }}" target="_blank">{{ license.license._raw.name }}</a></strong>{{ macros.linkQuestion(license.license._path) }}
                                     {%- elif license.license -%}
                                         <strong>{{ license.license._value }}</strong>{{ macros.linkQuestion(license.license._path) }}
                                     {%- else -%}
@@ -226,7 +226,6 @@
                     {%- endfor -%}
                     </ul>
                 {%- endfor -%}
-                {%- if not loop.last %}, {% endif %}
             {%- endfor -%}
         {%- else -%}
             <p>No distributions have been assigned to this repository yet.</p>

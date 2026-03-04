@@ -4,10 +4,13 @@
   {# For how long and which data and metadata #}
   <div class="answer">
     {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
-      <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.preservationStrategies | length == 1 else 'are' }} {{ data.dmp.sharedResources.preservationStrategies | length }} approach{{ 'es' if data.dmp.sharedResources.preservationStrategies | length != 1 else '' }} towards long-term data preservation.</p>
-      <ul>
+      {%- set n = data.dmp.sharedResources.preservationStrategies | length -%}
+      {%- if n > 1 -%}
+        <p>In our {{ globals.projects }}, there are {{ data.dmp.sharedResources.preservationStrategies | length }} approaches towards long-term data preservation.</p>
+      {%- endif -%}
+      {%- if n > 1 -%}<ul>{%- endif -%}
       {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
-        <li style="margin-bottom: 2em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
         {{ macros.datasetIntro(preservationStrategy, "long-term preservation", data.dmp.datasets) }}
         {% set numDatasets = preservationStrategy.usedBy | length %}
@@ -79,11 +82,11 @@
               The archival period can be extended &ndash; one of the principle investigators involved in the {{globals.projects}} will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
             {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "archive_staff" %}
               The archival period can be extended &ndash; library or archive staff will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
-            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "data_steward" -%}
+            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value == "data_steward" %}
               The archival period can be extended &ndash; a designated data steward will decide.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
-            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value -%}
+            {%- elif archivalPeriodExtension.archivalExtensionDecisionMaker._value %}
               The archival period can be extended and the decision will be made by: {{ archivalPeriodExtension.archivalExtensionDecisionMaker._value }}.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
-            {%- else -%}
+            {%- else %}
               The archival period can be extended.{{ macros.linkQuestion(archivalPeriodExtension.archivalExtensionDecisionMaker._path) }}
             {%- endif -%}
 
@@ -135,9 +138,9 @@
             {{ macros.linkQuestion(longTermStorageAfterProject.isMediaUpgradePlanned._path) }}
           {%- endif -%}
         {%- endif -%}
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
       {%- endfor -%}
-      </ul>
+      {%- if n > 1 -%}</ul>{%- endif -%}
     {%- else -%}
       <p>No long-term storage solutions have been defined for this project. Therefore, there is no harmonised approach towards long-term data preservation to report.</p>
     {%- endif -%}

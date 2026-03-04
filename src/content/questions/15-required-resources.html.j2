@@ -73,7 +73,7 @@
       <p>
         To execute the DMP, additional specialist expertise is required. We will be training existing staff
         {%- if collaboration.trainingDetails %}
-          in: {{ collaboration.trainingDetails._value  }}{{ macros.linkQuestion(collaboration.trainingDetails._path) }}
+          in: {{ collaboration.trainingDetails._value|dot }}{{ macros.linkQuestion(collaboration.trainingDetails._path) }}
         {%- else -%}.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}
         {%- endif -%}
       </p>
@@ -81,7 +81,7 @@
       <p>
         To execute the DMP, additional specialist expertise is required. We will be hiring new people with additional expertise
         {%- if collaboration.expertiseDetails %}
-          in: {{ collaboration.expertiseDetails._value }}{{ macros.linkQuestion(collaboration.expertiseDetails._path) }}
+          in: {{ collaboration.expertiseDetails._value|dot }}{{ macros.linkQuestion(collaboration.expertiseDetails._path) }}
         {%- else -%}.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}
         {%- endif -%}
       </p>
@@ -104,11 +104,12 @@
 
   {# Archiving (Cold storage) #}
   {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
+    {%- set n = data.dmp.sharedResources.preservationStrategies | length -%}
     <p>The following part describes how data will be archived and preserved for the long term, including funding sources and minimum retention periods for each dataset:</p>
-      <ul>
+      {%- if n > 1 -%}<ul>{%- endif -%}
 
       {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
-        <li style="margin-bottom: 2em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
         {{ macros.datasetIntro(preservationStrategy, "archiving and preservation conditions", data.dmp.datasets) }}
 
@@ -195,9 +196,9 @@
 
         {%- endif -%}
         </p>
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
       {%- endfor -%}
-      </ul>
+      {%- if n > 1 -%}</ul>{%- endif -%}
     {%- else -%}
       <p>No specific measures for long-term preservation have been defined.</p>
     {%- endif -%}

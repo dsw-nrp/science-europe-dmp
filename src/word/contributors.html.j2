@@ -18,6 +18,12 @@
       {%- if contributor.roles|length > 0 %}
         <br>{% if contributor.roles|length == 0 %}Role{% else %}Roles{% endif %}: {% for role in contributor.roles %}<span class="role">{{ role }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
       {%- endif %}
+      {%- if contributor.projectsName and contributor.projectsName|length > 0 -%}
+          <br><span class="projects">{{ "Projects" if contributor.projectsName|length > 1 else "Project" }}:
+              {%- for project in contributor.projectsName %}<span class="project-name"> {{ project }}</span>{{ macros.linkQuestion(project._path) }}{% if not loop.last %},{% endif %}
+              {%- endfor -%}
+          </span>
+      {%- endif -%}
       {%- if contributor.affiliation %}
         {%- if contributor.affiliation._raw-%}
             {% for name in contributor.affiliation._raw.names -%}

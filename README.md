@@ -36,6 +36,9 @@ Contribute to the document template by adding new information, refining existing
 * Update metamodel version to 17.1
 * Remove object-reference file
 * Update identifiers of data and reused data to include value and type of identifier
+* Update FAIRsharing integration
+* Set default project for contributor (if not set, the contributor will be assigned to the first project in the list)
+* Update service links, names and logos
 
 ### 0.1.0
 

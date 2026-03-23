@@ -277,12 +277,8 @@
             {# Not Re-used datasets #}
             {%- if consideredData.isReused._value is sameas false -%}
                 <p>We considered reusing this standard reference data
-                {%- if consideredData.identifier %} (
-                    {%- if consideredData.identifier.type._raw and consideredData.identifier.value._value-%}
-                        <em><a href="{{ consideredData.identifier.type._raw.homepage }}" target="_blank">{{ consideredData.identifier.type._raw.homepage }}</a></em>: {{ consideredData.identifier.value._value }}{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
-                    {%- else -%}
-                        <em>{{ consideredData.identifier.type._value if consideredData.identifier.type._value else "no type given" }}: {{ consideredData.identifier.value._value if consideredData.identifier.value else "no value given" }}</em>{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
-                    {%- endif -%})
+                {%- if consideredData.identifier %} 
+                    ({{ macros.formatIdentifier(consideredData.identifier) }}{{ macros.linkQuestion(consideredData.identifier._path) if consideredData.identifier._path }})
                 {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
                 {%- if consideredData.noReusedReason._value -%}
                     {%- if consideredData.noReusedReason._value == "missesNeededData" -%}
@@ -303,12 +299,8 @@
             {# Re-used datasets #}
             {%- elif consideredData.isReused._value is sameas true -%}
                 <p>We will re-use this standard reference data
-                {%- if consideredData.identifier %} (
-                    {%- if consideredData.identifier.type._raw and consideredData.identifier.value._value-%}
-                        <em><a href="{{ consideredData.identifier.type._raw.homepage }}" target="_blank">{{ consideredData.identifier.type._raw.homepage }}</a></em>: {{ consideredData.identifier.value._value }}{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
-                    {%- else -%}
-                        <em>{{ consideredData.identifier.type._value if consideredData.identifier.type._value else "no type given" }}: {{ consideredData.identifier.value._value if consideredData.identifier.value else "no value given" }}</em>{{ macros.linkQuestion(consideredData.identifier.value._path) if consideredData.identifier.value._path }}
-                    {%- endif -%})
+                {%- if consideredData.identifier %} 
+                    ({{ macros.formatIdentifier(consideredData.identifier) }}{{ macros.linkQuestion(consideredData.identifier._path) if consideredData.identifier._path }})
                 {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
 
                 {# Data Use #}
@@ -424,12 +416,7 @@
                                         </p>
                                     {%- endif -%}
                                     {%- if tool.hasAccessLink._value is sameas true and tool.identifier -%}
-                                        {%- set identifier = tool.identifier -%}
-                                        {%- if identifier.type._raw and identifier.value._value-%}
-                                            <p><em><a href="{{ identifier.type._raw.homepage }}" target="_blank">{{ identifier.type._raw.homepage }}</a></em>: {{ identifier.value._value }}{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}</p>
-                                        {%- else -%}
-                                            <p><em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}</p>
-                                        {%- endif -%}
+                                        <p>This tool can be accessed directly at {{ macros.formatIdentifier(tool.identifier) }}.{{ macros.linkQuestion(tool.hasAccessLink._path) }}</p>
                                     {%- elif tool.hasAccessLink._value is sameas false and tool.noAccessLinkAlternatives -%}
                                         {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}
                                             <p>Documentation is available for this tool.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}</p>

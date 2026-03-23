@@ -58,11 +58,7 @@
                 <ul>
                 {%- for identifier in dataset.identifiers -%}
                     <li>
-                    {%- if identifier.type._raw and identifier.value._value-%}
-                        <em><a href="{{ identifier.type._raw.homepage }}" target="_blank">{{ identifier.type._raw.homepage }}</a></em>: {{identifier.value._value}}{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- else -%}
-                        <em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- endif -%}
+                    {{ macros.formatIdentifier(identifier) }}{{ macros.linkQuestion(identifier._path) if identifier._path }}
                     </li>
                 {%- endfor -%}
                 </ul>

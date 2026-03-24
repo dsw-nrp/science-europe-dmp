@@ -36,6 +36,22 @@
   {%- endif -%}
 {%- endmacro -%}
 
+{# Including detection of URL identifier from FAIRsharing #}
+{%- macro formatIdentifier(identifier) -%}
+  {%- if identifier.type._raw and identifier.value._value -%}
+    <em><a href="{{ identifier.type._raw.homepage }}" target="_blank">{{ identifier.type._raw.abbreviation }}</a></em>:
+    {%- if identifier.type._raw.urlPattern %}
+      <a href="{{ identifier.type._raw.urlPattern | replace("{$id}", identifier.value._value) }}" target="_blank">{{ identifier.type._raw.urlPattern | replace("{$id}", identifier.value._value) }}</a>{{ linkQuestion(identifier.value._path) }}
+    {%- elif identifier.type._raw.id == 709 %}
+      <a href="{{ identifier.value._value }}" target="_blank">{{ identifier.value._value }}</a>{{ linkQuestion(identifier.value._path) }}
+    {%- else %}
+      {{ identifier.value._value }}{{ linkQuestion(identifier.value._path) }}
+    {%- endif -%}
+  {%- else -%}
+    <em>{{ identifier.type._value if identifier.type._value else "no type of identifier given" }}: {{ identifier.value._value if identifier.value._value else "no value given" }}</em>
+  {%- endif -%}
+{%- endmacro -%}
+
 {% macro datasetIntro(sharedResource, contextPhrase, allDatasets) -%}
   {%- if sharedResource.isPlanned._value is sameas true -%}
     <p>The {{ contextPhrase }} described below outlines the <strong>planned</strong> approach, and no datasets are currently associated with it.</p>
@@ -49,9 +65,7 @@
     {% for datasetUuid in sharedResource.usedBy %}
       {% set ds = allDatasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
       {% if ds %}
-        {% if ds.name._raw %}
-          {% do datasets.append('<strong><a href="' ~ ds.name._raw.homepage ~ '" target="_blank">' ~ ds.name._raw.name ~ '</a></strong>' ~ linkQuestion(ds.name._path)) %}
-        {% elif ds.name %}
+        {% if ds.name %}
           {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ linkQuestion(ds.name._path)) %}
         {% else %}
           {% do datasets.append('<strong>(no name)</strong>') %}

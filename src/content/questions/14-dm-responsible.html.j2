@@ -11,7 +11,7 @@
         {%- set name = contributor.name if contributor.name and contributor.name else "(no name given)" -%}
         {%- if contributor.roles and contributor.roles|length > 0 -%}
           {%- for role in contributor.roles -%}
-            {%- set role_name = role if role else "(no role given)" -%}
+            {%- set role_name = role if role else "(no role is given)." -%}
             {%- if roles[role_name] is defined -%}
               {%- set _ = roles[role_name].append(name) -%}
             {%- else -%}
@@ -19,7 +19,7 @@
             {%- endif -%}
           {%- endfor -%}
         {%- else -%}
-          {%- set role_name = "(no role given)" -%}
+          {%- set role_name = "(no role is given)." -%}
           {%- if roles[role_name] is defined -%}
             {%- set _ = roles[role_name].append(name) -%}
           {%- else -%}

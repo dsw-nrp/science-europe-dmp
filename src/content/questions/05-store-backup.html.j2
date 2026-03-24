@@ -5,16 +5,15 @@
 
 {# Cold Storage #}
 {% if data.dmp.sharedResources.preservationStrategies | length > 0 %}
-
+    <h4>Data preservation and backup conditions</h4>
+    {%- set n = data.dmp.sharedResources.preservationStrategies | length -%}
     {% if data.dmp.sharedResources.preservationStrategies | length > 1 %}
-    <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.preservationStrategies | length }} different data preservation strategies will be applied during the course of the project.</p>
-    {% elif data.dmp.sharedResources.preservationStrategies | length == 1 %}
-    <p>In our {{ globals.projects }}, a single preservation strategy will be applied during the course of the project.</p>
+        <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.preservationStrategies | length }} different data preservation strategies will be applied during the course of the project.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for strategy in data.dmp.sharedResources.preservationStrategies %}
-    <li style="margin-bottom: 1.5em;">
+    {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{macros.datasetIntro(strategy, "preservation and backup conditions", data.dmp.datasets) }}
         {% set numDatasets = strategy.usedBy | length %}
@@ -70,11 +69,17 @@
 
             {# Archive format #}
             {% if storage.archiveType %}
-                {%- if storage.archiveType._value == "tape" -%}
-                    <p>The data will be stored on tape to ensure long-term durability and cost-effective storage.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
-                {%- elif storage.archiveType._value == "disk" -%}
-                    <p>The data will be stored on disk to ensure fast access and retrieval.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
-                {% endif %}
+                {%- if storage.archiveType._value == "tapes" -%}
+                    <p>The data will be archived on tapes to ensure long-term durability and cost-effective storage.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "media" -%}
+                    <p>The data will be archived on media (CDs, DVDs, flash drives, ...) to ensure fast access and retrieval.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "cloud" -%}
+                    <p>The data will be archived in the cloud to ensure scalability and accessibility.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "hard_drive" -%}
+                    <p>The data will be archived on a hard disk to ensure durability and accessibility.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- elif storage.archiveType._value == "other" and storage.archiveType.other._value -%}
+                    <p>The data will be archived using the following method: {{ storage.archiveType.other._value }}.{{ macros.linkQuestion(storage.archiveType._path) }}</p>
+                {%- endif -%}
             {% endif %}
 
             {# Archive online availability #}
@@ -141,25 +146,24 @@
                 <p>The data is not expected to change over time, so frequent backups are not anticipated to be needed.{{ macros.linkQuestion(storage.isDataChangingOverTime._path) }}</p>
             {%- endif -%}
         {% endif %}
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {%- else -%}
     <p>No specific data preservation strategy has been defined for the {{ globals.projects }}.</p>
 {% endif %}
 
 {# Processing / Working Environments (Workspaces) #}
 {% if data.dmp.sharedResources.processingEnvironments | length > 0 %}
-
+    <h4>Working environments (workspaces) for handling and processing data</h4>
+    {%- set n = data.dmp.sharedResources.processingEnvironments | length -%}
     {% if data.dmp.sharedResources.processingEnvironments | length > 1 %}
         <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.processingEnvironments | length }} different working environments (workspaces) will be used to handle and process research data.</p>
-    {% elif data.dmp.sharedResources.processingEnvironments | length == 1 %}
-        <p>In our {{ globals.projects }}, a single working environment (workspace) will be used to handle and process research data.</p>
     {% endif %}
 
-    <ul>
+    {%- if n > 1 -%}<ul>{%- endif -%}
     {% for environment in data.dmp.sharedResources.processingEnvironments %}
-        <li style="margin-bottom: 1.5em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 1.5em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
 
         {{ macros.datasetIntro(environment, "working environment", data.dmp.datasets) }}
 
@@ -207,8 +211,8 @@
         {# Information loss, validation impact #}
         {% set impactSentences = {
             'zero': "negligible",
-            'low': "acceptably low",
-            'medium': "moderate",
+            'low': "very low",
+            'medium': "acceptably low",
             'high': "significant"
         } %}
         {% set impacts = [] %}
@@ -229,9 +233,9 @@
             </p>
         {% endif %}
 
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
 {%- else -%}
     <p>No storage and backup environments have been defined for our {{ globals.projects }}.</p>
 {% endif %}

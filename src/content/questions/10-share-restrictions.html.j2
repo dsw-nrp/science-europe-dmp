@@ -10,9 +10,7 @@
     <ul>
     {%- for dataset in data.dmp.datasets -%}
         <li>
-        {%- if dataset.name._raw -%}
-            <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
-        {%- elif dataset.name -%}
+        {%- if dataset.name -%}
             <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
         {%- else -%}
             <strong>(no name given)</strong>
@@ -54,11 +52,7 @@
             <ul>
                 {%- for identifier in dataset.identifiers -%}
                     <li>
-                    {%- if identifier.type._raw and identifier.value._value-%}
-                        <em><a href="{{ identifier.type._raw.homepage }}/{{identifier.value._value}}" target="_blank">{{ identifier.type._raw.homepage }}/{{identifier.value._value}}</a></em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- else -%}
-                        <em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- endif -%}
+                    {{ macros.formatIdentifier(identifier) }}
                     </li>
                 {%- endfor -%}
             </ul>
@@ -137,7 +131,7 @@
                             {%- for license in distribution.licensing.licenses -%}
                                 <li>
                                     {%- if license.license._raw -%}
-                                        <strong>{{ license.license._raw.name }}</strong>{{ macros.linkQuestion(license.license._path) }}
+                                        <strong><a href="{{ license.license._raw.url }}" target="_blank">{{ license.license._raw.name }}</a></strong>{{ macros.linkQuestion(license.license._path) }}
                                     {%- elif license.license -%}
                                         <strong>{{ license.license._value }}</strong>{{ macros.linkQuestion(license.license._path) }}
                                     {%- else -%}
@@ -192,7 +186,11 @@
         <li>
         <em>
             {%- if dataStorage.name -%}
-                {{ dataStorage.name._value }}{{ macros.linkQuestion(dataStorage.name._path) }}
+                {%- if dataStorage.name._raw -%}
+                    <a href="https://fairsharing.org/{{ dataStorage.name._raw.id }}" target="_blank">{{ dataStorage.name._raw.name }}</a>{{ macros.linkQuestion(dataStorage.name._path) }}
+                {%- elif dataStorage.name._value -%}
+                    {{ dataStorage.name._value }}{{ macros.linkQuestion(dataStorage.name._path) }}
+                {%- endif -%}
             {%- else -%}
                 (no name given)
             {%- endif -%}
@@ -224,7 +222,6 @@
                     {%- endfor -%}
                     </ul>
                 {%- endfor -%}
-                {%- if not loop.last %}, {% endif %}
             {%- endfor -%}
         {%- else -%}
             <p>No distributions have been assigned to this repository yet.</p>
@@ -289,6 +286,6 @@
 
     {# Restrictions #}
     <h4>Restrictions on data sharing</h4>
-    <p>Ethical and legal restrictions are documented under Section 4. We have used the {{ globals.fullName }}, which made us aware of options to minimize the restrictions.</p>
+    <p>Ethical and legal restrictions are documented under Section 4. We have used the {{ dc.config.service_name }}, which made us aware of options to minimize the restrictions.</p>
   </div>
 </div>

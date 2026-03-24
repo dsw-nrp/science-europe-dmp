@@ -11,11 +11,10 @@
       {%- endif -%}
     {%- endfor -%}
     {%- if ethicalCollections | length > 0 -%}
-
-      <p>In our {{ globals.projects }}, ethical considerations and codes of conduct have been identified and are detailed below.</p>
-      <ul>
+      {%- set n = ethicalCollections | length -%}
+      {%- if n > 1 -%}<ul>{%- endif -%}
       {%- for collection in ethicalCollections -%}
-        <li style="margin-bottom: 2em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
         {{ macros.datasetIntro(collection, "ethical issues and codes of conduct", data.dmp.datasets) }}
         {% set numDatasets = collection.usedBy | length %}
@@ -45,9 +44,9 @@
           .
         {%- endif -%}
         </p>
-        </li>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
       {%- endfor -%}
-      </ul>
+      {%- if n > 1 -%}</ul>{%- endif -%}
     {%- else -%}
       <p>There are no ethical issues or codes of conduct to report for the {{ globals.projects }}.</p>
     {%- endif -%}

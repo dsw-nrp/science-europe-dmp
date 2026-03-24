@@ -1,16 +1,16 @@
 {
     "templateId": "science-europe-dmp",
     "organizationId": "dmp.eosc.cz",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "name": "Science Europe DMP",
     "description": "Science Europe Data Management Plan for Czech National Repository Platform",
     "license": "Apache-2.0",
-    "metamodelVersion": "17.0",
+    "metamodelVersion": "17.1",
     "allowedPackages": [
         {
             "orgId": "dmp.eosc.cz",
             "kmId": "czech-nrp-km",
-            "minVersion": "0.1.7",
+            "minVersion": "0.2.0",
             "maxVersion": null
         }
     ],

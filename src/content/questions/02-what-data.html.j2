@@ -9,9 +9,7 @@
         <ul>
         {%- for dataset in data.dmp.datasets -%}
             <li>
-            {%- if dataset.name._raw -%}
-                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- elif dataset.name -%}
+            {%- if dataset.name -%}
                 <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
             {%- else -%}
                 <strong>(no name given)</strong>
@@ -19,12 +17,8 @@
             {# Identifier #}
             {%- if dataset.identifiers|length > 0 %} (
                 {%- for identifier in dataset.identifiers -%}
-                    {%- if identifier.type._raw and identifier.value._value-%}
-                        <em><a href="{{ identifier.type._raw.homepage }}/{{identifier.value._value}}" target="_blank">{{ identifier.type._raw.homepage }}/{{identifier.value._value}}</a></em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- else -%}
-                        <em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- endif -%}
-                    {% if not loop.last %}, {% endif %}
+                    {{ macros.formatIdentifier(identifier) }}
+                    {%- if not loop.last -%}, {% endif %}
                 {%- endfor -%}
                 )
             {%- endif %}:
@@ -127,9 +121,10 @@
         <ul>
         {%- for format in formats -%}
         <li>
-            {%- if format.name._url %} <em><a href="{{ format.name._url }}" target="_blank">{{format.name._value }}</a></em>{{ macros.linkQuestion(format.name._path) }}
+            {%- if format.name._raw %} <em><a href="https://fairsharing.org/{{ format.name._raw.id }}" target="_blank">{{format.name._raw.name }}</a></em>{{ macros.linkQuestion(format.name._path) }}
             {%- elif format.name._value %} <em>{{ format.name._value }}</em>{{ macros.linkQuestion(format.name._path) }}
-            {%- else -%}<em>(no name given)</em>{% endif %}
+            {%- else %} <em>(no name given)</em>
+            {%- endif -%}
             <p>
             {# Well described? Standard?#}
             {%- if format.isDescribed or format.isStandard -%}
@@ -140,7 +135,7 @@
                     not well described{{ macros.linkQuestion(format.isDescribed._path) }}
                 {%- endif -%}
                 {%- if format.isStandard._value is sameas true %}
-                    standard format{{ macros.linkQuestion(format.isStandard._path) }}
+                    standard{{ macros.linkQuestion(format.isStandard._path) }}
                 {%- elif format.isStandard._value is sameas false %}
                     {%- if format.noStandardReason._value == "no_format" %}
                         non-standard because there is no standardized format for this data type{{ macros.linkQuestion(format.noStandardReason._path) }}

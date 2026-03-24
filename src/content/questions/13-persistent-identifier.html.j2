@@ -4,10 +4,13 @@
     <div class="answer">
     {# Metadata specification #}
     {%- if data.dmp.sharedResources.metadataSpecifications |length > 0 -%}
-        <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.metadataSpecifications | length == 1 else 'are' }} {{ data.dmp.sharedResources.metadataSpecifications | length }} approach{{ 'es' if data.dmp.sharedResources.metadataSpecifications | length != 1 else '' }} towards persistent identifiers assignment.</p>
-        <ul>
+        {%- set n = data.dmp.sharedResources.metadataSpecifications | length -%}
+        {%- if n > 1 -%}
+            <p>In our {{ globals.projects }}, there are {{ data.dmp.sharedResources.metadataSpecifications | length }} approaches towards persistent identifiers assignment.</p>
+        {%- endif -%}
+        {%- if n > 1 -%}<ul>{%- endif -%}
         {%- for metadata in data.dmp.sharedResources.metadataSpecifications -%}
-            <li style="margin-bottom: 2em;">
+            {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
             {{ macros.datasetIntro(metadata, "persistent identifiers assignment", data.dmp.datasets) }}
 
@@ -30,21 +33,21 @@
                 {%- endif -%}
             {%- elif metadata.usesPids._value is sameas false -%}
                 <p>A persistent identifier (PID) for this data will not be assigned.{{ macros.linkQuestion(metadata.usesPids._path) }}</p>
+            {%- else -%}
+                <p>It is not specified whether a persistent identifier (PID) will be assigned for this data.</p>
             {%- endif -%}
-            </li>
+            {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
         {%- endfor -%}
-        </ul>
+        {%- if n > 1 -%}</ul>{%- endif -%}
     {%- endif -%}
     {# Generated Datasets #}
     <h4>Generated Datasets</h4>
     {%- if data.dmp.datasets|length > 0 -%}
-    The following dataset{{ "s" if data.dmp.datasets|length > 1 }} will be generated in this {{globals.projects}}, for which persistent identifiers (PIDs) will be assigned:
+        The following dataset{{ "s" if data.dmp.datasets|length > 1 }} will be generated in this {{globals.projects}}, for which persistent identifiers (PIDs) will be assigned:
         <ul>
         {%- for dataset in data.dmp.datasets -%}
             <li>
-            {%- if dataset.name._raw -%}
-                <strong><a href="{{ dataset.name._raw.homepage }}" target="_blank">{{ dataset.name._raw.name }}</a></strong>{{ macros.linkQuestion(dataset.name._path) }}
-            {%- elif dataset.name -%}
+            {%- if dataset.name -%}
                 <strong>{{ dataset.name._value }}</strong>{{ macros.linkQuestion(dataset.name._path) }}
             {%- else -%}
                 <strong>(no name given)</strong>
@@ -55,11 +58,7 @@
                 <ul>
                 {%- for identifier in dataset.identifiers -%}
                     <li>
-                    {%- if identifier.type._raw and identifier.value._value-%}
-                        <em><a href="{{ identifier.type._raw.homepage }}/{{identifier.value._value}}" target="_blank">{{ identifier.type._raw.homepage }}/{{identifier.value._value}}</a></em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- else -%}
-                        <em>{{ identifier.type._value if identifier.type._value else "no type given" }}: {{ identifier.value._value if identifier.value else "no value given" }}</em>{{ macros.linkQuestion(identifier.value._path) if identifier.value._path }}
-                    {%- endif -%}
+                    {{ macros.formatIdentifier(identifier) }}
                     </li>
                 {%- endfor -%}
                 </ul>

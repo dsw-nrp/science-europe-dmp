@@ -4,14 +4,13 @@
 <div class="answer">
 {% if data.dmp.datasets | length > 0 %}
     {%- if data.dmp.sharedResources.collections | length > 0 -%}
+        {%- set n = data.dmp.sharedResources.collections | length -%}
         {% if data.dmp.sharedResources.collections | length > 1 %}
             <p>In our {{ globals.projects }}, {{ data.dmp.sharedResources.collections | length }} distinct approaches to quality control will be used to gather and generate research data:</p>
-        {% elif data.dmp.sharedResources.collections | length == 1 %}
-            <p>In our {{ globals.projects }}, a single approach to quality control will be used to collect and generate research data:</p>
         {% endif %}
-        <ul>
+        {%- if n > 1 -%}<ul>{%- endif -%}
         {% for collection in data.dmp.sharedResources.collections %}
-            <li style="margin-bottom: 2em;">
+            {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
             {{ macros.datasetIntro(collection, "data quality control measures", data.dmp.datasets) }}
             {% set numDatasets = collection.usedBy | length %}
@@ -42,9 +41,9 @@
             {%- else -%}
                 <p>During collection of non-equipment data, no quality assurance processes will be applied.</p>
             {%- endif -%}
-            </li>
+            {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
         {%- endfor -%}
-    </ul>
+    {%- if n > 1 -%}</ul>{%- endif -%}
     {%- else -%}
         <p>There is no description available for the data.</p>
     {%- endif -%}

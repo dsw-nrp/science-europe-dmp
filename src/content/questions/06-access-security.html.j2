@@ -17,10 +17,11 @@
     {%- endfor -%}
 
     {%- if sensitiveDataCollections | length > 0 -%}
-      <p>In our {{globals.projects}}, we will implement specific access and security measures for sensitive data collections:</p>
-      <ul>
+      {%- set n = sensitiveDataCollections | length -%}
+      <p>Specific access control and security measures will be implemented for collections involving sensitive data.</p>
+      {%- if n > 1 -%}<ul>{%- endif -%}
       {%- for collection in sensitiveDataCollections -%}
-        <li style="margin-bottom: 2em;">
+        {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
 
         {# Build the dataset list (if not all) #}
         {{ macros.datasetIntro(collection, "sensitive data handling", data.dmp.datasets) }}
@@ -28,9 +29,9 @@
 
         {# Personal Data #}
         {%- if collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas true -%}
-          <p>We are collecting personal data
+          <p>This collection involves the processing of personal data
           {%- if collection.sensitiveDataCollection.personalDataCollection.purpose %}
-            for the purpose: {{ collection.sensitiveDataCollection.personalDataCollection.purpose._value }}{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.purpose._path) }}
+            for the purpose: {{ collection.sensitiveDataCollection.personalDataCollection.purpose._value|dot }}{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.purpose._path) }}
           {%- else -%}.{{ macros.linkQuestion(collection.sensitiveDataCollection.isPersonalDataCollection._path) }}
           {%- endif -%}
           {%- if collection.sensitiveDataCollection.personalDataCollection.isFullyAnonymized._value is sameas true %}
@@ -101,9 +102,9 @@
             {%- endif -%}
           </p>
         {%- endif -%}
-        </li>
+        {%- if n > 1 -%}</li>{%- endif -%}
       {%- endfor -%}
-      </ul>
+      {%- if n > 1 -%}</ul>{%- endif -%}
     {%- else -%}
       <p>No sensitive data will be collected during the {{ globals.projects }}.{{ macros.linkQuestion(data.dmp.sharedResources.collections[0].isSensitiveDataCollection._path) }}</p>
     {%- endif -%}

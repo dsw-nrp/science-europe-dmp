@@ -1,17 +1,117 @@
-<div id="q-data-preservation" class="question">
-  <h3>11. How will data for preservation be selected, and where data will be preserved long-term (for example a data repository or archive)?</h3>
+<div id="q-required-resources" class="question">
+  <h3>15. What resources (for example financial and time) will be dedicated to data management and ensuring that data will be FAIR (Findable, Accessible, Interoperable, Re-usable)?</h3>
 
-  {# For how long and which data and metadata #}
   <div class="answer">
-    {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
-      <p>In our {{ globals.projects }}, there {{ 'is' if data.dmp.sharedResources.preservationStrategies | length == 1 else 'are' }} {{ data.dmp.sharedResources.preservationStrategies | length }} approach{{ 'es' if data.dmp.sharedResources.preservationStrategies | length != 1 else '' }} towards long-term data preservation.</p>
-      <ul>
-      {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
-        <li style="margin-bottom: 2em;">
+    {# Costs #}
+    <ul>
+    {%- for project in data.dmp.projects -%}
+      {%- if project.costs|length > 0 -%}
+      <li>
+        <strong>
+          {%- if project.name._value -%}
+            {{project.name._value}}{{ macros.linkQuestion(project.name._path) }}
+            {%- else -%}
+            <em>(no name given)</em>
+          {%- endif -%}
+        </strong>:
+        <p>Following resources will be dedicated to data management and ensuring that data will be FAIR:</p>
+        <ul>
+          {%- for cost in project.costs -%}
+            <li>
+                <p><b>
+                {%- if cost.title._value -%}
+                  {{ cost.title._value }}{{ macros.linkQuestion(cost.title._path) }}:
+                {%- else -%}
+                  <em>(no name given):</em>
+                {%- endif -%}
+                </b>
+                {%- if cost.amount._value is not none -%}
+                &nbsp;{{ cost.amount._value }}{{ macros.linkQuestion(cost.amount._path) }}
+                  {%- if cost.currency._raw %}
+                      {{ cost.currency._raw.code }}{{ macros.linkQuestion(cost.currency._path) }}
+                  {%- elif cost.currency._value %}
+                      {{ cost.currency._value }}{{ macros.linkQuestion(cost.currency._path) }}
+                  {%- else %}
+                      (no currency given)
+                  {%- endif -%}
+                {%- else -%}
+                  (no amount given)
+                {%- endif %}
+                {%- if cost.allocation|length > 0 -%}
+                  <br>This will be used for: 
+                    {{ cost.allocation | join(", ") }}.
+                {%- endif %}
 
-        {{ macros.datasetIntro(preservationStrategy, "long-term preservation", data.dmp.datasets) }}
-        {% set numDatasets = preservationStrategy.usedBy | length %}
-        {%- set accessRestriction = preservationStrategy.accessRestriction -%}
+              {# How cost will be covered #}
+              {%- if cost.isCoveredByGrant._value is sameas true -%}
+                  <br>This cost will be covered by funding from grant<em>
+                  {{ cost.coveredBy._label if cost.coveredBy._label else "(no grant given)" }}
+                  {%- if cost.coveredBy._label -%}
+                    {{ macros.linkQuestion(cost.coveredBy._path) }}
+                  {%- else -%}
+                    {{ macros.linkQuestion(cost.isCoveredByGrant._path) }}
+                  {%- endif -%}.</em>
+              {%- elif cost.isCoveredByGrant._value is sameas false and cost.coveredBy -%}
+                <br>This cost will be covered by <em>{{cost.coveredBy._value}}</em>.{{ macros.linkQuestion(cost.coveredBy._path) }}
+              {%- endif %}
+              </p>
+            </li>
+          {%- endfor %}
+        </ul>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}
+    </ul>
+  
+    {# Additional expertise #}
+    {%- set collaboration = data.dmp.collaboration -%}
+    {%- if collaboration.expertiseRequirement._value == "no" -%}
+      <p>To execute the DMP, no additional specialist expertise is required.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}</p>
+    {%- elif collaboration.expertiseRequirement._value == "trainedStaffAvailable" -%}
+      <p>To execute the DMP, additional specialist expertise is required and we have such trained support staff available.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}</p>
+    {%- elif collaboration.expertiseRequirement._value == "trainingExistingStaff" -%}
+      <p>
+        To execute the DMP, additional specialist expertise is required. We will be training existing staff
+        {%- if collaboration.trainingDetails %}
+          in: {{ collaboration.trainingDetails._value|dot }}{{ macros.linkQuestion(collaboration.trainingDetails._path) }}
+        {%- else -%}.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}
+        {%- endif -%}
+      </p>
+    {%- elif collaboration.expertiseRequirement._value == "hiringNewStaff" -%}
+      <p>
+        To execute the DMP, additional specialist expertise is required. We will be hiring new people with additional expertise
+        {%- if collaboration.expertiseDetails %}
+          in: {{ collaboration.expertiseDetails._value|dot }}{{ macros.linkQuestion(collaboration.expertiseDetails._path) }}
+        {%- else -%}.{{ macros.linkQuestion(collaboration.expertiseRequirement._path) }}
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+
+    {# Additional tools/software #}
+    {%- set unavailableToolsUnique = [] -%}
+    {%- set toolNames = [] -%}
+    {%- for tool in data.dmp.sharedResources.tools -%}
+      {%- if tool.isAvailableInInstitution._value is sameas false and tool.name._value not in toolNames -%}
+        {%- do unavailableToolsUnique.append(tool) -%}
+        {%- do toolNames.append(tool.name._value) -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if unavailableToolsUnique|length > 0 -%}
+      <p>We require the following tool or software in addition to what is usually available in the institute: <em>{{ unavailableToolsUnique|map(attribute='name._value')|join(', ') }}</em>.</p>
+    {%- else -%}
+      <p>We do not require any hardware or software in addition to what is usually available in the institute.</p>
+    {%- endif -%}
+
+  {# Archiving (Cold storage) #}
+  {%- if data.dmp.sharedResources.preservationStrategies|length > 0 -%}
+    {%- set n = data.dmp.sharedResources.preservationStrategies | length -%}
+    <p>The following part describes how data will be archived and preserved for the long term, including funding sources and minimum retention periods for each dataset:</p>
+      {%- if n > 1 -%}<ul>{%- endif -%}
+
+      {%- for preservationStrategy in data.dmp.sharedResources.preservationStrategies -%}
+        {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 2em;">{%- endif -%}
+
+        {{ macros.datasetIntro(preservationStrategy, "archiving and preservation conditions", data.dmp.datasets) }}
 
         {%- if preservationStrategy.usesLongTermStorageDuringProject._value is sameas true and preservationStrategy.usesLongTermStorageAfterProject._value is sameas true %}
           We will be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }} but also already during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
@@ -25,21 +125,6 @@
           We will not be archiving data (using so-called 'cold storage') for long term preservation during the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageDuringProject._path) }}
         {%- elif preservationStrategy.usesLongTermStorageAfterProject._value is sameas false -%}
           We will not be archiving data (using so-called 'cold storage') for long term preservation after the {{globals.projects}}.{{ macros.linkQuestion(preservationStrategy.usesLongTermStorageAfterProject._path) }}
-        {%- endif -%}
-
-        {# How long will data be preserved during project? #}
-        {%- if preservationStrategy.usesLongTermStorageDuringProject._value is sameas true -%}
-          {% set period = preservationStrategy.longTermStorageDuringProject.archivePeriod %}
-          {% if period._value %}
-              {% if period._value == "as_long_as_possible" %}
-                  This data will be retained during {{ globals.projects }} for as long as technically feasible.
-              {% elif period._value == "until_needs_delete" %}
-                  This data will be retained during {{ globals.projects }} until deletion is required due to legal, contractual, or regulatory constraints.
-              {% else %}
-                  This data will be retained during {{ globals.projects }} for a fixed period of {{ period._value }}.
-              {% endif %}
-                  {{ macros.linkQuestion(period._path) }}
-          {% endif %}
         {%- endif -%}
 
         {%- if preservationStrategy.usesLongTermStorageAfterProject._value is sameas true -%}
@@ -93,7 +178,7 @@
               {%- set criteria = "the predicted use of the archived data" -%}
             {%- endif -%}
             {%- if budget and criteria %}
-              The decision whether or not to extend the renewal be based on available budget as well as {{criteria}}.
+              The decision whether or not to extend the renewal be based on available budget as well as  ~ {{criteria}}.
             {%- elif budget %}
               The decision whether or not to extend the renewal be based on available budget.
             {%- elif actual or predicted %}
@@ -109,35 +194,13 @@
             {{ macros.linkQuestion(longTermStorageAfterProject.isArchivalPeriodExtendable._path) }}
           {%- endif -%}
 
-          {# Upgrades (format) #}
-          {%- if longTermStorageAfterProject.isFormatUpgradePlanned -%}
-            {%- if longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas true %}
-              Data formats of data in cold storage will be upgraded if they become obsolete.
-            {%- elif longTermStorageAfterProject.isFormatUpgradePlanned._value is sameas false %}
-              Data formats of data in cold storage will not be upgraded over time.
-            {%- endif -%}
-            {{ macros.linkQuestion(longTermStorageAfterProject.isFormatUpgradePlanned._path) }}
-          {%- endif -%}
-
-          {# Upgrades (media) #}
-          {%- if longTermStorageAfterProject.isMediaUpgradePlanned -%}
-            {%- if longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas true %}
-              Archived data will be migrated regularly to more modern storage media (e.g. newer tapes).
-            {%- elif longTermStorageAfterProject.isMediaUpgradePlanned._value is sameas false %}
-              Archived data will not be migrated to other storage media over time.
-            {%- endif -%}
-            {{ macros.linkQuestion(longTermStorageAfterProject.isMediaUpgradePlanned._path) }}
-          {%- endif -%}
         {%- endif -%}
-        </li>
+        </p>
+        {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
       {%- endfor -%}
-      </ul>
+      {%- if n > 1 -%}</ul>{%- endif -%}
     {%- else -%}
-      <p>No long-term storage solutions have been defined for this project. Therefore, there is no harmonised approach towards long-term data preservation to report.</p>
-    {%- endif -%}
-
-    {%- if data.dmp.sharedResources.dataStores|length > 0 -%}
-      <p>Details about concrete data storage infrastructures are detailed in Section 4, Question 10.</p>
+      <p>No specific measures for long-term preservation have been defined.</p>
     {%- endif -%}
   </div>
 </div>

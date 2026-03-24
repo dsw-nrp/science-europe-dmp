@@ -39,7 +39,7 @@ Contribute to the document template by adding new information, refining existing
 * Update service links, names and logos
 * Update metamodel version to 17.1
 * Remove object-reference file
-* Updated the required compatible KM version to 0.1.8
+* Updated the required compatible KM version to 0.2.0
 
 ### 0.1.0
 

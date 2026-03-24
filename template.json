@@ -10,7 +10,7 @@
         {
             "orgId": "dmp.eosc.cz",
             "kmId": "czech-nrp-km",
-            "minVersion": "0.1.8",
+            "minVersion": "0.2.0",
             "maxVersion": null
         }
     ],

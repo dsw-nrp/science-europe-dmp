@@ -30,15 +30,16 @@ Contribute to the document template by adding new information, refining existing
 
 ### 0.2.0
 
-*Released*: 2026-X-X
+*Released*: 2026-24-03
 
 * Initial version for testing and further development
-* Update metamodel version to 17.1
-* Remove object-reference file
 * Update identifiers of data and reused data to include value and type of identifier
 * Update FAIRsharing integration
 * Set default project for contributor (if not set, the contributor will be assigned to the first project in the list)
 * Update service links, names and logos
+* Update metamodel version to 17.1
+* Remove object-reference file
+* Updated the required compatible KM version to 0.1.8
 
 ### 0.1.0
 

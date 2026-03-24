@@ -278,7 +278,7 @@
             {%- if consideredData.isReused._value is sameas false -%}
                 <p>We considered reusing this standard reference data
                 {%- if consideredData.identifier %} 
-                    ({{ macros.formatIdentifier(consideredData.identifier) }}{{ macros.linkQuestion(consideredData.identifier._path) if consideredData.identifier._path }})
+                    ({{ macros.formatIdentifier(consideredData.identifier) }})
                 {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
                 {%- if consideredData.noReusedReason._value -%}
                     {%- if consideredData.noReusedReason._value == "missesNeededData" -%}
@@ -300,7 +300,7 @@
             {%- elif consideredData.isReused._value is sameas true -%}
                 <p>We will re-use this standard reference data
                 {%- if consideredData.identifier %} 
-                    ({{ macros.formatIdentifier(consideredData.identifier) }}{{ macros.linkQuestion(consideredData.identifier._path) if consideredData.identifier._path }})
+                    ({{ macros.formatIdentifier(consideredData.identifier) }})
                 {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
 
                 {# Data Use #}
@@ -416,7 +416,7 @@
                                         </p>
                                     {%- endif -%}
                                     {%- if tool.hasAccessLink._value is sameas true and tool.identifier -%}
-                                        <p>This tool can be accessed directly at {{ macros.formatIdentifier(tool.identifier) }}.{{ macros.linkQuestion(tool.hasAccessLink._path) }}</p>
+                                        <p>This tool can be accessed directly at {{ macros.formatIdentifier(tool.identifier) }}.</p>
                                     {%- elif tool.hasAccessLink._value is sameas false and tool.noAccessLinkAlternatives -%}
                                         {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}
                                             <p>Documentation is available for this tool.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}</p>

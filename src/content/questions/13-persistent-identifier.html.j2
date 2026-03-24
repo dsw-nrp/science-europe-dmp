@@ -58,7 +58,7 @@
                 <ul>
                 {%- for identifier in dataset.identifiers -%}
                     <li>
-                    {{ macros.formatIdentifier(identifier) }}{{ macros.linkQuestion(identifier._path) if identifier._path }}
+                    {{ macros.formatIdentifier(identifier) }}
                     </li>
                 {%- endfor -%}
                 </ul>

@@ -17,7 +17,7 @@
             {# Identifier #}
             {%- if dataset.identifiers|length > 0 %} (
                 {%- for identifier in dataset.identifiers -%}
-                    {{ macros.formatIdentifier(identifier) }}{{ macros.linkQuestion(identifier._path) if identifier._path }}
+                    {{ macros.formatIdentifier(identifier) }}
                     {%- if not loop.last -%}, {% endif %}
                 {%- endfor -%}
                 )

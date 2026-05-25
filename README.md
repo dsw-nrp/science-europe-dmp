@@ -20,6 +20,7 @@ Responsible for the overall management and development of the document template,
 Contribute to the document template by adding new information, refining existing content, or providing insights to improve its quality and applicability.
 
 * **Marek Suchánek**, ORCID: [0000-0001-7525-9218](https://orcid.org/0000-0001-7525-9218), *Czech Technical University in Prague*
+* **Georgia Koutentaki**, ORCID: [0000-0002-8099-9963](https://orcid.org/0000-0002-8099-9963), *Czech Technical University in Prague*
 
 ## Acknowledgements
 
@@ -27,6 +28,16 @@ Contribute to the document template by adding new information, refining existing
 |-------------------------------------|---|
 
 ## Changelog
+
+### 1.0.0
+
+*Released*: 2026-XX-XX
+
+* Initial version for testing and further development
+* Improve value rendering
+* Update content based on changes in the KM version 1.0.0
+* Updated the required compatible KM version to 1.0.0
+* Update metamodel version to 18 - TBD
 
 ### 0.2.0
 

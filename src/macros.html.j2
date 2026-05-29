@@ -19,6 +19,24 @@
   {%- endif -%}
 {%- endmacro -%}
 
+{%- macro formatROR(organisation) -%}
+  {%- if organisation._raw -%}
+      {%- for name in organisation._raw.names -%}
+        {%- if "ror_display" in name.types -%}
+          <a href="{{ organisation._raw.id }}" target="_blank">{{ name.value }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for name in organisation._raw.names -%}
+        {%- if "acronym" in name.types -%}
+          {{- ' ' -}}({{ name.value }})
+        {%- endif -%}
+      {%- endfor -%}
+    </a>
+  {%- else -%}
+    {{ organisation._value }}
+  {%- endif -%}
+{%- endmacro -%}
+
 {%- macro formatDetection() -%}
   {# HTML with warnings #}
   {%- if dc.document.format_uuid == "990bad19-516f-4241-b5f2-06aa560a244c" -%}
@@ -32,20 +50,22 @@
 
 {%- macro linkQuestion(questionPath) -%}
   {%- if formatDetection() == "HTML_with_warnings" -%}
-    <a href="{{ctx.config.clientUrl}}/projects/{{ctx.questionnaire.uuid}}?questionPath={{questionPath}}" class="footnote" title="Question linked to this text" target="_blank" rel="noopener noreferrer">❓</a>
+    <a href="{{ctx.config.clientUrl}}/projects/{{ctx.project.uuid}}?questionPath={{questionPath}}" class="footnote" title="Question linked to this text" target="_blank" rel="noopener noreferrer">❓</a>
   {%- endif -%}
 {%- endmacro -%}
 
 {# Including detection of URL identifier from FAIRsharing #}
 {%- macro formatIdentifier(identifier) -%}
-  {%- if identifier.type._raw and identifier.value._value -%}
+  {%- if identifier.type and identifier.type._raw -%}
     <em><a href="{{ identifier.type._raw.homepage }}" target="_blank">{{ identifier.type._raw.abbreviation }}</a></em>:
-    {%- if identifier.type._raw.urlPattern %}
+    {%- if identifier.type._raw.urlPattern and identifier.value and identifier.value._value %}
       <a href="{{ identifier.type._raw.urlPattern | replace("{$id}", identifier.value._value) }}" target="_blank">{{ identifier.type._raw.urlPattern | replace("{$id}", identifier.value._value) }}</a>{{ linkQuestion(identifier.value._path) }}
-    {%- elif identifier.type._raw.id == 709 %}
+    {%- elif identifier.type._raw.id == 709 and identifier.value and identifier.value._value %}
       <a href="{{ identifier.value._value }}" target="_blank">{{ identifier.value._value }}</a>{{ linkQuestion(identifier.value._path) }}
-    {%- else %}
+    {%- elif identifier.value and identifier.value._value %}
       {{ identifier.value._value }}{{ linkQuestion(identifier.value._path) }}
+    {%- else %}
+      <em>no value given</em>
     {%- endif -%}
   {%- else -%}
     <em>{{ identifier.type._value if identifier.type._value else "no type of identifier given" }}: {{ identifier.value._value if identifier.value._value else "no value given" }}</em>
@@ -54,10 +74,10 @@
 
 {% macro datasetIntro(sharedResource, contextPhrase, allDatasets) -%}
   {%- if sharedResource.isPlanned._value is sameas true -%}
-    <p>The {{ contextPhrase }} described below outlines the <strong>planned</strong> approach, and no datasets are currently associated with it.</p>
+    <p>This {{ contextPhrase }} is <em>planned</em>, and no datasets are currently associated with it.</p>
   {%- elif sharedResource.usedBy | length == allDatasets | length -%}
     <p>
-      All generated datasets follow the same {{ contextPhrase }}.
+      The same {{ contextPhrase }} applies to all datasets.
     </p>
 
   {% elif sharedResource.usedBy | length > 0 %}
@@ -74,9 +94,9 @@
     {% endfor %}
     {% set datasetText = datasets | join(", ") | safe %}
     {%- if datasets | length > 1 -%}
-      <p>The {{ contextPhrase }} described below applies to the following datasets: {{ datasetText }}.</p>
+      <p>This {{ contextPhrase }} applies to the following datasets: {{ datasetText }}.</p>
     {%- elif datasets | length == 1 -%}
-      <p>The {{ contextPhrase }} described below applies to the following dataset: {{ datasetText }}.</p>
+      <p>This {{ contextPhrase }} applies to the following dataset: {{ datasetText }}.</p>
     {%- endif -%}
   {%- endif -%}
 {%- endmacro %}

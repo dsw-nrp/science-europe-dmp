@@ -17,7 +17,7 @@
             {{ macros.datasetIntro(collection, "data collection process", data.dmp.datasets) }}
 
             {# Measuring equipment collection #}
-            {% if collection.isEquipmentCollection._value is sameas true %}
+            {% if collection.isEquipmentCollection and collection.isEquipmentCollection._value is sameas true %}
                 {% set equipmentCollection = collection.equipmentCollection %}
                 <p>
                 This data collection process involves the use of measuring equipment{{ "s" if equipmentCollection.instruments|length > 1 else "" }}.{{ macros.linkQuestion(collection.isEquipmentCollection._path) }}
@@ -28,9 +28,9 @@
                     <li>
                         <strong>{{ instrument.name._value if instrument.name else "(no name given)" }}</strong>
                         {{ macros.linkQuestion(instrument.name._path) }}
-                        <br>{{ instrument.description._value if instrument.description._value else "(no description given)" }}
+                        <br>{{ instrument.description._value if instrument.description else "(no description given)" }}
                         {{ macros.linkQuestion(instrument.description._path) }}
-                        {%- if instrument.url._value -%}
+                        {%- if instrument.url -%}
                             <br>Available here: <a href="{{ instrument.url._value }}" target="_blank">{{ instrument.url._value }}</a>.
                             {{ macros.linkQuestion(instrument.url._path) }}
                         {%- endif -%}
@@ -41,34 +41,36 @@
                 </p>
 
                 {# Who will collect #}
-                {%- if equipmentCollection.whoMeasures._value == "experts_own_equipment" %}
-                    Data will be carried out by {{globals.projects}} experts using institutional equipment.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
-                {%- elif equipmentCollection.whoMeasures._value == "experts_spec_infrastructure" %}
-                    Data collection will be carried out by experts in the {{globals.projects}} at a specialized research infrastructure.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
-                {%- elif equipmentCollection.whoMeasures._value == "external_party" %}
-                    Data collection will be performed by an external party{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
-                    {%- if equipmentCollection.externalPartyControlOverData._value -%}
-                        {%- if equipmentCollection.externalPartyControlOverData._value == "external_party" %} 
-                            who will also retain control over the data
-                        {%- elif equipmentCollection.externalPartyControlOverData._value == "project_partners" %} 
-                            with control over the data shared among project partners
-                        {%- elif equipmentCollection.externalPartyControlOverData %} 
-                            and for the control over the data we have made following arrangements: {{equipmentCollection.externalPartyControlOverData._value|dot}}
+                {%- if equipmentCollection.whoMeasures -%}
+                    {%- if equipmentCollection.whoMeasures._value == "experts_own_equipment" %}
+                        Data will be carried out by {{globals.projects}} experts using institutional equipment.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
+                    {%- elif equipmentCollection.whoMeasures._value == "experts_spec_infrastructure" %}
+                        Data collection will be carried out by experts in the {{globals.projects}} at a specialized research infrastructure.{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
+                    {%- elif equipmentCollection.whoMeasures._value == "external_party" %}
+                        Data collection will be performed by an external party{{ macros.linkQuestion(equipmentCollection.whoMeasures._path) }}
+                        {%- if equipmentCollection.externalPartyControlOverData -%}
+                            {%- if equipmentCollection.externalPartyControlOverData._value == "external_party" %} 
+                                who will also retain control over the data
+                            {%- elif equipmentCollection.externalPartyControlOverData._value == "project_partners" %} 
+                                with control over the data shared among project partners
+                            {%- else %} 
+                                and for the control over the data we have made following arrangements: {{equipmentCollection.externalPartyControlOverData._value|dot}}
+                            {%- endif -%}
+                            {{ macros.linkQuestion(equipmentCollection.externalPartyControlOverData._path) }}
                         {%- endif -%}
-                        {{ macros.linkQuestion(equipmentCollection.externalPartyControlOverData._path) }}
-                    {%- endif -%}
-                    .
-                    {%- if equipmentCollection.externalPartyResponsibility._value -%}
-                        {%- if equipmentCollection.externalPartyResponsibility._value == "embargo" %} 
-                            The external party assumes responsibility for long-term preservation of the data and will publish it after a fixed embargo period.
-                        {%- elif equipmentCollection.externalPartyResponsibility._value == "project_timeline" %} 
-                            The external party assumes responsibility for long-term preservation of the data and will publish it according to the project timeline.
-                        {%- elif equipmentCollection.externalPartyResponsibility._value == "delete" %} 
-                            The external party assumes responsibility for long-term preservation of the data and will delete the data after it has been provided to the project partners and any necessary evaluations have been completed, while the project partners will be responsible for data publication.
-                        {%- elif equipmentCollection.externalPartyResponsibility %} 
-                            For the long-term responsibility of the data we have made following arrangements: {{equipmentCollection.externalPartyResponsibility._value|dot}}
-                        {%- endif %}
-                        {{ macros.linkQuestion(equipmentCollection.externalPartyResponsibility._path) }}
+                        .
+                        {%- if equipmentCollection.externalPartyResponsibility -%}
+                            {%- if equipmentCollection.externalPartyResponsibility._value == "embargo" %} 
+                                The external party assumes responsibility for long-term preservation of the data and will publish it after a fixed embargo period.
+                            {%- elif equipmentCollection.externalPartyResponsibility._value == "project_timeline" %} 
+                                The external party assumes responsibility for long-term preservation of the data and will publish it according to the project timeline.
+                            {%- elif equipmentCollection.externalPartyResponsibility._value == "delete" %} 
+                                The external party assumes responsibility for long-term preservation of the data and will delete the data after it has been provided to the project partners and any necessary evaluations have been completed, while the project partners will be responsible for data publication.
+                            {%- else %} 
+                                For the long-term responsibility of the data we have made following arrangements: {{equipmentCollection.externalPartyResponsibility._value|dot}}
+                            {%- endif %}
+                            {{ macros.linkQuestion(equipmentCollection.externalPartyResponsibility._path) }}
+                        {%- endif -%}
                     {%- endif -%}
                 {%- endif -%}
 
@@ -99,23 +101,25 @@
             {% endif %}
 
             {# Non-equipment collection #}
-            {% if collection.isNonEquipmentCollection._value is sameas true %}
-                {% set non = collection.nonEquipmentCollection %}
-                {% set methods = [] %}
-                {% if non.usesQuestionnaires._value %}{% do methods.append("questionnaires") %}{% endif %}
-                {% if non.usesReportsForms._value %}{% do methods.append("reports or forms") %}{% endif %}
-                {% if non.usesPatientRecords._value %}{% do methods.append("patient records") %}{% endif %}
-                {% if non.usesOtherForms._value %}{% do methods.append(non.usesOtherForms._value) %}{% endif %}
+            {%- if collection.isNonEquipmentCollection -%}
+                {% if collection.isNonEquipmentCollection._value is sameas true %}
+                    {% set non = collection.nonEquipmentCollection %}
+                    {% set methods = [] %}
+                    {% if non.usesQuestionnaires._value %}{% do methods.append("questionnaires") %}{% endif %}
+                    {% if non.usesReportsForms._value %}{% do methods.append("reports or forms") %}{% endif %}
+                    {% if non.usesPatientRecords._value %}{% do methods.append("patient records") %}{% endif %}
+                    {% if non.usesOtherForms._value %}{% do methods.append(non.usesOtherForms._value) %}{% endif %}
 
-                {% if methods | length > 0 %}
-                <p>This data collection process relies on non-instrumental methods, including {{ methods | join(", ") }}.{{ macros.linkQuestion(collection.isNonEquipmentCollection._path) }}</p>
-                {% else %}
-                <p>This data collection process relies on non-instrumental data capture, but no specific method has been indicated.{{ macros.linkQuestion(collection.isNonEquipmentCollection._path) }}</p>
+                    {% if methods | length > 0 %}
+                    <p>This data collection process relies on non-instrumental methods, including {{ methods | join(", ") }}.{{ macros.linkQuestion(collection.isNonEquipmentCollection._path) }}</p>
+                    {% else %}
+                    <p>This data collection process relies on non-instrumental data capture, but no specific method has been indicated.{{ macros.linkQuestion(collection.isNonEquipmentCollection._path) }}</p>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+            {%- endif -%}
 
             {# Physical samples #}
-            {% if collection.isPhysicalSamplesCollection._value is sameas true %}
+            {% if collection.isPhysicalSamplesCollection and collection.isPhysicalSamplesCollection._value is sameas true %}
                 <p>This data collection process involves sampling and analysis of physical specimens.{{ macros.linkQuestion(collection.isPhysicalSamplesCollection._path) }}</p>
             {% endif %}
 
@@ -125,15 +129,15 @@
             {%- endif -%}
 
             {%- set not_involved = [] -%}
-            {%- if collection.isPhysicalSamplesCollection._value is sameas false -%}
+            {%- if collection.isPhysicalSamplesCollection and collection.isPhysicalSamplesCollection._value is sameas false -%}
                 {%- set _ = not_involved.append("physical samples") -%}
             {%- endif -%}
 
-            {%- if collection.isEquipmentCollection._value is sameas false -%}
+            {%- if collection.isEquipmentCollection and collection.isEquipmentCollection._value is sameas false -%}
                 {%- set _ = not_involved.append("instrumental methods") -%}
             {%- endif -%}
 
-            {%- if collection.isNonEquipmentCollection._value is sameas false -%}
+            {%- if collection.isNonEquipmentCollection and collection.isNonEquipmentCollection._value is sameas false -%}
                 {%- set _ = not_involved.append("non-instrumental methods") -%}
             {%- endif -%}
 
@@ -151,19 +155,21 @@
             {%- endif -%}
 
             {# Validating the integrity after collection #}
-            {%- if collection.isMonitoringIntegrityAfterCollection._value is sameas true -%}
-                {%- if collection.monitoringIntegrityAfterCollection|length > 0 -%}
-                    <p>After the data collection, the following integrity checks will be performed:</p>
-                    <ul>
-                        {% for check in collection.monitoringIntegrityAfterCollection %}
-                            <li>{{ check._label }}</li>
-                        {% endfor %}
-                    </ul>
-                {%- else -%}
-                    <p>After the data collection, integrity checks will be performed.{{ macros.linkQuestion(collection.isMonitoringIntegrityAfterCollection._path) }}</p>
+            {%- if collection.isMonitoringIntegrityAfterCollection -%}
+                {%- if collection.isMonitoringIntegrityAfterCollection._value is sameas true -%}
+                    {%- if collection.monitoringIntegrityAfterCollection|length > 0 -%}
+                        <p>After the data collection, the following integrity checks will be performed:</p>
+                        <ul>
+                            {% for check in collection.monitoringIntegrityAfterCollection %}
+                                <li>{{ check._label }}</li>
+                            {% endfor %}
+                        </ul>
+                    {%- else -%}
+                        <p>After the data collection, integrity checks will be performed.{{ macros.linkQuestion(collection.isMonitoringIntegrityAfterCollection._path) }}</p>
+                    {%- endif -%}
+                {%- elif collection.isMonitoringIntegrityAfterCollection._value is sameas false -%}
+                    <p>No integrity checks are planned after the data collection.{{ macros.linkQuestion(collection.isMonitoringIntegrityAfterCollection._path) }}</p>
                 {%- endif -%}
-            {%- elif collection.isMonitoringIntegrityAfterCollection._value is sameas false -%}
-                <p>No integrity checks are planned after the data collection.{{ macros.linkQuestion(collection.isMonitoringIntegrityAfterCollection._path) }}</p>
             {%- endif -%}
 
             {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
@@ -185,7 +191,7 @@
             {%- if n > 1 -%}<li style="margin-bottom: 2em;">{%- else -%}<div style="margin-bottom: 1.5em;">{%- endif -%}
             {{ macros.datasetIntro(metadata, "specification for documenting data provenance", data.dmp.datasets) }}
             <p>
-            {%- if metadata.isProvenanceDocumented._value is sameas true -%}
+            {%- if metadata.isProvenanceDocumented and metadata.isProvenanceDocumented._value is sameas true -%}
                 {%- if metadata.provenanceDocumented.provenanceDocumentedType -%}
                     {%- if metadata.provenanceDocumented.provenanceDocumentedType._value == "lab_notebook" -%}
                         We will use lab notebooks to make sure that there is good provenance of the data analysis.
@@ -199,25 +205,25 @@
                     {{ macros.linkQuestion(metadata.provenanceDocumented.provenanceDocumentedType._path) }}
                 {%- endif -%}
 
-                {%- if metadata.provenanceDocumented.usesStandard._value is sameas true -%}
-                    {%- if metadata.provenanceDocumented.standardProvenanceUsed %}
-                        For documenting the provenance, we will use the following standard: <em>{{ metadata.provenanceDocumented.standardProvenanceUsed._value }}</em>.{{ macros.linkQuestion(metadata.provenanceDocumented.standardProvenanceUsed._path) }}
-                    {%- else %}
-                        For documenting provenance we will use a standard (no specific standard has been provided).{{ macros.linkQuestion(metadata.provenanceDocumented.usesStandard._path) }}
+                {%- if metadata.provenanceDocumented.usesStandard -%}
+                    {%- if metadata.provenanceDocumented.usesStandard._value is sameas true -%}
+                        {%- if metadata.provenanceDocumented.standardProvenanceUsed %}
+                            For documenting the provenance, we will use the following standard: <em>{{ metadata.provenanceDocumented.standardProvenanceUsed._value }}</em>.{{ macros.linkQuestion(metadata.provenanceDocumented.standardProvenanceUsed._path) }}
+                        {%- else %}
+                            For documenting provenance we will use a standard (no specific standard has been provided).{{ macros.linkQuestion(metadata.provenanceDocumented.usesStandard._path) }}
+                        {%- endif -%}
+                    {%- elif metadata.provenanceDocumented.usesStandard._value is sameas false -%}
+                        {%- if metadata.provenanceDocumented.noStandardReason and metadata.provenanceDocumented.noStandardReason._value == "no_standard" %}
+                            For documenting provenance we will not use a standard because there is no standard in our {{globals.project}} area.{{ macros.linkQuestion(metadata.provenanceDocumented.noStandardReason._path) }}
+                        {%- elif metadata.provenanceDocumented.noStandardReason %}
+                            For documenting provenance we will not use a standard because: {{ metadata.provenanceDocumented.noStandardReason._value }}.{{ macros.linkQuestion(metadata.provenanceDocumented.noStandardReason._path) }}
+                        {%- else %}
+                            We will not use a standard for documenting provenance.{{ macros.linkQuestion(metadata.provenanceDocumented.usesStandard._path) }}
+                        {%- endif -%}
                     {%- endif -%}
-
-                {%- elif metadata.provenanceDocumented.usesStandard._value is sameas false -%}
-                    {%- if metadata.provenanceDocumented.noStandardReason._value == "no_standard" %}
-                        For documenting provenance we will not use a standard because there is no standard in our {{globals.project}} area.{{ macros.linkQuestion(metadata.provenanceDocumented.noStandardReason._path) }}
-                    {%- elif metadata.provenanceDocumented.noStandardReason._value %}
-                        For documenting provenance we will not use a standard because: {{ metadata.provenanceDocumented.noStandardReason._value }}.{{ macros.linkQuestion(metadata.provenanceDocumented.noStandardReason._path) }}
-                    {%- else %}
-                        We will not use a standard for documenting provenance.{{ macros.linkQuestion(metadata.provenanceDocumented.usesStandard._path) }}
-                    {%- endif -%}
-
                 {%- endif -%}
 
-            {%- elif metadata.isProvenanceDocumented._value is sameas false -%}
+            {%- elif metadata.isProvenanceDocumented and metadata.isProvenanceDocumented._value is sameas false -%}
                 Provenance is not documented{%- if metadata.noProvenanceReason %} because: {{ metadata.noProvenanceReason._value }}{{ macros.linkQuestion(metadata.noProvenanceReason._path) }}{%- else -%}.{{ macros.linkQuestion(metadata.isProvenanceDocumented._path) }}{%- endif -%}
             {%- else -%}
                 No information has been provided about whether provenance will be documented.
@@ -265,7 +271,7 @@
 
     {# Re-used datasets #}
     <h4>Re-used Datasets</h4>
-    {%- if data.dmp.reusingData.hasPreexistingData._value is sameas true -%}
+    {%- if data.dmp.reusingData.hasPreexistingData and data.dmp.reusingData.hasPreexistingData._value is sameas true -%}
         <ul>
         {%- for consideredData in data.dmp.reusingData.consideredDatasets -%}
             <li>
@@ -275,168 +281,182 @@
                 <strong>(no name given)</strong>
             {%- endif -%}
             {# Not Re-used datasets #}
-            {%- if consideredData.isReused._value is sameas false -%}
-                <p>We considered reusing this standard reference data
-                {%- if consideredData.identifier %} 
-                    ({{ macros.formatIdentifier(consideredData.identifier) }})
-                {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
-                {%- if consideredData.noReusedReason._value -%}
-                    {%- if consideredData.noReusedReason._value == "missesNeededData" -%}
-                        <p>The dataset was not reused because it misses the data we need.
-                    {%- elif consideredData.noReusedReason._value == "missesRequiredAspects" -%}
-                        <p>The dataset was not reused because it misses required aspects.
-                    {%- elif consideredData.noReusedReason._value == "missesQuality" -%}
-                        <p>The dataset was not reused because it is not sufficient quality.
-                    {%- elif consideredData.noReusedReason._value == "insufficientConditionsForUse" -%}
-                        <p>The dataset was not reused because its conditions of use do not allow us to use it.
-                    {%- elif consideredData.noReusedReason._value -%}
-                        <p>The dataset was not reused{% if consideredData.noReusedReason %}, because: {{ consideredData.noReusedReason._value }}{% endif %}.
-                    {%- endif %}{{ macros.linkQuestion(consideredData.noReusedReason._path) }}</p>
-                {%- else -%}
-                    <p>We decided not to use this reference dataset.</p>
-                {%- endif -%}
-            
-            {# Re-used datasets #}
-            {%- elif consideredData.isReused._value is sameas true -%}
-                <p>We will re-use this standard reference data
-                {%- if consideredData.identifier %} 
-                    ({{ macros.formatIdentifier(consideredData.identifier) }})
-                {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
-
-                {# Data Use #}
-                {%- if consideredData.isReused._value is sameas true and consideredData.reusedData -%}
-                    {%- set reusedData = consideredData.reusedData -%}
-                    {% if reusedData.purpose %}
-                    <p>It is used in the {{ globals.projects }} for: {{ reusedData.purpose._value|dot }}{{macros.linkQuestion(reusedData.purpose._path) }}</p>
-                    {% endif %}
-                    {# Reuse conditions #}
-                    {%- if reusedData.conditions._value == "CC0" %}
-                        <p>This data are freely available for any use.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
-                    {%- elif reusedData.conditions._value == "CCBY" %}
-                        <p>This data are freely available with obligation to quote the source.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
-                    {%- elif reusedData.conditions._value == "exception" %}
-                        <p>This data can be used based on legal copyright exceptions, without needing explicit permission.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
-                    {%- elif reusedData.conditions %}
-                        <p>This data can be used under the following conditions: {{ reusedData.conditions._value }}.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
-                    {%- else %}
-                        <p>Conditions for reusing this data are not given.</p>
+            {%- if consideredData.isReused -%}
+                {%- if consideredData.isReused._value is sameas false -%}
+                    <p>We considered reusing this standard reference data
+                    {%- if consideredData.identifier %} 
+                        ({{ macros.formatIdentifier(consideredData.identifier) }})
+                    {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
+                    {%- if consideredData.noReusedReason -%}
+                        {%- if consideredData.noReusedReason._value == "missesNeededData" -%}
+                            <p>The dataset was not reused because it misses the data we need.
+                        {%- elif consideredData.noReusedReason._value == "missesRequiredAspects" -%}
+                            <p>The dataset was not reused because it misses required aspects.
+                        {%- elif consideredData.noReusedReason._value == "missesQuality" -%}
+                            <p>The dataset was not reused because it is not sufficient quality.
+                        {%- elif consideredData.noReusedReason._value == "insufficientConditionsForUse" -%}
+                            <p>The dataset was not reused because its conditions of use do not allow us to use it.
+                        {%- elif consideredData.noReusedReason._value -%}
+                            <p>The dataset was not reused{% if consideredData.noReusedReason %}, because: {{ consideredData.noReusedReason._value }}{% endif %}.
+                        {%- endif %}{{ macros.linkQuestion(consideredData.noReusedReason._path) }}</p>
+                    {%- else -%}
+                        <p>We decided not to use this reference dataset.</p>
                     {%- endif -%}
+                
+                {# Re-used datasets #}
+                {%- elif consideredData.isReused._value is sameas true -%}
+                    <p>We will re-use this standard reference data
+                    {%- if consideredData.identifier %} 
+                        ({{ macros.formatIdentifier(consideredData.identifier) }})
+                    {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
 
-                    {# Maintainer #}
-                    {%- if reusedData.maintainer._value -%}
-                        <p>The maintainer of the data is {{ reusedData.maintainer._value }}.{{macros.linkQuestion(reusedData.maintainer._path) }}</p>
-                    {%- endif -%}
-
-                    {# Format #}
-                    {%- if reusedData.isFormattingKnown._value is sameas true -%}
-                        {%- if reusedData.formatting.formats -%}
-                        <p>The data are available in the following {{ "format" if reusedData.formatting.formats|length == 1 else "formats" }}:  
-                        {%- for format in reusedData.formatting.formats -%}
-                            {%- if format._raw %} <em><a href="https://fairsharing.org/{{ format._raw.id }}" target="_blank">{{format._raw.name }}</a></em>
-                            {%- elif format._value %} <em>{{ format._value }}</em>
-                            {%- endif -%}{{ macros.linkQuestion(format._path) }}{%- if not loop.last -%}, {%- endif -%}
-                        {%- endfor -%}.
+                    {# Data Use #}
+                    {%- if consideredData.reusedData -%}
+                        {%- set reusedData = consideredData.reusedData -%}
+                        {% if reusedData.purpose %}
+                        <p>It is used in the {{ globals.projects }} for: {{ reusedData.purpose._value|dot }}{{macros.linkQuestion(reusedData.purpose._path) }}</p>
+                        {% endif %}
+                        {# Reuse conditions #}
+                        {%- if reusedData.conditions and reusedData.conditions._value == "CC0" %}
+                            <p>This data are freely available for any use.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                        {%- elif reusedData.conditions and reusedData.conditions._value == "CCBY" %}
+                            <p>This data are freely available with obligation to quote the source.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                        {%- elif reusedData.conditions and reusedData.conditions._value == "exception" %}
+                            <p>This data can be used based on legal copyright exceptions, without needing explicit permission.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                        {%- elif reusedData.conditions %}
+                            <p>This data can be used under the following conditions: {{ reusedData.conditions._value }}.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                        {%- else %}
+                            <p>Conditions for reusing this data are not given.</p>
                         {%- endif -%}
-                        {%- if reusedData.formatting.isUsableAsIs._value is sameas true -%}
-                            <span> We can use the data format directly, without any conversion.{{ macros.linkQuestion(reusedData.formatting.isUsableAsIs._path) }}</span>
-                        {%- elif reusedData.formatting.isUsableAsIs._value is sameas false -%}
-                            <span> We need to convert the data to a different format before we can use it.{{ macros.linkQuestion(reusedData.formatting.isUsableAsIs._path) }}</span>
-                        {%- endif -%}
-                        </p>
-                    {%- elif reusedData.isFormattingKnown._value is sameas false -%}
-                        <p>The format of the data is not known.{{ macros.linkQuestion(reusedData.isFormattingKnown._path) }}</p>
-                    {%- endif -%}
-                    {%- if reusedData.dataVolume -%}
-                        <p>The approximate data volume is {{ reusedData.dataVolume._value }} GB.{{ macros.linkQuestion(reusedData.dataVolume._path) }}</p>
-                    {%- endif -%}
 
-                    {# Versioning #}
-                    {%- if reusedData.isVersioned._value is sameas true -%}
-                        <p>
-                            The data are versioned
-                            {%- if reusedData.versionStrategy.usedVersion %}, and we will use version {{ reusedData.versionStrategy.usedVersion._value }}.{{ macros.linkQuestion(reusedData.versionStrategy.usedVersion._path) }}{%- else -%}.{{ macros.linkQuestion(reusedData.isVersioned._path) }}{%- endif -%}
-                            {%- if reusedData.versionStrategy.versioningProcess -%}
-                                {%- if reusedData.versionStrategy.versioningProcess._value == "stay_with_old" %} If a new version becomes available, we will stay with the old version.
-                                {%- elif reusedData.versionStrategy.versioningProcess._value == "new_analysis_done" %} If a new version becomes available, we will do new analyses with it.
-                                {%- elif reusedData.versionStrategy.versioningProcess._value == "all_analysis_redone" %} If a new version becomes available, we will redo all analyses with it.
-                                {%- elif reusedData.versionStrategy.versioningProcess._value == "depend_on_update" %} If a new version becomes available, we will evaluate whether to update our work based on the nature and significance of the changes.
-                                {%- else %} {{ reusedData.versionStrategy.versioningProcess._value }}
+                        {# Maintainer #}
+                        {%- if reusedData.maintainer -%}
+                            <p>The maintainer of the data is {{ reusedData.maintainer._value }}.{{macros.linkQuestion(reusedData.maintainer._path) }}</p>
+                        {%- endif -%}
+
+                        {# Format #}
+                        {%- if reusedData.formatting -%}
+                            {%- if reusedData.isFormattingKnown._value is sameas true -%}
+                                {%- if reusedData.formatting.formats -%}
+                                <p>The data are available in the following {{ "format" if reusedData.formatting.formats|length == 1 else "formats" }}:  
+                                {%- for format in reusedData.formatting.formats -%}
+                                    {%- if format._raw %} <em><a href="https://fairsharing.org/{{ format._raw.id }}" target="_blank">{{format._raw.name }}</a></em>
+                                    {%- elif format._value %} <em>{{ format._value }}</em>
+                                    {%- endif -%}{{ macros.linkQuestion(format._path) }}{%- if not loop.last -%}, {%- endif -%}
+                                {%- endfor -%}.
                                 {%- endif -%}
-                                {{ macros.linkQuestion(reusedData.versionStrategy.versioningProcess._path) }}
-                            {%- else %}
-                                We will not update the data to a new version, if new one becomes available.
+                                {%- if reusedData.formatting.isUsableAsIs and reusedData.formatting.isUsableAsIs._value is sameas true -%}
+                                    <span> We can use the data format directly, without any conversion.{{ macros.linkQuestion(reusedData.formatting.isUsableAsIs._path) }}</span>
+                                {%- elif reusedData.formatting.isUsableAsIs and reusedData.formatting.isUsableAsIs._value is sameas false -%}
+                                    <span> We need to convert the data to a different format before we can use it.{{ macros.linkQuestion(reusedData.formatting.isUsableAsIs._path) }}</span>
+                                {%- endif -%}
+                                </p>
+                            {%- elif reusedData.isFormattingKnown._value is sameas false -%}
+                                <p>The format of the data is not known.{{ macros.linkQuestion(reusedData.isFormattingKnown._path) }}</p>
                             {%- endif -%}
-                        </p>
-                    {%- elif reusedData.isVersioned._value is sameas false -%}
-                        <p>This data are not versioned.{{ macros.linkQuestion(reusedData.isVersioned._path) }}</p>
-                    {%- endif -%}
-
-                    {# Data Reuser #}
-                    {%- if reusedData.users|length > 0 -%}
-                        <p>
-                        {%- if reusedData.users|length == 1 -%}
-                            There is only one user of the data within the {{ globals.projects }}: 
-                        {%- elif reusedData.users|length > 1 -%}
-                            There are several users of the data within the {{ globals.projects }}: 
                         {%- endif -%}
+                        {%- if reusedData.dataVolume -%}
+                            <p>The approximate data volume is {{ reusedData.dataVolume._value }} GB.{{ macros.linkQuestion(reusedData.dataVolume._path) }}</p>
+                        {%- endif -%}
+
+                        {# Versioning #}
+                        {%- if reusedData.versionStrategy -%}
+                            {%- if reusedData.isVersioned._value is sameas true -%}
+                                <p>
+                                    The data are versioned
+                                    {%- if reusedData.versionStrategy.usedVersion %}, and we will use version {{ reusedData.versionStrategy.usedVersion._value }}.{{ macros.linkQuestion(reusedData.versionStrategy.usedVersion._path) }}{%- else -%}.{{ macros.linkQuestion(reusedData.isVersioned._path) }}{%- endif -%}
+                                    {%- if reusedData.versionStrategy.versioningProcess -%}
+                                        {%- if reusedData.versionStrategy.versioningProcess._value == "stay_with_old" %} If a new version becomes available, we will stay with the old version.
+                                        {%- elif reusedData.versionStrategy.versioningProcess._value == "new_analysis_done" %} If a new version becomes available, we will do new analyses with it.
+                                        {%- elif reusedData.versionStrategy.versioningProcess._value == "all_analysis_redone" %} If a new version becomes available, we will redo all analyses with it.
+                                        {%- elif reusedData.versionStrategy.versioningProcess._value == "depend_on_update" %} If a new version becomes available, we will evaluate whether to update our work based on the nature and significance of the changes.
+                                        {%- else %} {{ reusedData.versionStrategy.versioningProcess._value }}
+                                        {%- endif -%}
+                                        {{ macros.linkQuestion(reusedData.versionStrategy.versioningProcess._path) }}
+                                    {%- else %}
+                                        We will not update the data to a new version, if new one becomes available.
+                                    {%- endif -%}
+                                </p>
+                            {%- elif reusedData.isVersioned._value is sameas false -%}
+                                <p>This data are not versioned.{{ macros.linkQuestion(reusedData.isVersioned._path) }}</p>
+                            {%- endif -%}
+                        {%- endif -%}
+
+                        {# Data Reuser #}
                         {%- if reusedData.users|length > 0 -%}
-                            {%- for user in reusedData.users %} {{ user.name._value if user.name else "(no name given)" }}{{ macros.linkQuestion(user.name._path) }}
-                                {%- if user.orcid %}
-                                    ({{ macros.formatOrcid(user.orcid) }})
-                                {%- endif -%}
-                                {%- if not loop.last -%}, {% endif -%}
-                            {%- endfor -%}.
-                        {%- endif -%}
-                        </p>
-                    {%- endif -%}
-
-                    {# Tools #}
-                    {%- if data.dmp.sharedResources.tools|length > 0 -%}
-                        {%- set tools = [] -%}
-                        {%- for tool in data.dmp.sharedResources.tools -%}
-                            {%- if tool.usedBy and (reusedData.uuid in tool.usedBy) -%}
-                                {%- do tools.append(tool) -%}
+                            <p>
+                            {%- if reusedData.users|length == 1 -%}
+                                There is only one user of the data within the {{ globals.projects }}: 
+                            {%- elif reusedData.users|length > 1 -%}
+                                There are several users of the data within the {{ globals.projects }}: 
                             {%- endif -%}
-                        {%- endfor -%}
-                        {%- if tools | length > 0 -%}
-                            <p>The following specific tool{%- if tools | length > 1 -%}s{%- endif %} have been identified for re-using this data:</p>  
-                            <ul>
-                            {%- for tool in tools -%}
-                                <li>
-                                    <strong>{{ tool.name._value if tool.name._value else "(no name given)"}}</strong>{{ macros.linkQuestion(tool.name._path) }}
-                                    {%- if tool.description -%}
-                                        : {{ tool.description._value }} {{ macros.linkQuestion(tool.description._path) }}
+                            {%- if reusedData.users|length > 0 -%}
+                                {%- for user in reusedData.users %} {{ user.name._value if user.name else "(no name given)" }}{{ macros.linkQuestion(user.name._path) }}
+                                    {%- if user.orcid %}
+                                        ({{ macros.formatOrcid(user.orcid) }})
                                     {%- endif -%}
-                                    {%- if tool.isFreeAndAvailable._value is sameas true %}
-                                        <p>This tool is free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}</p>
-                                    {%- elif tool.isFreeAndAvailable._value is sameas false %}
-                                        <p>This tool is not free or not generally available.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
-                                        {%- if tool.noAvailableSolution._value %} An alternative solution is available to avoid using this tool: {{ tool.noAvailableSolution._value|dot }}{{ macros.linkQuestion(tool.noAvailableSolution._path) }}
-                                        {%- endif -%}
-                                        </p>
-                                    {%- endif -%}
-                                    {%- if tool.hasAccessLink._value is sameas true and tool.identifier -%}
-                                        <p>This tool can be accessed directly at {{ macros.formatIdentifier(tool.identifier) }}.</p>
-                                    {%- elif tool.hasAccessLink._value is sameas false and tool.noAccessLinkAlternatives -%}
-                                        {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}
-                                            <p>Documentation is available for this tool.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}</p>
-                                        {%- elif tool.noAccessLinkAlternatives.includesDocumentation._value is sameas false and tool.noAccessLinkAlternatives.noDocumentationReason %}
-                                            <p>No documentation is available because: {{ tool.noAccessLinkAlternatives.noDocumentationReason._value }}{{ macros.linkQuestion(tool.noAccessLinkAlternatives.noDocumentationReason._path) }}</p>
-                                        {%- endif -%}
-                                        {%- if tool.noAccessLinkAlternatives.includesSoftware._value is sameas true %}
-                                            <p>The software itself (e.g. scripts) will be included within the dataset.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}</p>
-                                        {%- elif tool.noAccessLinkAlternatives.includesSoftware._value is sameas false %}
-                                            <p>The software itself (e.g. scripts) will not be included within the dataset.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}</p>
-                                        {%- endif -%}
-                                    {%- endif -%}
-                                </li>
+                                    {%- if not loop.last -%}, {% endif -%}
+                                {%- endfor -%}.
+                            {%- endif -%}
+                            </p>
+                        {%- endif -%}
+
+                        {# Tools #}
+                        {%- if data.dmp.sharedResources.tools|length > 0 -%}
+                            {%- set tools = [] -%}
+                            {%- for tool in data.dmp.sharedResources.tools -%}
+                                {%- if tool.usedBy and (reusedData.uuid in tool.usedBy) -%}
+                                    {%- do tools.append(tool) -%}
+                                {%- endif -%}
                             {%- endfor -%}
-                            </ul>
+                            {%- if tools | length > 0 -%}
+                                <p>The following specific tool{%- if tools | length > 1 -%}s{%- endif %} have been identified for re-using this data:</p>  
+                                <ul>
+                                {%- for tool in tools -%}
+                                    <li>
+                                        <strong>{{ tool.name._value if tool.name else "(no name given)"}}</strong>{{ macros.linkQuestion(tool.name._path) }}
+                                        {%- if tool.description -%}
+                                            : {{ tool.description._value }} {{ macros.linkQuestion(tool.description._path) }}
+                                        {%- endif -%}
+                                        {%- if tool.isFreeAndAvailable -%}
+                                            {%- if tool.isFreeAndAvailable._value is sameas true %}
+                                                <p>This tool is free and available for use.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}</p>
+                                            {%- elif tool.isFreeAndAvailable._value is sameas false %}
+                                                <p>This tool is not free or not generally available.{{ macros.linkQuestion(tool.isFreeAndAvailable._path) }}
+                                                {%- if tool.noAvailableSolution %} An alternative solution is available to avoid using this tool: {{ tool.noAvailableSolution._value|dot }}{{ macros.linkQuestion(tool.noAvailableSolution._path) }}
+                                                {%- endif -%}
+                                                </p>
+                                            {%- endif -%}
+                                        {%- endif -%}
+                                        {%- if tool.hasAccessLink -%}
+                                            {%- if tool.hasAccessLink._value is sameas true and tool.identifier -%}
+                                                <p>This tool can be accessed directly at {{ macros.formatIdentifier(tool.identifier) }}.</p>
+                                            {%- elif tool.hasAccessLink._value is sameas false and tool.noAccessLinkAlternatives -%}
+                                                {%- if tool.noAccessLinkAlternatives and tool.noAccessLinkAlternatives.includesDocumentation -%}
+                                                    {%- if tool.noAccessLinkAlternatives.includesDocumentation._value is sameas true %}
+                                                        <p>Documentation is available for this tool.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesDocumentation._path) }}</p>
+                                                    {%- elif tool.noAccessLinkAlternatives.includesDocumentation._value is sameas false and tool.noAccessLinkAlternatives.noDocumentationReason %}
+                                                        <p>No documentation is available because: {{ tool.noAccessLinkAlternatives.noDocumentationReason._value }}{{ macros.linkQuestion(tool.noAccessLinkAlternatives.noDocumentationReason._path) }}</p>
+                                                    {%- endif -%}
+                                                {%- endif -%}
+                                                {%- if tool.noAccessLinkAlternatives.includesSoftware -%}
+                                                    {%- if tool.noAccessLinkAlternatives.includesSoftware._value is sameas true %}
+                                                        <p>The software itself (e.g. scripts) will be included within the dataset.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}</p>
+                                                    {%- elif tool.noAccessLinkAlternatives.includesSoftware._value is sameas false %}
+                                                        <p>The software itself (e.g. scripts) will not be included within the dataset.{{ macros.linkQuestion(tool.noAccessLinkAlternatives.includesSoftware._path) }}</p>
+                                                    {%- endif -%}
+                                                {%- endif -%}
+                                            {%- endif -%}
+                                        {%- endif -%}
+                                    </li>
+                                {%- endfor -%}
+                                </ul>
+                            {%- else -%}
+                                <p>No specific tools have been identified for re-using this data.</p>
+                            {%- endif -%}
                         {%- else -%}
                             <p>No specific tools have been identified for re-using this data.</p>
                         {%- endif -%}
-                    {%- else -%}
-                        <p>No specific tools have been identified for re-using this data.</p>
                     {%- endif -%}
                 {%- endif -%}
             {%- endif -%}

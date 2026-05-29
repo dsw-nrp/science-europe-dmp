@@ -62,16 +62,16 @@
           {%- endif -%}
 
           {# Lifetime #}
-          {%- if longTermStorageAfterProject.minimumLifeTimeYears._value == "5" %}
+          {%- if longTermStorageAfterProject.minimumLifeTimeYears and longTermStorageAfterProject.minimumLifeTimeYears._value == "5" %}
             The minimum lifetime of the archive is 5 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
-          {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value == "10" %}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeYears and longTermStorageAfterProject.minimumLifeTimeYears._value == "10" %}
             The minimum lifetime of the archive is 10 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
-          {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value == "15" %}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeYears and longTermStorageAfterProject.minimumLifeTimeYears._value == "15" %}
             The minimum lifetime of the archive is 15 years.{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
-          {%- elif longTermStorageAfterProject.minimumLifeTimeYears._value -%}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeYears -%}
             {%- set end = " year." if (longTermStorageAfterProject.minimumLifeTimeYears._value == "1") else " years." %}
             The minimum lifetime of the archive is {{longTermStorageAfterProject.minimumLifeTimeYears._value}} {{end}}{{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeYears._path) }}
-          {%- elif longTermStorageAfterProject.minimumLifeTimeOther._value  %}
+          {%- elif longTermStorageAfterProject.minimumLifeTimeOther and longTermStorageAfterProject.minimumLifeTimeOther._value  %}
             The minimum lifetime of the archive is specially arranged {{longTermStorageAfterProject.minimumLifeTimeOther._value}}. {{ macros.linkQuestion(longTermStorageAfterProject.minimumLifeTimeOther._path) }}
           {%- endif -%}
 

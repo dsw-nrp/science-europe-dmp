@@ -45,11 +45,11 @@
             "createdAt": ctx.document.createdAt,
         },
         "project": {
-            "uuid": ctx.questionnaire.uuid,
-            "name": ctx.questionnaire.name,
-            "description": ctx.questionnaire.description,
-            "tags": ctx.questionnaire.projectTags,
-            "url": ctx.config.clientUrl ~ "/projects/" ~ ctx.questionnaire.uuid,
+            "uuid": ctx.project.uuid,
+            "name": ctx.project.name,
+            "description": ctx.project.description,
+            "tags": ctx.project.projectTags,
+            "url": ctx.config.clientUrl ~ "/projects/" ~ ctx.project.uuid,
         },
     },
 } -%}
@@ -152,6 +152,7 @@
         "affiliation": contributorItem.affiliation|default(None),
         "email": contributorItem.email|default(None),
         "phone": contributorItem.phone|default(None),
+        "isCreator": contributorItem.isCreator|default(None),
         "roles": contributorItem.roles|map(attribute="_label")|list,
         "projectsName": [],
     } -%}
@@ -338,6 +339,7 @@
         {%- do dataset.update({
             "isPublished": datasetItem.willBePublished.isPublished|default(None),
         }) -%}
+        {%- do dataset.update({"hasPublisher": datasetItem.willBePublished.publisher}) -%}
     {%- endif -%}
     {%- for purpose in datasetItem.purposes -%}
         {%- if purpose.purpose and purpose.purpose._uuid in objectivesMap -%}
@@ -542,28 +544,28 @@
                 "usesReferencesToDigitalObjects": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.usesReferencesToDigitalObjects|default(None),
                 "referencesToDigitalObjectsImplementation": None,
             }) -%}
-            {%- if collection.physicalSamplesStorage.isDepositedLongTerm._value is sameas true -%}
-                {%- do collection.physicalSamplesStorage.update({
+            {%- if collection.physicalSamplesCollection.physicalSamplesStorage.isDepositedLongTerm._value is sameas true -%}
+                {%- do collection.physicalSamplesCollection.physicalSamplesStorage.update({
                     "isLongTermRepositoryDifferent": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.isDepositedLongTerm.isLongTermRepositoryDifferent|default(None),
                 }) -%}
-                {%- if collection.physicalSamplesStorage.isLongTermRepositoryDifferent._value is sameas true -%}
-                    {%- do collection.physicalSampleStorage.update({
+                {%- if collection.physicalSamplesCollection.physicalSamplesStorage.isLongTermRepositoryDifferent._value is sameas true -%}
+                    {%- do collection.physicalSamplesCollection.physicalSamplesStorage.update({
                         "repositoryNameDuringProject": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.isDepositedLongTerm.isLongTermRepositoryDifferent.repositoryNameDuringProject|default(None),
                         "repositoryNameLongTerm": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.isDepositedLongTerm.isLongTermRepositoryDifferent.repositoryNameLongTerm|default(None),
                     }) -%}
-                {%- elif collection.physicalSamplesStorage.isLongTermRepositoryDifferent._value is sameas false -%}
-                    {%- do collection.physicalSamplesStorage.update({
+                {%- elif collection.physicalSamplesCollection.physicalSamplesStorage.isLongTermRepositoryDifferent._value is sameas false -%}
+                    {%- do collection.physicalSamplesCollection.physicalSamplesStorage.update({
                         "repositoryNameDuringProject": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.isDepositedLongTerm.repositoryNameDuringProject|default(None),
                     }) -%}
                 {%- endif -%}
-            {%- elif collection.physicalSamplesStorage.isDepositedLongTerm._value is sameas false -%}
-                {%- do collection.physicalSamplesStorage.update({
+            {%- elif collection.physicalSamplesCollection.physicalSamplesStorage.isDepositedLongTerm._value is sameas false -%}
+                {%- do collection.physicalSamplesCollection.physicalSamplesStorage.update({
                     "noDepositForLongTermReason": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.isDepositedLongTerm.noDepositForLongTermReason|default(None),
                     "repositoryNameDuringProject": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.isDepositedLongTerm.repositoryNameDuringProject|default(None),
                 }) -%}
             {%- endif -%}
-            {%- if collection.physicalSamplesStorage.usesReferencesToDigitalObjects._value is sameas true -%}
-                {% do collection.physicalSamplesStorage.update({
+            {%- if collection.physicalSamplesCollection.physicalSamplesStorage.usesReferencesToDigitalObjects._value is sameas true -%}
+                {% do collection.physicalSamplesCollection.physicalSamplesStorage.update({
                     "referencesToDigitalObjectsImplementation": collectionItem.isPhysicalSamplesCollection.storesPhysicalSamples.usesReferencesToDigitalObjects.referencesToDigitalObjectsImplementation|default(None),
                 }) -%}
             {%- endif -%}
@@ -778,6 +780,8 @@
     {# Mapping [Ethical Legislation data] #}
     {%- if collection.isSubjectToEthicalReview._value is sameas true -%}
         {%- do collection.ethicalReview.update({
+            "ethicalCommitteeName": collectionItem.isSubjectToEthicalReview.ethicalCommitteeName|default(None),
+            "ethicalCommitteeApprovalNumber": collectionItem.isSubjectToEthicalReview.ethicalCommitteeApprovalNumber|default(None),
             "extensionOfReusedData": collectionItem.isSubjectToEthicalReview.extensionOfReusedData|default(None),
             "ethicalReviewLinkDocument": collectionItem.isSubjectToEthicalReview.ethicalReviewLinkDocument|default(None),
             "ethicalReviewDocument": collectionItem.isSubjectToEthicalReview.ethicalReviewDocument|default(None),
@@ -1349,6 +1353,11 @@
                     "noStandardReason": metadataItem.isProvenanceDocumented.usesStandard.noStandardReason.other|default(None),
                 }) -%}
             {%- endif -%}
+        {%- endif -%}
+        {%- if metadataSpecification.provenanceDocumented.provenanceDocumentedType._value == "other" -%}
+            {%- do metadataSpecification.provenanceDocumented.update({
+                "provenanceDocumentedType": metadataItem.isProvenanceDocumented.provenanceDocumentedType.other|default(None),
+            }) -%}
         {%- endif -%}
     {%- elif metadataSpecification.isProvenanceDocumented._value is sameas false -%}
         {%- do metadataSpecification.update({
@@ -1944,7 +1953,7 @@
                 "isListedInCatalogue": swPackageItem.isListedInCatalogue|default(None),
             } -%}
             {%- if swPackage.isOpenLicense -%}
-                {%- if swPackage.isOpenLicense._value == "yesDecided" -%}
+                {%- if swPackage.isOpenLicense._value is sameas true -%}
                     {%- if swPackageItem.isOpenLicense.openLicense -%}
                         {%- do swPackage.update({
                             "openSourceLicense": swPackageItem.isOpenLicense.openLicense|default(None),

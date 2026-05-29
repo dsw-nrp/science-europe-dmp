@@ -37,7 +37,7 @@ Contribute to the document template by adding new information, refining existing
 * Improve value rendering
 * Update content based on changes in the KM version 1.0.0
 * Updated the required compatible KM version to 1.0.0
-* Update metamodel version to 18 - TBD
+* Update metamodel version to 18.0
 
 ### 0.2.0
 

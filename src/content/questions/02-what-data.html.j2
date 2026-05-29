@@ -23,20 +23,25 @@
                 )
             {%- endif %}:
 
-            {# Type #}
+            {# Data Type of the Dataset #}
             {%- if dataset.type -%}
-                <p>This dataset is of type <em>{{ dataset.type._value }}</em>.{{macros.linkQuestion(dataset.type._path) }} </p>
-            {%- else -%}
-                <p>The type of this dataset is not specified.</p>
-            {%- endif -%}
+                The data type of this dataset is
+                {%- if dataset.type._raw %} 
+                    <em><a href="http://purl.org/coar/resource_type/{{ dataset.type._raw.id }}" target="_blank">{{ dataset.type._raw.label }}</a>{{ macros.linkQuestion(dataset.type._path) }}</em>.
+                {%- else %} 
+                    <em>{{ dataset.type._value }}{{macros.linkQuestion(dataset.type._path) }}</em>.
+                {% endif -%}
+            {%- endif %}
 
             {# Volume #}
             {%- set ns = namespace(total_volume=0, all_small=true) -%}
             {%- for distribution in dataset.distributions -%}
-                {% if distribution.dataVolume.isLargeVolume._value is sameas true  %}
-                    {% set ns.total_volume = ns.total_volume + distribution.dataVolume.largeVolume.estimatedVolume._value|float %}
-                    {% set ns.all_small = false %}
-                {% endif %}
+                {%- if distribution.dataVolume and distribution.dataVolume.isLargeVolume -%}
+                    {% if distribution.dataVolume.isLargeVolume._value is sameas true and distribution.dataVolume.largeVolume.estimatedVolume %}
+                        {% set ns.total_volume = ns.total_volume + distribution.dataVolume.largeVolume.estimatedVolume._value|float %}
+                        {% set ns.all_small = false %}
+                    {% endif %}
+                {%- endif -%}
             {% endfor %}
 
             {%- if dataset.distributions|length > 0 -%}
@@ -54,7 +59,7 @@
     {%- endif -%}
 
     {# Reusing Data #}
-    {%- if data.dmp.reusingData.hasPreexistingData._value is sameas true -%}
+    {%- if data.dmp.reusingData.hasPreexistingData and data.dmp.reusingData.hasPreexistingData._value is sameas true -%}
         {%- if data.dmp.reusingData.consideredDatasets|length > 0 -%}
         <div>
             <h4>Re-used datasets</h4>
@@ -121,25 +126,25 @@
         <ul>
         {%- for format in formats -%}
         <li>
-            {%- if format.name._raw %} <em><a href="https://fairsharing.org/{{ format.name._raw.id }}" target="_blank">{{format.name._raw.name }}</a></em>{{ macros.linkQuestion(format.name._path) }}
-            {%- elif format.name._value %} <em>{{ format.name._value }}</em>{{ macros.linkQuestion(format.name._path) }}
+            {%- if format.name and format.name._raw %} <em><a href="https://fairsharing.org/{{ format.name._raw.id }}" target="_blank">{{format.name._raw.name }}</a></em>{{ macros.linkQuestion(format.name._path) }}
+            {%- elif format.name and format.name._value %} <em>{{ format.name._value }}</em>{{ macros.linkQuestion(format.name._path) }}
             {%- else %} <em>(no name given)</em>
             {%- endif -%}
             <p>
             {# Well described? Standard?#}
             {%- if format.isDescribed or format.isStandard -%}
                 This format is
-                {%- if format.isDescribed._value is sameas true %}
+                {%- if format.isDescribed and format.isDescribed._value is sameas true %}
                     well described{{ macros.linkQuestion(format.isDescribed._path) }}
-                {%- elif format.isDescribed._value is sameas false %}
+                {%- elif format.isDescribed and format.isDescribed._value is sameas false %}
                     not well described{{ macros.linkQuestion(format.isDescribed._path) }}
                 {%- endif -%}
-                {%- if format.isStandard._value is sameas true %}
+                {%- if format.isStandard and format.isStandard._value is sameas true %}
                     standard{{ macros.linkQuestion(format.isStandard._path) }}
-                {%- elif format.isStandard._value is sameas false %}
-                    {%- if format.noStandardReason._value == "no_format" %}
+                {%- elif format.isStandard and format.isStandard._value is sameas false %}
+                    {%- if format.noStandardReason and format.noStandardReason._value == "no_format" %}
                         non-standard because there is no standardized format for this data type{{ macros.linkQuestion(format.noStandardReason._path) }}
-                    {%- elif format.noStandardReason._value == "optimalization" %}
+                    {%- elif format.noStandardReason and format.noStandardReason._value == "optimalization" %}
                         non-standard but it is optimized for processing speed and/or volume{{ macros.linkQuestion(format.noStandardReason._path) }}
                     {%- elif format.noStandardReason and format.noStandardReason._value %}
                         non-standard because: {{ format.noStandardReason._value }}{{ macros.linkQuestion(format.noStandardReason._path) }}
@@ -150,16 +155,20 @@
                 .
             {%- endif -%}
             {# Suitable for long term? #}
-            {%- if format.isSuitableForLongTerm._value is sameas true %}
-                It is suitable for long-term preservation.{{ macros.linkQuestion(format.isSuitableForLongTerm._path) }}
-            {%- elif format.isSuitableForLongTerm._value is sameas false %}
-                It is not suitable for long-term preservation{{ macros.linkQuestion(format.isSuitableForLongTerm._path) }}
-                {# Convert to suitable for long term? #}
-                {%- if format.convertToLongTermSuitable._value is sameas true %}
-                    and we will convert it to a format suitable for long-term preservation{{ macros.linkQuestion(format.convertToLongTermSuitable._path) }}
-                {%- elif format.convertToLongTermSuitable._value is sameas false %}
-                    but we will not convert it to a format suitable for long-term preservation{{ macros.linkQuestion(format.convertToLongTermSuitable._path) }}
-                {%- endif -%}.
+            {%- if format.isSuitableForLongTerm -%}
+                {%- if format.isSuitableForLongTerm._value is sameas true %}
+                    It is suitable for long-term preservation.{{ macros.linkQuestion(format.isSuitableForLongTerm._path) }}
+                {%- elif format.isSuitableForLongTerm._value is sameas false %}
+                    It is not suitable for long-term preservation{{ macros.linkQuestion(format.isSuitableForLongTerm._path) }}
+                    {# Convert to suitable for long term? #}
+                    {%- if format.convertToLongTermSuitable -%}
+                        {%- if format.convertToLongTermSuitable._value is sameas true %}
+                            and we will convert it to a format suitable for long-term preservation{{ macros.linkQuestion(format.convertToLongTermSuitable._path) }}
+                        {%- elif format.convertToLongTermSuitable._value is sameas false %}
+                            but we will not convert it to a format suitable for long-term preservation{{ macros.linkQuestion(format.convertToLongTermSuitable._path) }}
+                        {%- endif -%}.
+                    {%- endif -%}
+                {%- endif -%}
             {%- endif -%}
             </p>
         </li>
@@ -177,9 +186,15 @@
         <ul>
         {%- for newDataType in newDataTypes -%}
             <li>
-                <em>{{ newDataType.distributionName._value if newDataType.distributionName._value else "(no name given)" }}</em>{{ macros.linkQuestion(newDataType.distributionName._path) }}
-                {%- set usesOntology = newDataType.newDataType.usesNewOntology._value -%}
-                {%- set providesMapping = newDataType.newDataType.providesOntologyMapping._value -%}
+                <em>{{ newDataType.distributionName._value if newDataType.distributionName else "(no name given)" }}</em>{{ macros.linkQuestion(newDataType.distributionName._path) }}
+                {%- if newDataType.newDataType -%}
+                    {%- if newDataType.newDataType.usesNewOntology -%}
+                        {%- set usesOntology = newDataType.newDataType.usesNewOntology._value -%}
+                    {%- endif -%}
+                    {%- if newDataType.newDataType.providesOntologyMapping -%}
+                        {%- set providesMapping = newDataType.newDataType.providesOntologyMapping._value -%}
+                    {%- endif -%}
+                {%- endif -%}
                 <p>
                 {# Ontology and mapping #}
                 {%- if usesOntology is sameas false %}
@@ -192,27 +207,31 @@
                     We will be using new types of data in this distribution. For that reason, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }}
                 {%- endif -%}
                 {# Fields #}
-                {%- if newDataType.newDataType.needsAddFields._value == "no" %}
-                    We will not need to add any new fields to the data, all of them are already descried in a data type registry.{{ macros.linkQuestion(newDataType.newDataType.needsAddFields._path) }}
-                {%- elif newDataType.newDataType.needsAddFields._value == "yes_existing_registry" %}
-                    We will need to add new types to an existing data type registry.{{ macros.linkQuestion(newDataType.newDataType.needsAddFields._path) }}
-                {%- elif newDataType.newDataType.needsAddFields._value == "yes_own_registry" %}
-                    We will need to add new types to data type registry, that we will create on our own.{{ macros.linkQuestion(newDataType.newDataType.needsAddFields._path) }}
+                {%- if newDataType.newDataType.needsAddFields -%}
+                    {%- if newDataType.newDataType.needsAddFields._value == "no" %}
+                        We will not need to add any new fields to the data, all of them are already descried in a data type registry.{{ macros.linkQuestion(newDataType.newDataType.needsAddFields._path) }}
+                    {%- elif newDataType.newDataType.needsAddFields._value == "yes_existing_registry" %}
+                        We will need to add new types to an existing data type registry.{{ macros.linkQuestion(newDataType.newDataType.needsAddFields._path) }}
+                    {%- elif newDataType.newDataType.needsAddFields._value == "yes_own_registry" %}
+                        We will need to add new types to data type registry, that we will create on our own.{{ macros.linkQuestion(newDataType.newDataType.needsAddFields._path) }}
+                    {%- endif -%}
                 {%- endif -%}
                 {# Creation process #}
-                {%- if newDataType.newDataType.creationProcess._value == "specification"%}
-                    There is a closely related, more generic and open format that we can specialize for our needs.{{ macros.linkQuestion(newDataType.newDataType.creationProcess._path) }}
-                {%- elif newDataType.newDataType.creationProcess._value == "linked_data_format" %}
-                    There is a Linked Data Format that we can use to design our new data type.{{ macros.linkQuestion(newDataType.newDataType.creationProcess._path) }}
-                {%- elif newDataType.newDataType.creationProcess._value == "custom" %}
-                    We will create a completely new and custom data type format.{{ macros.linkQuestion(newDataType.newDataType.creationProcess._path) }}
+                {%- if newDataType.newDataType.creationProcess -%}
+                    {%- if newDataType.newDataType.creationProcess._value == "specification"%}
+                        There is a closely related, more generic and open format that we can specialize for our needs.{{ macros.linkQuestion(newDataType.newDataType.creationProcess._path) }}
+                    {%- elif newDataType.newDataType.creationProcess._value == "linked_data_format" %}
+                        There is a Linked Data Format that we can use to design our new data type.{{ macros.linkQuestion(newDataType.newDataType.creationProcess._path) }}
+                    {%- elif newDataType.newDataType.creationProcess._value == "custom" %}
+                        We will create a completely new and custom data type format.{{ macros.linkQuestion(newDataType.newDataType.creationProcess._path) }}
+                    {%- endif -%}
                 {%- endif -%}
                 {# Description for others #}
-                {%- if newDataType.newDataType.descriptionForOther._value is sameas true %}
+                {%- if newDataType.newDataType.descriptionForOther and newDataType.newDataType.descriptionForOther._value is sameas true %}
                     We will provide a description of the new data type for others.{{ macros.linkQuestion(newDataType.newDataType.descriptionForOther._path) }}
                 {%- endif -%}
                 {# Data type registries #}
-                {%- if newDataType.newDataType.dataTypeRegistry._value %}
+                {%- if newDataType.newDataType.dataTypeRegistry and newDataType.newDataType.dataTypeRegistry._value %}
                     We will use the following data type registries: {{ newDataType.newDataType.dataTypeRegistry._value }}.{{ macros.linkQuestion(newDataType.newDataType.dataTypeRegistry._path) }}
                 {%- endif -%}
                 </p>

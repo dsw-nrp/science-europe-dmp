@@ -43,12 +43,12 @@ The following {% if data.dmp.collaboration.contributors|length == 1 %}contributo
         </li>
     {%- endfor -%}
 </ul>   
-  {%- elif dc.qtn.created_by -%}
+  {%- elif dc.project.created_by -%}
   <ul>
     <li class="contributor">
-      <span class="name">{{ dc.qtn.created_by.first_name }} {{ dc.qtn.created_by.last_name }}</span> <span class="email"><a href="mailto:{{ dc.qtn.created_by.email }}">{{ dc.qtn.created_by.email }}</a></span>
-      {%- if dc.qtn.created_by.affiliation %}
-      <br>Affiliation: <span class="affiliation">{{ dc.qtn.created_by.affiliation }}</span>
+      <span class="name">{{ dc.project.created_by.first_name }} {{ dc.project.created_by.last_name }}</span> <span class="email"><a href="mailto:{{ dc.project.created_by.email }}">{{ dc.project.created_by.email }}</a></span>
+      {%- if dc.project.created_by.affiliation %}
+      <br>Affiliation: <span class="affiliation">{{ dc.project.created_by.affiliation }}</span>
       {%- endif %}
     </li>
   </ul>

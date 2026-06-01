@@ -5,11 +5,11 @@
 <p>List of data to be published is given in Section 5, Question 10 and 11. This also includes information about repositories where the data can be found. Information about data types used is given in Section 1, Question 2.</p>
 
 {# Metadata specifications #}
-{% if data.dmp.sharedResources.metadataSpecifications | length > 0 %}
+{% if data.dmp.sharedResources.metadataSpecifications|length > 0 %}
     <h4>Metadata Specification</h4>
-    {%- set n = data.dmp.sharedResources.metadataSpecifications | length -%}
-    {% if data.dmp.sharedResources.metadataSpecifications | length > 1 %}
-        <p>Within {{ globals.projects }}, {{ data.dmp.sharedResources.metadataSpecifications | length }} different approaches to metadata description will be applied to ensure the proper documentation and discoverability of research data.</p>
+    {%- set n = data.dmp.sharedResources.metadataSpecifications|length -%}
+    {% if data.dmp.sharedResources.metadataSpecifications|length > 1 %}
+        <p>Within {{ globals.projects }}, {{ data.dmp.sharedResources.metadataSpecifications|length }} different approaches to metadata description will be applied to ensure the proper documentation and discoverability of research data.</p>
     {% endif %}
 
     {%- if n > 1 -%}<ul>{%- endif -%}
@@ -19,44 +19,50 @@
         {{ macros.datasetIntro(metadata, "metadata specification", data.dmp.datasets) }}
 
         {# Standard Metadata Specification #}
-        {% if metadata.isStandardMetadata._value is sameas true %}
-        <p>
-            This metadata specification follows a recognised metadata standard schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}
-            {%- if metadata.standardMetadata.identifier -%}
-                {%- if metadata.standardMetadata.identifier._raw -%}: <a href="https://fairsharing.org/{{ metadata.standardMetadata.identifier._raw.id }}" target="_blank">{{ metadata.standardMetadata.identifier._raw.name }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
-                {%- elif metadata.standardMetadata.identifier._value -%}: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+        {%- if metadata.isStandardMetadata -%}
+            {% if metadata.isStandardMetadata._value is sameas true %}
+            <p>
+                This metadata specification follows a recognised metadata standard schema that supports harvesting and indexing{{ macros.linkQuestion(metadata.isStandardMetadata._path) }}
+                {%- if metadata.standardMetadata.identifier -%}
+                    {%- if metadata.standardMetadata.identifier._raw -%}: <a href="https://fairsharing.org/{{ metadata.standardMetadata.identifier._raw.id }}" target="_blank">{{ metadata.standardMetadata.identifier._raw.name }}</a>{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+                    {%- elif metadata.standardMetadata.identifier._value -%}: {{ metadata.standardMetadata.identifier._value }}{{ macros.linkQuestion(metadata.standardMetadata.identifier._path) }}.
+                    {% endif %}
+                {%- else -%}.
                 {% endif %}
-            {%- else -%}.
-            {% endif %}
-        </p>
+            </p>
 
-        {% elif metadata.isStandardMetadata._value is sameas false %}
-        <p>
-            This metadata specification does not rely on an established metadata standard.
-            {% if metadata.noStandardMetadata.reason._value == "no_standard" %}
-            No suitable metadata standards are currently available in this research domain{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}.
-            {% elif metadata.noStandardMetadata.reason._value %}, because: {{ metadata.noStandardMetadata.reason._value }}{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}.
-            {% endif %}
+            {% elif metadata.isStandardMetadata._value is sameas false %}
+            <p>
+                {%- if metadata.noStandardMetadata -%}
+                    This metadata specification does not rely on an established metadata standard
+                    {%- if metadata.noStandardMetadata.reason -%}
+                        {% if metadata.noStandardMetadata.reason._value == "no_standard" %}
+                        , because no suitable metadata standards are currently available in this research domain{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}
+                        {% elif metadata.noStandardMetadata.reason._value %}, because: {{ metadata.noStandardMetadata.reason._value }}{{ macros.linkQuestion(metadata.noStandardMetadata.reason._path) }}.
+                        {% endif %}
+                    {%- endif -%}
+    
+                    {% if metadata.noStandardMetadata.metadataElements|length > 0 %}
+                        The following metadata elements will be included in the custom schema:
+                        <ul>
+                        {% for element in metadata.noStandardMetadata.metadataElements %}
+                            <li>{{ element._value if element._value else "(no element given)" }}{{ macros.linkQuestion(element._path) }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
 
-            {% if metadata.noStandardMetadata.metadataElements | length > 0 %}
-                The following metadata elements will be included in the custom schema:
-                <ul>
-                {% for element in metadata.noStandardMetadata.metadataElements %}
-                    <li>{{ element._value }}{{ macros.linkQuestion(element._path) }}</li>
-                {% endfor %}
-                </ul>
+                    {% if metadata.noStandardMetadata.canBeHarvestedIndexed and metadata.noStandardMetadata.canBeHarvestedIndexed._value is sameas true %}
+                        The metadata will still be stored in a way that allows harvesting and indexing.{{ macros.linkQuestion(metadata.noStandardMetadata.canBeHarvestedIndexed._path) }}
+                    {% endif %}
+                {%- endif -%}
+            </p>
             {% endif %}
-
-            {% if metadata.noStandardMetadata.canBeHarvestedIndexed._value is sameas true %}
-                The metadata will still be stored in a way that allows harvesting and indexing.{{ macros.linkQuestion(metadata.noStandardMetadata.canBeHarvestedIndexed._path) }}
-            {% endif %}
-        </p>
-        {% endif %}
+        {%- endif -%}
 
         {# Findability #}
-        {% if metadata.isFindable._value is sameas true %}
+        {% if metadata.isFindable and metadata.isFindable._value is sameas true %}
             <p>Metadata produced according to this approach will be findable.</p>{{ macros.linkQuestion(metadata.isFindable._path) }}
-        {% elif metadata.isFindable._value is sameas false %}
+        {% elif metadata.isFindable and metadata.isFindable._value is sameas false %}
             <p>Metadata produced under this approach will <strong>not</strong> be findable{% if metadata.noFindableReason._value %} because {{ metadata.noFindableReason._value }}{% endif %}.</p>{{ macros.linkQuestion(metadata.isFindable._path) }}
         {% endif %}
 
@@ -81,22 +87,24 @@
         {% endif %}
 
         {# Availability of metadata #}
-        {%- if metadata.isLicenseCC0._value is sameas true %}
-            Metadata is available under the CC0 license.{{ macros.linkQuestion(metadata.isLicenseCC0._path) }}
-        {%- elif metadata.isLicenseCC0._value is sameas false -%}
-            {%- if metadata.noLicenseCC0Reason._value %} Metadata is <strong>not</strong> under the CC0 license, because: {{ metadata.noLicenseCC0Reason._value }}.{{ macros.linkQuestion(metadata.noLicenseCC0Reason._path) }}
-            {%- else %} Metadata is not under the CC0 license.{{ macros.linkQuestion(metadata.isLicenseCC0._path) }}{%- endif -%}
-        {%- endif -%}
-        {%- if metadata.isAvailableAfterDataNotAvailable._value is sameas true %}
-            Metadata will be available even after the data is no longer available{{ macros.linkQuestion(metadata.isAvailableAfterDataNotAvailable._path) }}
-            {%- if metadata.howAvailableGuaranteed._value %}
-            (we will do the following: {{ metadata.howAvailableGuaranteed._value }}){{ macros.linkQuestion(metadata.howAvailableGuaranteed._path) }}
+        {%- if metadata.isLicenseCC0 and metadata.isLicenseCC0._value is sameas true %}
+                Metadata will be released under the <a href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 license</a>.{{ macros.linkQuestion(metadata.isLicenseCC0._path) }}
+            {%- elif metadata.isLicenseCC0 and metadata.isLicenseCC0._value is sameas false -%}
+                {%- if metadata.noLicenseCC0Reason and metadata.noLicenseCC0Reason._value %} Metadata will be <strong>not</strong> released under the <a href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 license</a> because: {{ metadata.noLicenseCC0Reason._value }}.{{ macros.linkQuestion(metadata.noLicenseCC0Reason._path) }}
+                {%- else %} Metadata will not be released under the <a href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 license</a>.{{ macros.linkQuestion(metadata.isLicenseCC0._path) }}{%- endif -%}
             {%- endif -%}
-        {%- elif metadata.isAvailableAfterDataNotAvailable._value is sameas false %}
-            Metadata will <strong>not</strong> be available after the data is no longer available{{ macros.linkQuestion(metadata.isAvailableAfterDataNotAvailable._path) }}
-            {%- if metadata.noAvailableReason._value %}
-                (because: {{ metadata.noAvailableReason._value }}){{ macros.linkQuestion(metadata.noAvailableReason._path) }}
-            {%- endif -%}.
+        {%- if metadata.isAvailableAfterDataNotAvailable -%}
+            {%- if metadata.isAvailableAfterDataNotAvailable._value is sameas true %}
+                Metadata will be available even after the data is no longer available{{ macros.linkQuestion(metadata.isAvailableAfterDataNotAvailable._path) }}
+                {%- if metadata.howAvailableGuaranteed._value %}
+                (we will do the following: {{ metadata.howAvailableGuaranteed._value }}){{ macros.linkQuestion(metadata.howAvailableGuaranteed._path) }}
+                {%- endif -%}
+            {%- elif metadata.isAvailableAfterDataNotAvailable._value is sameas false %}
+                Metadata will <strong>not</strong> be available after the data is no longer available{{ macros.linkQuestion(metadata.isAvailableAfterDataNotAvailable._path) }}
+                {%- if metadata.noAvailableReason._value %}
+                    (because: {{ metadata.noAvailableReason._value }}){{ macros.linkQuestion(metadata.noAvailableReason._path) }}
+                {%- endif -%}.
+            {%- endif -%}
         {%- endif -%}
     {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}
@@ -120,21 +128,22 @@
         {{ macros.datasetIntro(documentation, "documentation approach", data.dmp.datasets) }}
 
         {# Description #}
-        {% if documentation.description._value %}
+        {% if documentation.description %}
             <p>
-            This documentation approach will cover: {{ documentation.description._value | e |dot}}
-            {{ macros.linkQuestion(documentation.description._path) }}
+            This documentation approach will cover: {{ documentation.description._value|markdown|e}}{{ macros.linkQuestion(documentation.description._path) }}
             </p>
         {% endif %}
 
         {# Additional included items #}
         {% set included_items = [] %}
-        {% if documentation.includeMethodology._value is sameas true %}
-            {% do included_items.append("methodological aspects of data collection") %}
-        {% endif %}
-        {% if documentation.includeDataValidation._value is sameas true %}
-            {% do included_items.append("information on data validation procedures") %}
-        {% endif %}
+        {%- if documentation.includeMethodology -%}
+            {% if documentation.includeMethodology._value is sameas true %}
+                {% do included_items.append("methodological aspects of data collection") %}
+            {% endif %}
+            {% if documentation.includeDataValidation._value is sameas true %}
+                {% do included_items.append("information on data validation procedures") %}
+            {% endif %}
+        {%- endif -%}
 
         {% if included_items | length > 0 %}
             <p>
@@ -143,10 +152,10 @@
         {% endif %}
 
         {# Format #}
-        {% if documentation.format._value %}
+        {% if documentation.format %}
             <p>
             The documentation will be available in the following format:
-            <strong>{{ documentation.format._value | e |dot}}</strong>
+            <em>{{ documentation.format._value | e |dot}}</em>
             {{ macros.linkQuestion(documentation.format._path) }}
             </p>
         {% endif %}
@@ -172,45 +181,68 @@
         {{ macros.datasetIntro(organisationStrategy, "file naming and versioning strategy", data.dmp.datasets) }}
 
         {# Relationships between files #}
-        {% if organisationStrategy.fileNamingConvention.isRelationshipsBetweenFiles._value is sameas true %}
-            We will keep the relationships between data clear in the file names.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isRelationshipsBetweenFiles._path) }}
-        {% endif %}
-        {% if organisationStrategy.fileNamingConvention.isMetadataEmbedded._value is sameas true %}
-            All metadata elements embedded in file names will also be included in the formal metadata to ensure completeness and consistency.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isMetadataEmbedded._path) }}
-        {% elif organisationStrategy.fileNamingConvention.isMetadataEmbedded._value is sameas false %}
-            Metadata embedded in file names will not necessarily be included in the formal metadata.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isMetadataEmbedded._path) }}
-        {% endif %}
+        {%- if organisationStrategy.fileNamingConvention -%}
+            {% if organisationStrategy.fileNamingConvention.isRelationshipsBetweenFiles and organisationStrategy.fileNamingConvention.isRelationshipsBetweenFiles._value is sameas true %}
+                We will keep the relationships between data clear in the file names.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isRelationshipsBetweenFiles._path) }}
+            {% endif %}
+            {% if organisationStrategy.fileNamingConvention.isMetadataEmbedded and organisationStrategy.fileNamingConvention.isMetadataEmbedded._value is sameas true %}
+                All metadata elements embedded in file names will also be included in the formal metadata to ensure completeness and consistency.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isMetadataEmbedded._path) }}
+            {% elif organisationStrategy.fileNamingConvention.isMetadataEmbedded and organisationStrategy.fileNamingConvention.isMetadataEmbedded._value is sameas false %}
+                Metadata embedded in file names will not necessarily be included in the formal metadata.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isMetadataEmbedded._path) }}
+            {% endif %}
+
+            {# Agreement on file naming convention #}
+            {%- if organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention -%}
+                {% if organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._value is sameas true %}
+                    A project-wide agreement on file naming conventions and versioning for this data is in place:{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._path) }}
+                    {%- if organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention %}
+                            {{organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention._value|markdown}}{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention._path) }}
+                    {%- else -%}, but no specific convention has been provided.{%- endif -%}
+                {% elif organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._value is sameas false %}
+                    No project-wide agreement on file naming conventions and versioning is in place.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._path) }}
+                {% endif %}
+            {%- endif -%}
+        {%- endif -%}
 
         {# Uses folder system  #}
-        {% if organisationStrategy.usesFolderSystem._value is sameas true %}
-            We will use a folder system to organize the data{% if organisationStrategy.folderSystemStrategy._value %}: {{ organisationStrategy.folderSystemStrategy._value }}.{% else %}, but no specific folder system strategy has been provided.{% endif %}{{ macros.linkQuestion(organisationStrategy.usesFolderSystem._path) }}
-        {% endif %}
-
-        {# Agreement on file naming convention #}
-        {% if organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._value is sameas true %}
-            A project-wide agreement on file naming conventions and versioning for this data is in place{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._path) }}
-            {%- if organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention %}
-                    ({{organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention._value}}{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention._path) }})
-            {%- else -%}, but no specific convention has been provided{%- endif -%}.
-        {% elif organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._value is sameas false %}
-            No project-wide agreement on file naming conventions and versioning is in place.{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._path) }}
+        {% if organisationStrategy.usesFolderSystem and organisationStrategy.usesFolderSystem._value is sameas true %}
+            We will use a folder system to organize the data{% if organisationStrategy.folderSystemStrategy._value %}: {{ organisationStrategy.folderSystemStrategy._value|markdown }}{% else %}, but no specific folder system strategy has been provided.{% endif %}{{ macros.linkQuestion(organisationStrategy.usesFolderSystem._path) }}
         {% endif %}
         <p>
 
         {# Versions #}
         {%- if organisationStrategy.dataStorageSystemOrganisations|length > 0 -%}
-            <p>
-            Updates and versioning of data are managed according to the following strategy:
+            <p>Data updates and version control are managed as follows:</p>
             <ul>
             {%- for dataStorageSystemOrganisation in organisationStrategy.dataStorageSystemOrganisations -%}
-                {%- if dataStorageSystemOrganisation.storageSystem or dataStorageSystemOrganisation.versioningStrategy -%}
-                <li>
-                    {{ dataStorageSystemOrganisation.storageSystem._label if dataStorageSystemOrganisation.storageSystem and dataStorageSystemOrganisation.storageSystem._label else dataStorageSystemOrganisation.storageSystem._value if dataStorageSystemOrganisation.storageSystem else '<em>Unknown data organisation type</em>' }} ~ {{ dataStorageSystemOrganisation.versioningStrategy._label if dataStorageSystemOrganisation.versioningStrategy and dataStorageSystemOrganisation.versioningStrategy._label else dataStorageSystemOrganisation.versioningStrategy._value if dataStorageSystemOrganisation.versioningStrategy else '<em>Unknown versioning strategy</em>' }}{{ macros.linkQuestion(dataStorageSystemOrganisation.storageSystem._path) }}
-                </li>
+            <li>
+                {%- if dataStorageSystemOrganisation.storageSystem -%}
+                    {%- if dataStorageSystemOrganisation.storageSystem._label -%}
+                        {{ dataStorageSystemOrganisation.storageSystem._label }}
+                    {%- elif dataStorageSystemOrganisation.storageSystem._value -%}
+                        {{ dataStorageSystemOrganisation.storageSystem._value }}
+                    {%- else -%}
+                        <em>Unknown data organisation type</em>
+                    {%- endif -%}
+                {%- else -%}
+                    <em>Unknown data organisation type</em>
                 {%- endif -%}
+                ~
+                {%- if dataStorageSystemOrganisation.versioningStrategy -%}
+                    {%- if dataStorageSystemOrganisation.versioningStrategy._label -%}
+                        {{ dataStorageSystemOrganisation.versioningStrategy._label }}
+                    {%- elif dataStorageSystemOrganisation.versioningStrategy._value -%}
+                        {{ dataStorageSystemOrganisation.versioningStrategy._value }}
+                    {%- else -%}
+                        <em>Unknown versioning strategy</em>
+                    {%- endif -%}
+                {%- else -%}
+                    <em>Unknown versioning strategy</em>
+                {%- endif -%}
+                {{ macros.linkQuestion(dataStorageSystemOrganisation.storageSystem._path) }}
+            </li>
             {%- endfor -%}
             </ul>
-            </p>
         {%- endif -%}
     {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
     {% endfor %}

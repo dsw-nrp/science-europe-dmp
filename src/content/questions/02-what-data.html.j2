@@ -128,7 +128,7 @@
         <li>
             {%- if format.name and format.name._raw %} <em><a href="https://fairsharing.org/{{ format.name._raw.id }}" target="_blank">{{format.name._raw.name }}</a></em>{{ macros.linkQuestion(format.name._path) }}
             {%- elif format.name and format.name._value %} <em>{{ format.name._value }}</em>{{ macros.linkQuestion(format.name._path) }}
-            {%- else %} <em>(no name given)</em>
+            {%- else %} <em>(No format specified)</em>
             {%- endif -%}
             <p>
             {# Well described? Standard?#}
@@ -160,14 +160,13 @@
                     It is suitable for long-term preservation.{{ macros.linkQuestion(format.isSuitableForLongTerm._path) }}
                 {%- elif format.isSuitableForLongTerm._value is sameas false %}
                     It is not suitable for long-term preservation{{ macros.linkQuestion(format.isSuitableForLongTerm._path) }}
-                    {# Convert to suitable for long term? #}
                     {%- if format.convertToLongTermSuitable -%}
                         {%- if format.convertToLongTermSuitable._value is sameas true %}
                             and we will convert it to a format suitable for long-term preservation{{ macros.linkQuestion(format.convertToLongTermSuitable._path) }}
                         {%- elif format.convertToLongTermSuitable._value is sameas false %}
                             but we will not convert it to a format suitable for long-term preservation{{ macros.linkQuestion(format.convertToLongTermSuitable._path) }}
-                        {%- endif -%}.
-                    {%- endif -%}
+                        {%- endif -%}
+                    {%- endif -%}.
                 {%- endif -%}
             {%- endif -%}
             </p>
@@ -182,11 +181,11 @@
     {# New data types #}
     {%- if newDataTypes|length > 0 -%}
     <h4>New Data Types</h4>
-    <div>We will be using the following new types of data for listed distributions:
+    <div>For the following distribution list, we will use new types of data as explained below:
         <ul>
         {%- for newDataType in newDataTypes -%}
             <li>
-                <em>{{ newDataType.distributionName._value if newDataType.distributionName else "(no name given)" }}</em>{{ macros.linkQuestion(newDataType.distributionName._path) }}
+                <b>{{ newDataType.distributionName._value if newDataType.distributionName else "(no name given)" }}</b>{{ macros.linkQuestion(newDataType.distributionName._path) }}
                 {%- if newDataType.newDataType -%}
                     {%- if newDataType.newDataType.usesNewOntology -%}
                         {%- set usesOntology = newDataType.newDataType.usesNewOntology._value -%}
@@ -196,15 +195,19 @@
                     {%- endif -%}
                 {%- endif -%}
                 <p>
+                {# Data type registries #}
+                {%- if newDataType.newDataType.dataTypeRegistry and newDataType.newDataType.dataTypeRegistry._value %}
+                    We will use the following data type registries: {{ newDataType.newDataType.dataTypeRegistry._value|markdown }}{{ macros.linkQuestion(newDataType.newDataType.dataTypeRegistry._path) }}
+                {%- endif -%}
                 {# Ontology and mapping #}
                 {%- if usesOntology is sameas false %}
-                    Although we will be using new types of data in this distribution, suitable public controlled vocabularies or ontologies exist for those.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }}
+                    Although we will be using new types of data, suitable public controlled vocabularies or ontologies exist for those.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }}
                 {%- elif usesOntology is sameas true and providesMapping is sameas true %}
-                    We will be using new types of data in this distribution. For that reason, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }} Such terms will be mapped to existing vocabularies or ontologies.{{ macros.linkQuestion(newDataType.newDataType.providesOntologyMapping._path) }}
+                    We will create a completely new and custom data type format. Since we are using new types of data, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }} Such terms will be mapped to existing vocabularies or ontologies.{{ macros.linkQuestion(newDataType.newDataType.providesOntologyMapping._path) }}
                 {%- elif usesOntology is sameas true and providesMapping is sameas false %}
-                    We will be using new types of data in this distribution. For that reason, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }} We will not provide mapping to existing vocabularies or ontologies.{{ macros.linkQuestion(newDataType.newDataType.providesOntologyMapping._path) }}
+                    We will create a completely new and custom data type format. Since we are using new types of data, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }} We will not provide mapping to existing vocabularies or ontologies.{{ macros.linkQuestion(newDataType.newDataType.providesOntologyMapping._path) }}
                 {%- elif usesOntology is sameas true %}
-                    We will be using new types of data in this distribution. For that reason, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }}
+                    We will create a completely new and custom data type format. Since we are using new types of data, we will make and publish a vocabulary or ontology for some of our data.{{ macros.linkQuestion(newDataType.newDataType.usesNewOntology._path) }}
                 {%- endif -%}
                 {# Fields #}
                 {%- if newDataType.newDataType.needsAddFields -%}
@@ -230,14 +233,10 @@
                 {%- if newDataType.newDataType.descriptionForOther and newDataType.newDataType.descriptionForOther._value is sameas true %}
                     We will provide a description of the new data type for others.{{ macros.linkQuestion(newDataType.newDataType.descriptionForOther._path) }}
                 {%- endif -%}
-                {# Data type registries #}
-                {%- if newDataType.newDataType.dataTypeRegistry and newDataType.newDataType.dataTypeRegistry._value %}
-                    We will use the following data type registries: {{ newDataType.newDataType.dataTypeRegistry._value }}.{{ macros.linkQuestion(newDataType.newDataType.dataTypeRegistry._path) }}
-                {%- endif -%}
                 </p>
             </li>
-        {%- endfor -%}
-        </ul>
+            {%- endfor -%}
+            </ul>
     </div>
     {%- else -%}
     <div>We will not be using any new types of data.</div>

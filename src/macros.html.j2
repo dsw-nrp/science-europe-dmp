@@ -86,17 +86,17 @@
       {% set ds = allDatasets | selectattr('uuid', 'equalto', datasetUuid) | first %}
       {% if ds %}
         {% if ds.name %}
-          {% do datasets.append('<strong>' ~ ds.name._value ~ '</strong>' ~ linkQuestion(ds.name._path)) %}
+          {% do datasets.append( ds.name._value ~ linkQuestion(ds.name._path)) %}
         {% else %}
-          {% do datasets.append('<strong>(no name)</strong>') %}
+          {% do datasets.append('(no name)') %}
         {% endif %}
       {% endif %}
     {% endfor %}
     {% set datasetText = datasets | join(", ") | safe %}
     {%- if datasets | length > 1 -%}
-      <p>This {{ contextPhrase }} applies to the following datasets: {{ datasetText }}.</p>
+      <p>This {{ contextPhrase }} applies to the following datasets: <strong>{{ datasetText }}</strong>.</p>
     {%- elif datasets | length == 1 -%}
-      <p>This {{ contextPhrase }} applies to the following dataset: {{ datasetText }}.</p>
+      <p>This {{ contextPhrase }} applies to the following dataset: <strong>{{ datasetText }}</strong>.</p>
     {%- endif -%}
   {%- endif -%}
 {%- endmacro %}

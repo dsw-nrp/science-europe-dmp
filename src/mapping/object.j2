@@ -641,17 +641,13 @@
             {%- if collection.sensitiveDataCollection.personalDataCollection.categoryGdpr._value == "special" -%}
                 {%- do collection.sensitiveDataCollection.personalDataCollection.update({
                     "categoryGdpr": collectionItem.isSensitiveDataCollection.isPersonalDataCollection.categoryGdpr.whichSpecial|list,
+                    "specialCategoryGdprExemption": collectionItem.isSensitiveDataCollection.isPersonalDataCollection.categoryGdpr.specialCategoryGdprExemption|default(None),
                 }) -%}
-                {%- for exceptionItem in collectionItem.isSensitiveDataCollection.isPersonalDataCollection.categoryGdpr.specialCategoryGdprExemptions -%}
+                {%- if collection.sensitiveDataCollection.personalDataCollection.specialCategoryGdprExemption._value == "other" -%}
                     {%- do collection.sensitiveDataCollection.personalDataCollection.update({
-                        "specialCategoryGdprExemption": exceptionItem.specialCategoryGdprExemption|default(None),
-                    }) -%}
-                    {%- if collection.sensitiveDataCollection.personalDataCollection.specialCategoryGdprExemption._value == "other" -%}
-                        {%- do collection.sensitiveDataCollection.personalDataCollection.update({
-                        "specialCategoryGdprExemption": exceptionItem.specialCategoryGdprExemption.other|default(None),
-                    }) -%}
-                    {%- endif -%}
-                {%- endfor -%}
+                    "specialCategoryGdprExemption": collectionItem.isSensitiveDataCollection.isPersonalDataCollection.categoryGdpr.specialCategoryGdprExemption.other|default(None),
+                }) -%}
+                {%- endif -%}
             {%- endif -%}
             {%- if collection.sensitiveDataCollection.personalDataCollection.isFullyAnonymized._value is sameas true -%}
                 {%- do collection.sensitiveDataCollection.personalDataCollection.update({

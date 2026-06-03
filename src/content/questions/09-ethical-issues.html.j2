@@ -6,7 +6,7 @@
   {%- if data.dmp.sharedResources.collections | length > 0 -%}
     {%- set ethicalCollections = [] -%}
     {%- for collection in data.dmp.sharedResources.collections -%}
-      {%- if collection.isSubjectToEthicalReview._value is sameas true -%}
+      {%- if collection.isSubjectToEthicalReview and collection.isSubjectToEthicalReview._value is sameas true -%}
         {%- do ethicalCollections.append(collection) -%}
       {%- endif -%}
     {%- endfor -%}
@@ -25,7 +25,7 @@
         {%- if collection.isSubjectToEthicalReview and collection.isSubjectToEthicalReview._value is sameas true -%}
             <p>
             The data collection is subject to ethical review.{{ macros.linkQuestion(collection.isSubjectToEthicalReview._path) }}
-            {%- if ethicalReview.ethicalCommitteeName or ethicalReview.ethicalCommitteeApprovalNumber -%}
+            {%- if ethicalReview.ethicalCommitteeName or ethicalReview.ethicalCommitteeApprovalNumber %}
                 The ethical review is conducted by {{ ethicalReview.ethicalCommitteeName._value if ethicalReview.ethicalCommitteeName else "an ethics committee" }}{{ " (approval number: " ~ ethicalReview.ethicalCommitteeApprovalNumber._value ~ ")" if ethicalReview.ethicalCommitteeApprovalNumber else "" }}.{{ macros.linkQuestion(ethicalReview.ethicalCommitteeName._path) if ethicalReview.ethicalCommitteeName else "" }}{{ macros.linkQuestion(ethicalReview.ethicalCommitteeApprovalNumber._path) if ethicalReview.ethicalCommitteeApprovalNumber else "" }}
             {%- endif -%}
             {%- if ethicalReview.ethicalReviewLinkDocument or ethicalReview.ethicalReviewDocument %}
@@ -39,20 +39,18 @@
                 {%- endif -%}
                 .
             {%- endif -%}
-            {%- if ethicalReview.extensionOfReusedData._value == "not_applicable" %} 
-                A new approval or extension of any existing approval under research ethics laws is not applicable for the re-use of the data.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
-            {%- elif ethicalReview.extensionOfReusedData._value == "existing"  %}
-                An existing approval under research ethics laws covers our re-use of the data; no new approval or extension is required.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
-            {%- elif ethicalReview.extensionOfReusedData._value == "extension"  %}
-                An extension of an existing approval under research ethics laws will be needed for the re-use of the data.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
-            {%- elif ethicalReview.extensionOfReusedData._value == "new"  %}
-                A new ethical approval under research ethics laws will be needed to cover our usage of the data.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
+            {%- if ethicalReview.extensionOfReusedData -%}
+              {%- if ethicalReview.extensionOfReusedData._value == "not_applicable" %} 
+                  A new approval or extension of any existing approval under research ethics laws is not applicable for the re-use of the data.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
+              {%- elif ethicalReview.extensionOfReusedData._value == "existing"  %}
+                  An existing approval under research ethics laws covers our re-use of the data; no new approval or extension is required.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
+              {%- elif ethicalReview.extensionOfReusedData._value == "extension"  %}
+                  An extension of an existing approval under research ethics laws will be needed for the re-use of the data.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
+              {%- elif ethicalReview.extensionOfReusedData._value == "new"  %}
+                  A new ethical approval under research ethics laws will be needed to cover our usage of the data.{{ macros.linkQuestion(ethicalReview.extensionOfReusedData._path) }}
+              {%- endif -%}
             {%- endif -%}
             </p>
-        {%- elif collection.isSubjectToEthicalReview and collection.isSubjectToEthicalReview._value is sameas false -%}
-            <p>The data collection is not subject to ethical legislation.{{ macros.linkQuestion(collection.isSubjectToEthicalReview._path) }}</p>
-        {%- else -%}
-            <p>No information on ethical aspects were provided.</p>
         {%- endif -%}
         {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
       {%- endfor -%}
@@ -79,10 +77,10 @@
     <ul>
     {%- for policyItem in filtered_policies -%}
       <li>
-        <strong>{{ policyItem.name._value | default("(no name)") }} </strong>
+        <strong>{{ policyItem.name._value if policyItem.name and policyItem.name._value else "(no name)" }} </strong>
         {%- if policyItem.url -%} (<a href="{{ policyItem.url._value }}" target="_blank">{{ policyItem.url._value }}</a>){%- endif -%}{{ macros.linkQuestion(policyItem.name._path) }}<br>
         {%- if policyItem.description %}
-          <em>{{ policyItem.description._value }}</em><br>
+          <em>{{ policyItem.description._value|markdown }}</em><br>
         {%- endif -%}
         Scope: {{ policyItem.scope | map(attribute='_label') | list | join(', ') }}
       </li>

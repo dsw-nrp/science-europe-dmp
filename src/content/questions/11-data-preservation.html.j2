@@ -33,7 +33,7 @@
         {# How long will data be preserved during project? #}
         {%- if preservationStrategy.usesLongTermStorageDuringProject._value is sameas true -%}
           {% set period = preservationStrategy.longTermStorageDuringProject.archivePeriod %}
-          {% if period._value %}
+          {% if period %}
               {% if period._value == "as_long_as_possible" %}
                   This data will be retained during {{ globals.projects }} for as long as technically feasible.
               {% elif period._value == "until_needs_delete" %}
@@ -49,7 +49,7 @@
           {%- if preservationStrategy.longTermStorageAfterProject -%}
             {%- set longTermStorageAfterProject = preservationStrategy.longTermStorageAfterProject -%}
             {# Paying #}
-            {%- if longTermStorageAfterProject.funder._value -%}
+            {%- if longTermStorageAfterProject.funder -%}
               {%- if longTermStorageAfterProject.funder._value == "grant" %}
                 The costs for archiving data will be paid from the grant.
               {%- elif longTermStorageAfterProject.funder._value == "department" %}

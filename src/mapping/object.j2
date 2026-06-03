@@ -1547,6 +1547,7 @@
         {%- do preservationStrategy.longTermStorageAfterProject.update({
             "funder": preservationItem.usesLongTermStorageAfterProject.funder|default(None),
             "minimumLifeTimeYears": preservationItem.usesLongTermStorageAfterProject.minimumLifeTime|default(None),
+            "minimumLifeTimeOther": None,
             "isArchivalPeriodExtendable": preservationItem.usesLongTermStorageAfterProject.isArchivalPeriodExtendable|default(None),
             "archivalPeriodExtension": {},
             "noArchivalPeriodExtensionReason": None,

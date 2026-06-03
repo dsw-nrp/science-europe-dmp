@@ -14,8 +14,8 @@
 
             {{ macros.datasetIntro(metadata, "persistent identifiers assignment", data.dmp.datasets) }}
 
-            {%- if metadata.usesPids._value is sameas true -%}
-                {%- if metadata.whoProvidesPids._value -%}
+            {%- if metadata.usesPids and metadata.usesPids._value is sameas true -%}
+                {%- if metadata.whoProvidesPids -%}
                     <p>
                     {%- if metadata.whoProvidesPids._value == "project" -%}
                         A persistent identifier (PID) for this data will be assigned by the project’s data steward or principal investigator.
@@ -26,12 +26,12 @@
                     {%- elif metadata.whoProvidesPids._value == "provider" -%}
                         A persistent identifier (PID) for this data will be assigned by the national or international PID service provider.
                     {%- else -%}
-                        A persistent identifier (PID) for this data will be assigned by {{ metadata.whoProvidesPids._value }}.
+                        A persistent identifier (PID) for this data will be assigned by {{ metadata.whoProvidesPids._value if metadata.whoProvidesPids._value else "an unspecified entity" }}.
                     {%- endif -%}
                     {{ macros.linkQuestion(metadata.whoProvidesPids._path) }}
                     </p>
                 {%- endif -%}
-            {%- elif metadata.usesPids._value is sameas false -%}
+            {%- elif metadata.usesPids and metadata.usesPids._value is sameas false -%}
                 <p>A persistent identifier (PID) for this data will not be assigned.{{ macros.linkQuestion(metadata.usesPids._path) }}</p>
             {%- else -%}
                 <p>It is not specified whether a persistent identifier (PID) will be assigned for this data.</p>

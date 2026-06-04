@@ -61,17 +61,17 @@
               <p>
               {%- if nonAnonymizedDataset.dataProcessingSafeguards and nonAnonymizedDataset.dataProcessingSafeguards|length > 0 -%}
                   {%- set safeguardsList = nonAnonymizedDataset.dataProcessingSafeguards %}
-                  For processing this data we have established the following technical and procedural safeguards: {{ safeguardsList| map(attribute="_label")| join(", ") }}.{{ macros.linkQuestion(safeguardsList[0]._path) }}
+                  For processing the data we have established the following technical and procedural safeguards: {{ safeguardsList| map(attribute="_label")| join(", ") }}.{{ macros.linkQuestion(safeguardsList[0]._path) }}
               {%- endif -%}
               {%- if nonAnonymizedDataset.isTransferOutsideEu and nonAnonymizedDataset.isTransferOutsideEu._value is sameas true %}
-                  We plan to transfer this data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
+                  We plan to transfer the data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
                   {%- if nonAnonymizedDataset.transferOutsideEuProtectionProcess %}
                       Additional protection measures are planned: {{ nonAnonymizedDataset.transferOutsideEuProtectionProcess._value|markdown }}{{ macros.linkQuestion(nonAnonymizedDataset.transferOutsideEuProtectionProcess._path) }}
                   {%- else %}
                       No specific details about additional protection measures are available yet.
                   {%- endif -%}
               {%- elif nonAnonymizedDataset.isTransferOutsideEu and nonAnonymizedDataset.isTransferOutsideEu._value is sameas false %}
-                  We are not planning to transfer this data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
+                  We are not planning to transfer the data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
               {%- endif -%}
               </p>
             {%- endif -%}

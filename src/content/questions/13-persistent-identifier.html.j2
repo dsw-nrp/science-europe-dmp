@@ -18,23 +18,23 @@
                 {%- if metadata.whoProvidesPids -%}
                     <p>
                     {%- if metadata.whoProvidesPids._value == "project" -%}
-                        A persistent identifier (PID) for this data will be assigned by the project’s data steward or principal investigator.
+                        A persistent identifier (PID) for the data will be assigned by the project’s data steward or principal investigator.
                     {%- elif metadata.whoProvidesPids._value == "institutional" -%}
-                        A persistent identifier (PID) for this data will be assigned by the institutional data steward.
+                        A persistent identifier (PID) for the data will be assigned by the institutional data steward.
                     {%- elif metadata.whoProvidesPids._value == "repository" -%}
-                        A persistent identifier (PID) for this data will be assigned automatically by the data repository upon submission.
+                        A persistent identifier (PID) for the data will be assigned automatically by the data repository upon submission.
                     {%- elif metadata.whoProvidesPids._value == "provider" -%}
-                        A persistent identifier (PID) for this data will be assigned by the national or international PID service provider.
+                        A persistent identifier (PID) for the  data will be assigned by the national or international PID service provider.
                     {%- else -%}
-                        A persistent identifier (PID) for this data will be assigned by {{ metadata.whoProvidesPids._value if metadata.whoProvidesPids._value else "an unspecified entity" }}.
+                        A persistent identifier (PID) for the data will be assigned by {{ metadata.whoProvidesPids._value if metadata.whoProvidesPids._value else "an unspecified entity" }}.
                     {%- endif -%}
                     {{ macros.linkQuestion(metadata.whoProvidesPids._path) }}
                     </p>
                 {%- endif -%}
             {%- elif metadata.usesPids and metadata.usesPids._value is sameas false -%}
-                <p>A persistent identifier (PID) for this data will not be assigned.{{ macros.linkQuestion(metadata.usesPids._path) }}</p>
+                <p>A persistent identifier (PID) for the data will not be assigned.{{ macros.linkQuestion(metadata.usesPids._path) }}</p>
             {%- else -%}
-                <p>It is not specified whether a persistent identifier (PID) will be assigned for this data.</p>
+                <p>It is not specified whether a persistent identifier (PID) will be assigned for the data.</p>
             {%- endif -%}
             {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
         {%- endfor -%}

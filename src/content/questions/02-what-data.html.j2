@@ -180,7 +180,7 @@
 
     {# New data types #}
     {%- if newDataTypes|length > 0 -%}
-    <h4>New Data Types</h4>
+    <h4>New data types</h4>
     <div>For the following distribution list, we will use new types of data as explained below:
         <ul>
         {%- for newDataType in newDataTypes -%}
@@ -197,7 +197,7 @@
                 <p>
                 {# Data type registries #}
                 {%- if newDataType.newDataType.dataTypeRegistry and newDataType.newDataType.dataTypeRegistry._value %}
-                    We will use the following data type registries: {{ newDataType.newDataType.dataTypeRegistry._value|markdown }}{{ macros.linkQuestion(newDataType.newDataType.dataTypeRegistry._path) }}
+                    We will use the following data type registries: {{ newDataType.newDataType.dataTypeRegistry._value }}.{{ macros.linkQuestion(newDataType.newDataType.dataTypeRegistry._path) }}
                 {%- endif -%}
                 {# Ontology and mapping #}
                 {%- if usesOntology is sameas false %}
@@ -235,8 +235,8 @@
                 {%- endif -%}
                 </p>
             </li>
-            {%- endfor -%}
-            </ul>
+        {%- endfor -%}
+        </ul>
     </div>
     {%- else -%}
     <div>We will not be using any new types of data.</div>

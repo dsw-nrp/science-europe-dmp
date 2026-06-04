@@ -18,13 +18,13 @@
 
       {# Open philosophy  #}
       {%- if accessRestriction.asOpenAsPossibleApproach and accessRestriction.asOpenAsPossibleApproach._value is sameas true -%}
-        <p>Access and reuse of this data follow the principle of <em>as open as possible, as closed as necessary</em>, in accordance with applicable legal requirements.{{ macros.linkQuestion(accessRestriction.asOpenAsPossibleApproach._path) }}</p>
+        <p>Access and reuse of the data follow the principle of <em>as open as possible, as closed as necessary</em>, in accordance with applicable legal requirements.{{ macros.linkQuestion(accessRestriction.asOpenAsPossibleApproach._path) }}</p>
       {%- endif -%}
 
       {# Can open data #}
       {%- if accessRestriction.canDataOpen -%}
         {%- if accessRestriction.canDataOpen._value is sameas true -%}
-          <p>This data can become completely open over time.{{ macros.linkQuestion(accessRestriction.canDataOpen._path) }}</p>
+          <p>The data can become completely open over time.{{ macros.linkQuestion(accessRestriction.canDataOpen._path) }}</p>
         {%- elif accessRestriction.canDataOpen._value is sameas false -%}
           {%- set dataCannotOpen = accessRestriction.dataCannotOpen -%}
           {%- set legalReasons = dataCannotOpen.isLegalReason._value -%}
@@ -34,7 +34,7 @@
           {%- set nReasons = [legalReasons, businessReasons, otherReasons]|select('equalto', true)|list|length -%}
           {%- if anyReason -%}
             <p>
-            This data cannot become completely open because
+            The data cannot become completely open because
             {%- if nReasons == 1 -%}
               {%- if legalReasons %}
                 {%- set privacy = dataCannotOpen.legalReason.isPrivacyReason._value -%}
@@ -108,7 +108,7 @@
             {%- if dataCannotOpen.isAccessProcessDefined and dataCannotOpen.isAccessProcessDefined._value is sameas true -%}
               <p>
               {%- set accessProcess = dataCannotOpen.accessProcess -%}
-              Access to this data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value|markdown }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
+              Access to the data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value|markdown }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
               {%- if accessProcess.timeFrame %}
                 The process will take place within {{ accessProcess.timeFrame._value }}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.timeFrame._path) }}
               {%- endif -%}

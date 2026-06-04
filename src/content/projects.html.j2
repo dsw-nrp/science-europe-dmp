@@ -67,7 +67,7 @@
           <dt>Abstract</dt>
           <dd>
           {%- if project.description -%}
-              <p>{{ project.description._value }}{{ macros.linkQuestion(project.description._path) }}</p>
+              {{ project.description._value|markdown }}{{ macros.linkQuestion(project.description._path) }}
           {%- else -%}
             No abstract given.
           {%- endif -%}

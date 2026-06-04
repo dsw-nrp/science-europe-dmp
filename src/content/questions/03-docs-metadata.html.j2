@@ -194,7 +194,7 @@
             {# Agreement on file naming convention #}
             {%- if organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention -%}
                 {% if organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._value is sameas true %}
-                    A project-wide agreement on file naming conventions and versioning for this data is in place:{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._path) }}
+                    A project-wide agreement on file naming conventions and versioning for the data is in place:{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.isAgreementOnFileNamingConvention._path) }}
                     {%- if organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention %}
                             {{organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention._value|markdown}}{{ macros.linkQuestion(organisationStrategy.fileNamingConvention.agreementOnFileNamingConvention._path) }}
                     {%- else -%}, but no specific convention has been provided.{%- endif -%}

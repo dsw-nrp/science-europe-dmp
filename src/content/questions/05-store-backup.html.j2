@@ -49,11 +49,11 @@
                     {% set period = strategy.longTermStorageDuringProject.archivePeriod %}
                     {% if period._value %}
                         {% if period._value == "as_long_as_possible" %}
-                            This data will be retained for as long as technically feasible.
+                            The data will be retained for as long as technically feasible.
                         {% elif period._value == "until_needs_delete" %}
-                            This data will be retained until deletion is required due to legal, contractual, or regulatory constraints.
+                            The data will be retained until deletion is required due to legal, contractual, or regulatory constraints.
                         {% else %}
-                            This data will be retained for a fixed period of {{ period._value }}.
+                            The data will be retained for a fixed period of {{ period._value }}.
                         {% endif %}
                             {{ macros.linkQuestion(period._path) }}
                     {% endif %}

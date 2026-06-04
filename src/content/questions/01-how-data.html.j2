@@ -281,7 +281,7 @@
             {%- if consideredData.isReused -%}
                 {# Not Re-used datasets #}
                 {%- if consideredData.isReused._value is sameas false -%}
-                    <p>We considered reusing this standard reference data
+                    <p>We considered reusing the standard reference data
                     {%- if consideredData.identifier %} 
                         ({{ macros.formatIdentifier(consideredData.identifier) }})
                     {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
@@ -298,12 +298,12 @@
                             <p>The dataset was not reused{% if consideredData.noReusedReason %}, because: {{ consideredData.noReusedReason._value }}{% endif %}.
                         {%- endif %}{{ macros.linkQuestion(consideredData.noReusedReason._path) }}</p>
                     {%- else -%}
-                        <p>We decided not to use this reference dataset.</p>
+                        <p>We decided not to use the reference dataset.</p>
                     {%- endif -%}
                 
                 {# Re-used datasets #}
                 {%- elif consideredData.isReused._value is sameas true -%}
-                    <p>We will re-use this standard reference data
+                    <p>We will re-use the standard reference data
                     {%- if consideredData.identifier %} 
                         ({{ macros.formatIdentifier(consideredData.identifier) }})
                     {%- endif -%}.{{ macros.linkQuestion(consideredData.isReused._path) }}</p>
@@ -312,19 +312,19 @@
                     {%- if consideredData.reusedData -%}
                         {%- set reusedData = consideredData.reusedData -%}
                         {% if reusedData.purpose %}
-                        <p>It is used in the {{ globals.projects }} for: {{ reusedData.purpose._value|dot }}{{ macros.linkQuestion(reusedData.purpose._path) }}</p>
+                        <p>It is used in the {{ globals.projects }} for: {{ reusedData.purpose._value|markdown }}{{ macros.linkQuestion(reusedData.purpose._path) }}</p>
                         {% endif %}
                         {# Reuse conditions #}
                         {%- if reusedData.conditions and reusedData.conditions._value == "CC0" %}
-                            <p>This data are freely available for any use.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                            <p>The data are freely available for any use.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
                         {%- elif reusedData.conditions and reusedData.conditions._value == "CCBY" %}
-                            <p>This data are freely available with obligation to quote the source.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                            <p>The data are freely available with obligation to quote the source.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
                         {%- elif reusedData.conditions and reusedData.conditions._value == "exception" %}
-                            <p>This data can be used based on legal copyright exceptions, without needing explicit permission.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                            <p>The data can be used based on legal copyright exceptions, without needing explicit permission.{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
                         {%- elif reusedData.conditions %}
-                            <p>This data can be used under the following conditions: {{ reusedData.conditions._value|markdown }}{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
+                            <p>The data can be used under the following conditions: {{ reusedData.conditions._value|markdown }}{{ macros.linkQuestion(reusedData.conditions._path) }}</p>
                         {%- else %}
-                            <p>Conditions for reusing this data are not given.</p>
+                            <p>Conditions for reusing the data are not given.</p>
                         {%- endif -%}
 
                         {# Maintainer #}
@@ -377,7 +377,7 @@
                                     {%- endif -%}
                                 </p>
                             {%- elif reusedData.isVersioned._value is sameas false -%}
-                                <p>This data are not versioned.{{ macros.linkQuestion(reusedData.isVersioned._path) }}</p>
+                                <p>The data are not versioned.{{ macros.linkQuestion(reusedData.isVersioned._path) }}</p>
                             {%- endif -%}
                         {%- endif -%}
 
@@ -409,7 +409,7 @@
                                 {%- endif -%}
                             {%- endfor -%}
                             {%- if tools|length > 0 -%}
-                                <p>The following specific tool{%- if tools|length > 1 -%}s{%- endif %} have been identified for re-using this data:</p>  
+                                <p>The following specific tool{%- if tools|length > 1 -%}s{%- endif %} have been identified for re-using the data:</p>  
                                 <ul>
                                 {%- for tool in tools -%}
                                     <li>
@@ -451,10 +451,10 @@
                                 {%- endfor -%}
                                 </ul>
                             {%- else -%}
-                                <p>No specific tools have been identified for re-using this data.</p>
+                                <p>No specific tools have been identified for re-using the data.</p>
                             {%- endif -%}
                         {%- else -%}
-                            <p>No specific tools have been identified for re-using this data.</p>
+                            <p>No specific tools have been identified for re-using the data.</p>
                         {%- endif -%}
                     {%- endif -%}
                 {%- endif -%}

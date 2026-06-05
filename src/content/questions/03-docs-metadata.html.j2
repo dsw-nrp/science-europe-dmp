@@ -63,7 +63,7 @@
         {% if metadata.isFindable and metadata.isFindable._value is sameas true %}
             <p>Metadata produced according to this approach will be findable.</p>{{ macros.linkQuestion(metadata.isFindable._path) }}
         {% elif metadata.isFindable and metadata.isFindable._value is sameas false %}
-            <p>Metadata produced under this approach will <strong>not</strong> be findable{% if metadata.noFindableReason._value %} because {{ metadata.noFindableReason._value }}{% endif %}.</p>{{ macros.linkQuestion(metadata.isFindable._path) }}
+            <p>Metadata produced under this approach will <strong>not</strong> be findable{% if metadata.noFindableReason._value %} because {{ metadata.noFindableReason._value|markdown }}{% endif %}.</p>{{ macros.linkQuestion(metadata.isFindable._path) }}
         {% endif %}
 
         {# Connection to data #}

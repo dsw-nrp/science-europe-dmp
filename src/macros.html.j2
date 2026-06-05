@@ -67,6 +67,8 @@
     {%- else %}
       <em>no value given</em>
     {%- endif -%}
+  {%- elif identifier.value and identifier.value._value.startswith("http") or identifier.value._value.startswith("www") -%}
+    <em>{{ identifier.type._value if identifier.type._value else "no type of identifier given" }}</em>: <a href="{{ identifier.value._value }}" target="_blank">{{ identifier.value._value }}</a>{{ linkQuestion(identifier.value._path) }}
   {%- else -%}
     <em>{{ identifier.type._value if identifier.type._value else "no type of identifier given" }}: {{ identifier.value._value if identifier.value._value else "no value given" }}</em>
   {%- endif -%}

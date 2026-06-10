@@ -31,7 +31,7 @@ Contribute to the document template by adding new information, refining existing
 
 ### 1.0.0
 
-*Released*: 2026-XX-XX
+*Released*: 2026-06-10
 
 * Initial version for testing and further development
 * Improve value rendering
@@ -41,7 +41,7 @@ Contribute to the document template by adding new information, refining existing
 
 ### 0.2.0
 
-*Released*: 2026-24-03
+*Released*: 2026-03-24
 
 * Initial version for testing and further development
 * Update identifiers of data and reused data to include value and type of identifier
@@ -54,6 +54,6 @@ Contribute to the document template by adding new information, refining existing
 
 ### 0.1.0
 
-*Released*: 2025-12-11
+*Released*: 2025-11-12
 
 * Initial version for testing and further development

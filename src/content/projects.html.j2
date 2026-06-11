@@ -43,11 +43,7 @@
                 {%- for funding in project.fundings -%}
                 <li>
                   {% if funding.funder %}
-                    {%- if funding.funder._raw -%}
-                    <a href="{{ funding.funder._raw.uri }}" target="_blank" rel="noopener">{{ funding.funder._raw.name }}</a>{{ macros.linkQuestion(funding.funder._path) }}
-                    {%- else -%}
-                    {{ funding.funder._value }}{{ macros.linkQuestion(funding.funder._path) }}
-                    {%- endif -%}
+                    {{ macros.formatROR(funding.funder) }}{{ macros.linkQuestion(funding.funder._path) }}
                   {% else %}
                   no funder given
                   {% endif %}
@@ -71,7 +67,7 @@
           <dt>Abstract</dt>
           <dd>
           {%- if project.description -%}
-              <p>{{ project.description._value }}{{ macros.linkQuestion(project.description._path) }}</p>
+              {{ project.description._value|markdown }}{{ macros.linkQuestion(project.description._path) }}
           {%- else -%}
             No abstract given.
           {%- endif -%}

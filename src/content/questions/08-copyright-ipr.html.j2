@@ -3,10 +3,10 @@
 </h3>
 
 <div class="answer">
-  {%- if data.dmp.sharedResources.reuseRestrictions | length > 0 -%}
-    {%- set n = data.dmp.sharedResources.reuseRestrictions | length -%}
+  {%- if data.dmp.sharedResources.reuseRestrictions|length > 0 -%}
+    {%- set n = data.dmp.sharedResources.reuseRestrictions|length -%}
     {%- if n > 1 -%}
-      <p>In our {{ globals.projects }}, there are {{ data.dmp.sharedResources.reuseRestrictions | length }} approaches towards ownership, intellectual property rights, and access conditions, as described below:</p>
+      <p>In our {{ globals.projects }}, there are {{ data.dmp.sharedResources.reuseRestrictions|length }} approaches towards ownership, intellectual property rights, and access conditions, as described below:</p>
     {%- endif -%}
     {%- if n > 1 -%}<ul>{%- endif -%}
     {%- for reuseRestriction in data.dmp.sharedResources.reuseRestrictions -%}
@@ -17,192 +17,200 @@
       {%- set accessRestriction = reuseRestriction.accessRestriction -%}
 
       {# Open philosophy  #}
-      {%- if accessRestriction.asOpenAsPossibleApproach._value is sameas true -%}
-        <p>Access and reuse of this data follow the principle of <em>as open as possible, as closed as necessary</em>, in accordance with applicable legal requirements.{{ macros.linkQuestion(accessRestriction.asOpenAsPossibleApproach._path) }}</p>
+      {%- if accessRestriction.asOpenAsPossibleApproach and accessRestriction.asOpenAsPossibleApproach._value is sameas true -%}
+        <p>Access and reuse of the data follow the principle of <em>as open as possible, as closed as necessary</em>, in accordance with applicable legal requirements.{{ macros.linkQuestion(accessRestriction.asOpenAsPossibleApproach._path) }}</p>
       {%- endif -%}
 
       {# Can open data #}
-      {%- if accessRestriction.canDataOpen._value is sameas true -%}
-        <p>This data can become completely open over time.{{ macros.linkQuestion(accessRestriction.canDataOpen._path) }}</p>
-      {%- elif accessRestriction.canDataOpen._value is sameas false -%}
-        {%- set dataCannotOpen = accessRestriction.dataCannotOpen -%}
-        {%- set legalReasons = dataCannotOpen.isLegalReason._value -%}
-        {%- set businessReasons = dataCannotOpen.isBusinessReason._value -%}
-        {%- set otherReasons = dataCannotOpen.isOtherReason._value -%}
-        {%- set anyReason = legalReasons or businessReasons or otherReasons -%}
-        {%- set nReasons = [legalReasons, businessReasons, otherReasons]|select('equalto', true)|list|length -%}
-        {%- if anyReason -%}
-          <p>
-          This data cannot become completely open because
-          {%- if nReasons == 1 -%}
-            {%- if legalReasons %}
-              {%- set privacy = dataCannotOpen.legalReason.isPrivacyReason._value -%}
-              {%- set ip = dataCannotOpen.legalReason.isIntellectualPropertyReason._value -%}
-              {%- set nLegal = [privacy, ip]|select('equalto', true)|list|length -%}
-              {%- if nLegal == 1 -%}
-                {%- if privacy %}
-                  of privacy reasons.{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }}
-                {%- elif ip %}
-                  of intellectual property reasons.{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}
-                {%- endif -%}
-              {%- elif nLegal > 1 %}
-                of privacy{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }} and intellectual property reasons.{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}
-              {%- else %}
-                of legal reasons.{{ macros.linkQuestion(dataCannotOpen.isLegalReason._path) }}
-              {%- endif -%}
-            {%- elif businessReasons -%}
-              {%- if dataCannotOpen.businessReason == "patents" %}
-                of patent-related business reasons.{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}
-              {%- else %}
-                of business reasons{{  ": " ~ dataCannotOpen.businessReason._value if dataCannotOpen.businessReason else "." }}{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}
-              {%- endif -%}
-            {%- elif otherReasons %}
-              {%- if dataCannotOpen.otherReason == "papers" %}
-                we want to publish a paper first.{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}
-              {%- else %}
-                we have other reasons{{ ": " ~ dataCannotOpen.otherReason._value if dataCannotOpen.otherReason else "." }}{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}
-              {%- endif -%}
-            {%- endif -%}
-          {%- else %} of:
-            <ul>
-            {%- if legalReasons %}
-              {%- set privacy = dataCannotOpen.legalReason.isPrivacyReason._value -%}
-              {%- set ip = dataCannotOpen.legalReason.isIntellectualPropertyReason._value -%}
-              {%- set nLegal = [privacy, ip]|select('equalto', true)|list|length -%}
-              {%- if nLegal == 1 -%}
-                {%- if privacy -%}
-                  <li>privacy reasons{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }}</li>
-                {%- elif ip -%}
-                  <li>intellectual property reasons{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}</li>
-                {%- endif -%}
-              {%- elif nLegal > 1 -%}
-                <li>privacy{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }} and intellectual property reasons{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}</li>
-              {%- else -%}
-                <li>legal reasons{{ macros.linkQuestion(dataCannotOpen.isLegalReason._path) }}</li>
-              {%- endif -%}
-            {%- endif -%}
-            {%- if businessReasons %}
-              {%- if dataCannotOpen.businessReason == "patents" -%}
-                <li>patent-related business reasons{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}</li>
-              {%- else -%}
-                <li>business reasons{{  ": " ~ dataCannotOpen.businessReason._value if dataCannotOpen.businessReason else "" }}{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}</li>
-              {%- endif -%}
-            {%- endif -%}
-            {%- if otherReasons -%}
-              {%- if dataCannotOpen.otherReason == "papers" -%}
-                <li>we want to publish a paper first{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}</li>
-              {%- else -%}
-                <li>other reasons{{ ": " ~ dataCannotOpen.otherReason._value if dataCannotOpen.otherReason else "" }}{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}</li>
-              {%- endif -%}
-            {%- endif -%}
-            </ul>
-          {%- endif -%}
-        {%- endif -%}
-        </p>
-
-        {%- if accessRestriction.canDataOpen._value is sameas false -%}
+      {%- if accessRestriction.canDataOpen -%}
+        {%- if accessRestriction.canDataOpen._value is sameas true -%}
+          <p>The data can become completely open over time.{{ macros.linkQuestion(accessRestriction.canDataOpen._path) }}</p>
+        {%- elif accessRestriction.canDataOpen._value is sameas false -%}
           {%- set dataCannotOpen = accessRestriction.dataCannotOpen -%}
-          
-          {# Data Access #}
-          {%- if dataCannotOpen.isAccessProcessDefined._value is sameas true -%}
+          {%- set legalReasons = dataCannotOpen.isLegalReason._value -%}
+          {%- set businessReasons = dataCannotOpen.isBusinessReason._value -%}
+          {%- set otherReasons = dataCannotOpen.isOtherReason._value -%}
+          {%- set anyReason = legalReasons or businessReasons or otherReasons -%}
+          {%- set nReasons = [legalReasons, businessReasons, otherReasons]|select('equalto', true)|list|length -%}
+          {%- if anyReason -%}
             <p>
-            {%- set accessProcess = dataCannotOpen.accessProcess -%}
-            Access to this data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value|dot }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
-            {%- if accessProcess.timeFrame._value %}
-              The process will take place within {{ accessProcess.timeFrame._value }}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.timeFrame._path) }}
-            {%- endif -%}
-            {%- if accessProcess.isExpectedCost._value is sameas true and accessProcess.expectedCost._value %}
-              The process will incur costs associated with accessing and using the data, which are expected to be {{ accessProcess.expectedCost._value }} 
-              {%- if accessProcess.currency._raw %}
-                {{ accessProcess.currency._raw.code }}
-              {%- elif accessProcess.currency._value %}
-                {{ accessProcess.currency._value }}
-              {%- else %}
-                (no currency given)
-              {%- endif -%}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.expectedCost._path) }}
-            {%- elif accessProcess.isExpectedCost._value is sameas true %}
-              The process will incur costs associated with accessing and using the data.{{ macros.linkQuestion(dataCannotOpen.accessProcess.isExpectedCost._path) }}
-            {%- endif -%}
-            </p>
-          {%- endif -%}
-          {%- if dataCannotOpen.collaboratorAccessProcess -%}
-            <p>
-            For internal collaborators within {{globals.projects}}, access is regulated as follows: {{ dataCannotOpen.collaboratorAccessProcess._value|dot }}{{ macros.linkQuestion(dataCannotOpen.collaboratorAccessProcess._path) }}
-            </p>
-          {%- endif -%}
-          {%- if dataCannotOpen.legalReason -%}
-            {%- if dataCannotOpen.legalReason.isAuthenticatedAccess._value is sameas true -%}
-              <p>
-              Concerning the legal reasons, an authenticated access will be required.{{ macros.linkQuestion(dataCannotOpen.legalReason.isAuthenticatedAccess._path) }}
-              {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess -%}
-                {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value == "username_password" %}
-                  Username and password will be used for authentication.
-                {%- elif dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value == "sso" %}
-                  Single Sign-On (SSO) will be used for authentication.
-                {%- elif dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess %}
-                  Following authentication process will be used: {{ dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value }}.
+            The data cannot become completely open because
+            {%- if nReasons == 1 -%}
+              {%- if legalReasons %}
+                {%- set privacy = dataCannotOpen.legalReason.isPrivacyReason._value -%}
+                {%- set ip = dataCannotOpen.legalReason.isIntellectualPropertyReason._value -%}
+                {%- set nLegal = [privacy, ip]|select('equalto', true)|list|length -%}
+                {%- if nLegal == 1 -%}
+                  {%- if privacy %}
+                    of privacy reasons.{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }}
+                  {%- elif ip %}
+                    of intellectual property reasons.{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}
+                  {%- endif -%}
+                {%- elif nLegal > 1 %}
+                  of privacy{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }} and intellectual property reasons.{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}
+                {%- else %}
+                  of legal reasons.{{ macros.linkQuestion(dataCannotOpen.isLegalReason._path) }}
                 {%- endif -%}
-              {{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._path) }}
+              {%- elif businessReasons -%}
+                {%- if dataCannotOpen.businessReason == "patents" %}
+                  of patent-related business reasons.{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}
+                {%- else %}
+                  of business reasons{{  ": " ~ dataCannotOpen.businessReason._value if dataCannotOpen.businessReason else "." }}{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}
+                {%- endif -%}
+              {%- elif otherReasons %}
+                {%- if dataCannotOpen.otherReason == "papers" %}
+                  we want to publish a paper first.{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}
+                {%- else %}
+                  we have other reasons{{ ": " ~ dataCannotOpen.otherReason._value if dataCannotOpen.otherReason else "." }}{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}
+                {%- endif -%}
               {%- endif -%}
-            {%- endif -%}
-            {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate -%}
-              {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "project_member" %}
-                People can apply to one of the project members.
-              {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "new_data_access_committee" %}
-                People can apply to the data access committee that we will set up.
-              {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "existing_data_access_committee" %}
-                People can apply to {{ "the <em>" ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte._value ~ "</em>" if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte else "existing" }} data access committee.
-              {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther %}
-                For the authorization of potential users, we will make special arrangements{{ ": " ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther._value if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther  else "." }}
+            {%- else %} of:
+              <ul>
+              {%- if legalReasons %}
+                {%- set privacy = dataCannotOpen.legalReason.isPrivacyReason._value -%}
+                {%- set ip = dataCannotOpen.legalReason.isIntellectualPropertyReason._value -%}
+                {%- set nLegal = [privacy, ip]|select('equalto', true)|list|length -%}
+                {%- if nLegal == 1 -%}
+                  {%- if privacy -%}
+                    <li>privacy reasons{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }}</li>
+                  {%- elif ip -%}
+                    <li>intellectual property reasons{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}</li>
+                  {%- endif -%}
+                {%- elif nLegal > 1 -%}
+                  <li>privacy{{ macros.linkQuestion(dataCannotOpen.legalReason.isPrivacyReason._path) }} and intellectual property reasons{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}</li>
+                {%- else -%}
+                  <li>legal reasons{{ macros.linkQuestion(dataCannotOpen.isLegalReason._path) }}</li>
+                {%- endif -%}
               {%- endif -%}
-              {{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._path) }}
-            {%- endif -%}
-            {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable -%}
-              {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._value is sameas true %}
-                The criteria for authentication will be openly available.{{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._path) }}
+              {%- if businessReasons %}
+                {%- if dataCannotOpen.businessReason == "patents" -%}
+                  <li>patent-related business reasons{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}</li>
+                {%- else -%}
+                  <li>business reasons{{  ": " ~ dataCannotOpen.businessReason._value if dataCannotOpen.businessReason else "" }}{{ macros.linkQuestion(dataCannotOpen.isBusinessReason._path) }}</li>
+                {%- endif -%}
               {%- endif -%}
+              {%- if otherReasons -%}
+                {%- if dataCannotOpen.otherReason == "papers" -%}
+                  <li>we want to publish a paper first{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}</li>
+                {%- else -%}
+                  <li>other reasons{{ ": " ~ dataCannotOpen.otherReason._value if dataCannotOpen.otherReason else "" }}{{ macros.linkQuestion(dataCannotOpen.isOtherReason._path) }}</li>
+                {%- endif -%}
+              {%- endif -%}
+              </ul>
             {%- endif -%}
-            </p>
-          {%- endif -%}
-        {%- endif -%}
-
-        {# Data Sharing Agreement #}
-        {%- if dataCannotOpen.isDataSharingAgreementRequired._value is sameas true -%}
-          {%- set dataSharingAgreement = dataCannotOpen.dataSharingAgreement -%}
-          <p>A Data Sharing Agreement (DSA) will be required for accessing the data{{ macros.linkQuestion(dataCannotOpen.isDataSharingAgreementRequired._path) }}
-          {%- if dataSharingAgreement.isDefined._value is sameas true %}
-            (already defined){{ macros.linkQuestion(dataSharingAgreement.isDefined._path) }}
-          {%- elif dataSharingAgreement.isDefined._value is sameas false  %}
-            (not yet defined){{ macros.linkQuestion(dataSharingAgreement.isDefined._path) }}
-          {%- endif -%}.
-          {%- if dataSharingAgreement.documentLink._value and dataSharingAgreement.document %}
-            The data sharing agreement can be accessed at {{ dataSharingAgreement.documentLink._value }}{{ macros.linkQuestion(dataSharingAgreement.documentLink._path) }} or you can download it: {{ macros.downloadUrlFile(dataSharingAgreement.document) }}.{{ macros.linkQuestion(dataSharingAgreement.document._path) }}
-          {%- elif dataSharingAgreement.documentLink._value %}
-            The data sharing agreement can be accessed at {{ dataSharingAgreement.documentLink._value }}.{{ macros.linkQuestion(dataSharingAgreement.documentLink._path) }}
-          {%- elif dataSharingAgreement.document %}
-            You can download the data sharing agreement here: {{ macros.downloadUrlFile(dataSharingAgreement.document) }}.{{ macros.linkQuestion(dataSharingAgreement.document._path) }}
-          {%- endif -%}
-          {%- if dataSharingAgreement.description._value %}
-            Summary of the Data Sharing Agreement: {{ dataSharingAgreement.description._value }}.{{ macros.linkQuestion(dataSharingAgreement.description._path) }}
           {%- endif -%}
           </p>
-        {%- elif dataCannotOpen.isDataSharingAgreementRequired._value is sameas false -%}
-          <p>A Data Sharing Agreement (DSA) will not be required for accessing the data.{{ macros.linkQuestion(dataCannotOpen.isDataSharingAgreementRequired._path) }}</p>
-        {%- endif -%}
 
-        {# Intellectual Property #}
-        {%- if dataCannotOpen.legalReason -%}
-          {%- if dataCannotOpen.legalReason.isIntellectualPropertyReason._value is sameas true -%}
-            <p>
-            {%- set intellectualPropertyReason = dataCannotOpen.legalReason.intellectualPropertyReason %}
-            There are IP reasons why our data can not be open.{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}
-            {%- if intellectualPropertyReason.isOwnershipOfDataDefined._value is sameas true %}
-                It is clear who owns data and documents.{{ macros.linkQuestion(intellectualPropertyReason.isOwnershipOfDataDefined._path) }}
+          {%- if accessRestriction.canDataOpen._value is sameas false -%}
+            {%- set dataCannotOpen = accessRestriction.dataCannotOpen -%}
+            
+            {# Data Access #}
+            {%- if dataCannotOpen.isAccessProcessDefined and dataCannotOpen.isAccessProcessDefined._value is sameas true -%}
+              <p>
+              {%- set accessProcess = dataCannotOpen.accessProcess -%}
+              Access to the data is granted only through a defined application process{% if accessProcess.description %}, described as follows: {{ accessProcess.description._value|markdown }}{{ macros.linkQuestion(dataCannotOpen.accessProcess.description._path) }}{% else -%}.{{ macros.linkQuestion(dataCannotOpen.isAccessProcessDefined._path) }}{% endif %}
+              {%- if accessProcess.timeFrame %}
+                The process will take place within {{ accessProcess.timeFrame._value }}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.timeFrame._path) }}
+              {%- endif -%}
+              {%- if accessProcess.isExpectedCost -%}
+                {%- if accessProcess.isExpectedCost._value is sameas true and accessProcess.expectedCost %}
+                  The process will incur costs associated with accessing and using the data, which are expected to be {{ accessProcess.expectedCost._value }} 
+                  {%- if accessProcess.currency and accessProcess.currency._raw %}
+                    {{ accessProcess.currency._raw.code }}
+                  {%- elif accessProcess.currency and accessProcess.currency._value %}
+                    {{ accessProcess.currency._value }}
+                  {%- else %}
+                    (no currency given)
+                  {%- endif -%}.{{ macros.linkQuestion(dataCannotOpen.accessProcess.expectedCost._path) }}
+                {%- elif accessProcess.isExpectedCost._value is sameas true %}
+                  The process will incur costs associated with accessing and using the data.{{ macros.linkQuestion(dataCannotOpen.accessProcess.isExpectedCost._path) }}
+                {%- endif -%}
+              {%- endif -%}
+              </p>
             {%- endif -%}
-            {%- if intellectualPropertyReason.isDecisionPowerOfMovingDataDefined._value is sameas true %}
-              Someone will be given the decision power to move documents or data to a new place after the {{globals.projects}} has finished.{{ macros.linkQuestion(intellectualPropertyReason.isDecisionPowerOfMovingDataDefined._path) }}
+            {%- if dataCannotOpen.collaboratorAccessProcess -%}
+              <p>
+              For internal collaborators within {{globals.projects}}, access is regulated as follows: {{ dataCannotOpen.collaboratorAccessProcess._value|markdown }}{{ macros.linkQuestion(dataCannotOpen.collaboratorAccessProcess._path) }}
+              </p>
             {%- endif -%}
-            </p>
+            {%- if dataCannotOpen.legalReason -%}
+              {%- if dataCannotOpen.legalReason.isAuthenticatedAccess and dataCannotOpen.legalReason.isAuthenticatedAccess._value is sameas true -%}
+                <p>
+                Concerning the legal reasons, an authenticated access will be required.{{ macros.linkQuestion(dataCannotOpen.legalReason.isAuthenticatedAccess._path) }}
+                {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess -%}
+                  {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value == "username_password" %}
+                    Username and password will be used for authentication.
+                  {%- elif dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value == "sso" %}
+                    Single Sign-On (SSO) will be used for authentication.
+                  {%- elif dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess %}
+                    Following authentication process will be used: {{ dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._value }}.
+                  {%- endif -%}
+                {{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationProcess._path) }}
+                {%- endif -%}
+              {%- endif -%}
+              {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate -%}
+                {%- if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "project_member" %}
+                  People can apply to one of the project members.
+                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "new_data_access_committee" %}
+                  People can apply to the data access committee that we will set up.
+                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "existing_data_access_committee" %}
+                  People can apply to {{ "the <em>" ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte._value ~ "</em>" if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte else "existing" }} data access committee.
+                {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther %}
+                  For the authorization of potential users, we will make special arrangements{{ ": " ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther._value if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther  else "." }}
+                {%- endif -%}
+                {{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._path) }}
+              {%- endif -%}
+              {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable -%}
+                {%- if dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._value is sameas true %}
+                  The criteria for authentication will be openly available.{{ macros.linkQuestion(dataCannotOpen.legalReason.authenticatedAccess.authenticationCriteriaAvailable._path) }}
+                {%- endif -%}
+              {%- endif -%}
+              </p>
+            {%- endif -%}
+          {%- endif -%}
+
+          {# Data Sharing Agreement #}
+          {%- if dataCannotOpen.isDataSharingAgreementRequired -%}
+            {%- if dataCannotOpen.isDataSharingAgreementRequired._value is sameas true -%}
+              {%- set dataSharingAgreement = dataCannotOpen.dataSharingAgreement -%}
+              <p>A Data Sharing Agreement (DSA) will be required for accessing the data{{ macros.linkQuestion(dataCannotOpen.isDataSharingAgreementRequired._path) }}
+              {%- if dataSharingAgreement.isDefined -%}
+                {%- if dataSharingAgreement.isDefined._value is sameas true %}
+                  (already defined){{ macros.linkQuestion(dataSharingAgreement.isDefined._path) }}
+                {%- elif dataSharingAgreement.isDefined._value is sameas false  %}
+                  (not yet defined){{ macros.linkQuestion(dataSharingAgreement.isDefined._path) }}
+                {%- endif -%}.
+              {%- endif -%}
+              {%- if dataSharingAgreement.documentLink and dataSharingAgreement.document %}
+                The data sharing agreement can be accessed at {{ dataSharingAgreement.documentLink._value }}{{ macros.linkQuestion(dataSharingAgreement.documentLink._path) }} or you can download it: {{ macros.downloadUrlFile(dataSharingAgreement.document) }}.{{ macros.linkQuestion(dataSharingAgreement.document._path) }}
+              {%- elif dataSharingAgreement.documentLink %}
+                The data sharing agreement can be accessed at {{ dataSharingAgreement.documentLink._value }}.{{ macros.linkQuestion(dataSharingAgreement.documentLink._path) }}
+              {%- elif dataSharingAgreement.document %}
+                You can download the data sharing agreement here: {{ macros.downloadUrlFile(dataSharingAgreement.document) }}.{{ macros.linkQuestion(dataSharingAgreement.document._path) }}
+              {%- endif -%}
+              {%- if dataSharingAgreement.description %}
+                Summary of the Data Sharing Agreement: {{ dataSharingAgreement.description._value|markdown }}{{ macros.linkQuestion(dataSharingAgreement.description._path) }}
+              {%- endif -%}
+              </p>
+            {%- elif dataCannotOpen.isDataSharingAgreementRequired._value is sameas false -%}
+              <p>A Data Sharing Agreement (DSA) will not be required for accessing the data.{{ macros.linkQuestion(dataCannotOpen.isDataSharingAgreementRequired._path) }}</p>
+            {%- endif -%}
+          {%- endif -%}
+
+          {# Intellectual Property #}
+          {%- if dataCannotOpen.legalReason -%}
+            {%- if dataCannotOpen.legalReason.isIntellectualPropertyReason and dataCannotOpen.legalReason.isIntellectualPropertyReason._value is sameas true -%}
+              <p>
+              {%- set intellectualPropertyReason = dataCannotOpen.legalReason.intellectualPropertyReason %}
+              There are IP reasons why our data can not be open.{{ macros.linkQuestion(dataCannotOpen.legalReason.isIntellectualPropertyReason._path) }}
+              {%- if intellectualPropertyReason.isOwnershipOfDataDefined and intellectualPropertyReason.isOwnershipOfDataDefined._value is sameas true %}
+                  It is clear who owns data and documents.{{ macros.linkQuestion(intellectualPropertyReason.isOwnershipOfDataDefined._path) }}
+              {%- endif -%}
+              {%- if intellectualPropertyReason.isDecisionPowerOfMovingDataDefined and intellectualPropertyReason.isDecisionPowerOfMovingDataDefined._value is sameas true %}
+                Someone will be given the decision power to move documents or data to a new place after the {{globals.projects}} has finished.{{ macros.linkQuestion(intellectualPropertyReason.isDecisionPowerOfMovingDataDefined._path) }}
+              {%- endif -%}
+              </p>
+            {%- endif -%}
           {%- endif -%}
         {%- endif -%}
       {%- endif -%}

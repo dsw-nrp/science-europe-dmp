@@ -19,51 +19,57 @@
         {% set numDatasets = strategy.usedBy | length %}
 
         {# No long-term storage during the project #}
-        {% if strategy.usesLongTermStorageDuringProject._value is sameas false %}
+        {% if strategy.usesLongTermStorageDuringProject and strategy.usesLongTermStorageDuringProject._value is sameas false %}
             {% set noStorage = strategy.noLongTermStorageDuringProject %}
             <p>
             We will <strong>not</strong> archive the data in long-term (<em>cold</em>) storage during the runtime of {{ globals.projects }}.
-            {% if noStorage.canRegenerateOriginalData._value is sameas true %}
+            {% if noStorage.canRegenerateOriginalData and noStorage.canRegenerateOriginalData._value is sameas true %}
                 The original data can be regenerated if needed.{{ macros.linkQuestion(noStorage.canRegenerateOriginalData._path) }}
-            {% elif noStorage.canRegenerateOriginalData._value is sameas false %}
+            {% elif noStorage.canRegenerateOriginalData and noStorage.canRegenerateOriginalData._value is sameas false %}
                 The original data cannot be regenerated if needed.{{ macros.linkQuestion(noStorage.canRegenerateOriginalData._path) }}
             {% else %}
                 {{ macros.linkQuestion(strategy.usesLongTermStorageDuringProject._path) }}
             {% endif %}
-            {%- if noStorage.rawDataArchivalTime._value == "soon_in_chunks" -%}
+            {%- if noStorage.rawDataArchivalTime and noStorage.rawDataArchivalTime._value == "soon_in_chunks" -%}
                 The raw data will be archived as soon as it comes, in chunks.{{ macros.linkQuestion(noStorage.rawDataArchivalTime._path) }}
-            {%- elif noStorage.rawDataArchivalTime._value == "soon_one" -%}
+            {%- elif noStorage.rawDataArchivalTime and noStorage.rawDataArchivalTime._value == "soon_one" -%}
                 The raw data will be archived as soon as it has all been collected.{{ macros.linkQuestion(noStorage.rawDataArchivalTime._path) }}
-            {%- elif noStorage.rawDataArchivalTime._value == "end_of_project" -%}
+            {%- elif noStorage.rawDataArchivalTime and noStorage.rawDataArchivalTime._value == "end_of_project" -%}
                 The raw data will be archived all together with the results at the end of the {{ globals.projects }}.{{ macros.linkQuestion(noStorage.rawDataArchivalTime._path) }}
             {%- endif -%}
             </p>
 
         {# Long-term storage during the project #}
-        {% elif strategy.usesLongTermStorageDuringProject._value is sameas true %}
+        {% elif strategy.usesLongTermStorageDuringProject and strategy.usesLongTermStorageDuringProject._value is sameas true %}
             <p>
             We will archive the data in long-term (<em>cold</em>) storage during the runtime of {{ globals.projects }} to ensure durability and protection.{{ macros.linkQuestion(strategy.usesLongTermStorageDuringProject._path) }}
 
-            {% set period = strategy.longTermStorageDuringProject.archivePeriod %}
-            {% if period._value %}
-                {% if period._value == "as_long_as_possible" %}
-                    This data will be retained for as long as technically feasible.
-                {% elif period._value == "until_needs_delete" %}
-                    This data will be retained until deletion is required due to legal, contractual, or regulatory constraints.
-                {% else %}
-                    This data will be retained for a fixed period of {{ period._value }}.
-                {% endif %}
-                    {{ macros.linkQuestion(period._path) }}
-            {% endif %}
+            {%- if strategy.longTermStorageDuringProject.archivePeriod -%}
+                {%- if strategy.longTermStorageDuringProject.archivePeriod -%}
+                    {% set period = strategy.longTermStorageDuringProject.archivePeriod %}
+                    {% if period._value %}
+                        {% if period._value == "as_long_as_possible" %}
+                            The data will be retained for as long as technically feasible.
+                        {% elif period._value == "until_needs_delete" %}
+                            The data will be retained until deletion is required due to legal, contractual, or regulatory constraints.
+                        {% else %}
+                            The data will be retained for a fixed period of {{ period._value }}.
+                        {% endif %}
+                            {{ macros.linkQuestion(period._path) }}
+                    {% endif %}
+                {%- endif -%}
 
-            {% if strategy.longTermStorageDuringProject.isLongTermDataUsabilityEnsured._value is sameas true %}
-                The archived data are expected to remain understandable and reusable over time.{{ macros.linkQuestion(strategy.longTermStorageDuringProject.isLongTermDataUsabilityEnsured._path) }}
-            {% endif %}
+                {%- if strategy.longTermStorageDuringProject.isLongTermDataUsabilityEnsured -%}
+                    {% if strategy.longTermStorageDuringProject.isLongTermDataUsabilityEnsured._value is sameas true %}
+                        The archived data are expected to remain understandable and reusable over time.{{ macros.linkQuestion(strategy.longTermStorageDuringProject.isLongTermDataUsabilityEnsured._path) }}
+                    {% endif %}
+                {%- endif -%}
+            {%- endif -%}
             </p>
 
             {# Archive location #}
             {% set storage = strategy.longTermStorageDuringProject %}
-            {% if storage.isArchiveStoredRemotely._value is sameas true %}
+            {% if storage.isArchiveStoredRemotely and storage.isArchiveStoredRemotely._value is sameas true %}
                 <p>The archive will be stored off-site to protect against environmental disasters.{{ macros.linkQuestion(storage.isArchiveStoredRemotely._path) }}</p>
             {% endif %}
 
@@ -83,67 +89,78 @@
             {% endif %}
 
             {# Archive online availability #}
-            {%- if storage.isArchiveAccessOnlineRequired._value is sameas true -%}
+            {%- if storage.isArchiveAccessOnlineRequired and storage.isArchiveAccessOnlineRequired._value is sameas true -%}
                 <p>Online access to the archived data is needed.{{ macros.linkQuestion(storage.isArchiveAccessOnlineRequired._path) }}
-                {%- if storage.archiveAccessOnline.isDataIntegrityGuaranteed._value is sameas true -%}
-                    The integrity of the archived data is guaranteed with relation to the online version.{{ macros.linkQuestion(storage.archiveAccessOnline.isDataIntegrityGuaranteed._path) }}
-                {% endif %}
-                {%- if storage.archiveAccessOnline.isAccessRequestProcessDefined._value is sameas true -%}
-                    An access request process is defined for retrieving data from the online archive.{{ macros.linkQuestion(storage.archiveAccessOnline.isAccessRequestProcessDefined._path) }}
-                </p>
+                {%- if storage.archiveAccessOnline -%}
+                    {%- if storage.archiveAccessOnline.isDataIntegrityGuaranteed._value is sameas true %}
+                        The integrity of the archived data is guaranteed with relation to the online version.{{ macros.linkQuestion(storage.archiveAccessOnline.isDataIntegrityGuaranteed._path) }}
+                    {% endif %}
+                    {%- if storage.archiveAccessOnline.isAccessRequestProcessDefined._value is sameas true -%}
+                        An access request process is defined for retrieving data from the online archive.{{ macros.linkQuestion(storage.archiveAccessOnline.isAccessRequestProcessDefined._path) }}
+                    {%- endif -%}
                 {%- endif -%}
+                </p>
             {% endif %}
 
             {# Archive security #}
-            {% if storage.isArchiveSecurityProvided._value is sameas true %}
-                <p>
-                Appropriate security measures will be in place to protect the archived data against loss or unauthorized access.{{ macros.linkQuestion(storage.isArchiveSecurityProvided._path) }}
-
-                {% if storage.archiveSecurity %}
-                    {% set sec = storage.archiveSecurity %}
-                    {% set details = [] %}
-                    {% if sec.isEncrypted._value is sameas true %}
-                        {% set _ = details.append("the data will be encrypted" ~ macros.linkQuestion(sec.isEncrypted._path)) %}
-                    {% endif %}
-                    {% if sec.isKeyAccessClearlyDefined._value is sameas true %}
-                        {% set _ = details.append("it is clear who has access keys (also in the context of disaster recovery)" ~ macros.linkQuestion(sec.isKeyAccessClearlyDefined._path)) %}
-                    {% endif %}
-                    {% if sec.isPhysicalArchiveAccessDefined._value is sameas true %}
-                        {% set _ = details.append("physical access to the archive will be restricted" ~ macros.linkQuestion(sec.isPhysicalArchiveAccessDefined._path)) %}
-                    {% endif %}
-
-                    {% if details %}
-                        Specifically, {{ details[:-1] | join(", ") }}{% if details|length > 1 %}, and {{ details[-1] }}{% endif %}.
-                    {% endif %}
-                {% endif %}
-                </p>
-            {% endif %}
-
-            {% if storage.isArchiveAccessDecided._value is sameas true %}
-                <p>Access to the archived data is clearly regulated.{{ macros.linkQuestion(storage.isArchiveAccessDecided._path) }}
-                {% if storage.archiveAccess.isRestoreRequesterDefined._value is sameas true %}
-                Authorized roles for requesting data restoration are clearly defined.{{ macros.linkQuestion(storage.archiveAccess.isRestoreRequesterDefined._path) }}
-                {% endif %}
-                </p>
-            {% endif %}
-
-            {%- if storage.isDataChangingOverTime._value is sameas true -%}
-                <p>
-                {%- if storage.dataChangingOverTime.requiresFrequentBackups._value is sameas true -%}
-                    The data will change over time and requires frequent backups to prevent potential loss.{{ macros.linkQuestion(storage.dataChangingOverTime.requiresFrequentBackups._path) }}
-                {%- elif storage.dataChangingOverTime.requiresFrequentBackups._value is sameas false -%}
-                    The data will change over time, but only infrequently, so frequent backups are not necessary.{{ macros.linkQuestion(storage.dataChangingOverTime.requiresFrequentBackups._path) }}
-                {% endif %}
-                {%- if storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._value is sameas true %}
-                    Backups will be used to recover from human errors.{{ macros.linkQuestion(storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
-                {% elif storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._value is sameas false %}
-                    Backups will not be used to recover from human errors{{ macros.linkQuestion(storage.dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
-                    {%- if storage.dataChangingOverTime.humanErrorRecoveryPlan is not none -%}, instead the following plan will be implemented: {{ storage.dataChangingOverTime.humanErrorRecoveryPlan._value }}{% endif %}.</p>
+            {%- if storage.isArchiveSecurityProvided and storage.isArchiveSecurityProvided._value is sameas true %}
+                The archive needs to be protected against loss or theft.{{ macros.linkQuestion(storage.isArchiveSecurityProvided._path) }}
+                {%- if storage.archiveSecurity -%}
+                    {%- set archiveSecurity = storage.archiveSecurity -%}
+                    {%- set details = [] %}
+                    {%- if archiveSecurity.isEncrypted and archiveSecurity.isEncrypted._value is sameas true %}
+                        {%- set _ = details.append("is encrypted" ~ macros.linkQuestion(archiveSecurity.isEncrypted._path)) %}
+                    {%- endif %}
+                    {%- if archiveSecurity.isKeyAccessClearlyDefined and archiveSecurity.isKeyAccessClearlyDefined._value is sameas true %}
+                        {%- set _ = details.append("key access is clearly defined" ~ macros.linkQuestion(archiveSecurity.isKeyAccessClearlyDefined._path)) %}
+                    {%- endif %}
+                    {%- if archiveSecurity.isPhysicalArchiveAccessDefined and archiveSecurity.isPhysicalArchiveAccessDefined._value is sameas true %}
+                        {%- set _ = details.append("physical access to the archive is clearly defined" ~ macros.linkQuestion(archiveSecurity.isPhysicalArchiveAccessDefined._path)) %}
+                    {%- endif %}
+                    {%- if details %}
+                        <span>
+                            The archive
+                            {%- if details|length == 1 %}
+                                {{ details[0] }}.
+                            {%- elif details|length == 2 %}
+                                {{ details[0] }} and {{ details[1] }}.
+                            {%- else %}
+                                {{ details[:-1]|join(", ") }}, and {{ details[-1] }}.
+                            {%- endif -%}
+                        </span>
+                    {%- endif %}
                 {%- endif -%}
-                </p>
+            {%- endif -%}
 
-            {%- elif storage.isDataChangingOverTime._value is sameas false -%}
-                <p>The data is not expected to change over time, so frequent backups are not anticipated to be needed.{{ macros.linkQuestion(storage.isDataChangingOverTime._path) }}</p>
+            {% if storage.isArchiveAccessDecided and storage.isArchiveAccessDecided._value is sameas true %}
+                <p>Access to the archived data is clearly regulated.{{ macros.linkQuestion(storage.isArchiveAccessDecided._path) }}
+                {% if storage.archiveAccess.isRestoreRequesterDefined and storage.archiveAccess.isRestoreRequesterDefined._value is sameas true %}
+                    Authorized roles for requesting data restoration are clearly defined.{{ macros.linkQuestion(storage.archiveAccess.isRestoreRequesterDefined._path) }}
+                {% endif %}
+                </p>
+            {% endif %}
+
+            {%- if storage.isDataChangingOverTime -%}
+                {%- if storage.isDataChangingOverTime._value is sameas true -%}
+                    {%- if storage.dataChangingOverTime -%}
+                        {%- set dataChangingOverTime = storage.dataChangingOverTime -%}
+                        <p>
+                        {%- if dataChangingOverTime.requiresFrequentBackups and dataChangingOverTime.requiresFrequentBackups._value is sameas true -%}
+                            The data will change over time and requires frequent backups to prevent potential loss.{{ macros.linkQuestion(dataChangingOverTime.requiresFrequentBackups._path) }}
+                        {%- elif dataChangingOverTime.requiresFrequentBackups and dataChangingOverTime.requiresFrequentBackups._value is sameas false -%}
+                            The data will change over time, but only infrequently, so frequent backups are not necessary.{{ macros.linkQuestion(dataChangingOverTime.requiresFrequentBackups._path) }}
+                        {% endif %}
+                        {%- if dataChangingOverTime.usesBackupsForHumanErrorRecovery and dataChangingOverTime.usesBackupsForHumanErrorRecovery._value is sameas true %}
+                            Backups will be used to recover from human errors.{{ macros.linkQuestion(dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
+                        {% elif dataChangingOverTime.usesBackupsForHumanErrorRecovery and dataChangingOverTime.usesBackupsForHumanErrorRecovery._value is sameas false %}
+                            Backups will not be used to recover from human errors{{ macros.linkQuestion(dataChangingOverTime.usesBackupsForHumanErrorRecovery._path) }}
+                            {%- if dataChangingOverTime.humanErrorRecoveryPlan is not none -%}, instead the following plan will be implemented: {{ dataChangingOverTime.humanErrorRecoveryPlan._value }}{% endif %}.</p>
+                        {%- endif -%}
+                        </p>
+                    {%- endif -%}
+                {%- elif dataChangingOverTime.isDataChangingOverTime._value is sameas false -%}
+                    <p>The data is not expected to change over time, so frequent backups are not anticipated to be needed.{{ macros.linkQuestion(dataChangingOverTime.isDataChangingOverTime._path) }}</p>
+                {%- endif -%}
             {%- endif -%}
         {% endif %}
         {%- if n > 1 -%}</li>{%- else -%}</div>{%- endif -%}
@@ -172,58 +189,65 @@
             {% if environment.isSharedWorkingSpace._value is sameas true %}
             <p>
                 We will use a shared workspace
-                {% if environment.sharedWorkingSpace.controlledAccess %}
-                    {% set access = environment.sharedWorkingSpace.controlledAccess %}
-                    {%- if access._value == "membersReadWrite" %}
-                            where only project members have read/write access to the data
-                    {%- elif access._value == "anyoneReadMembersWrite" %}
-                            where anyone in the institute has read access and project members have read/write access
-                    {%- elif access._value == "membersReadSelectMembersWrite" %}
-                            where only project members can read the data and only certain members can write
-                    {%- elif access._value == "anyoneReadRequestWrite" %}
-                            where anyone in the institute may read the data and only project members may request write access
-                    {%- elif access._value %}
-                            where access rights are defined as: {{ access._value }}
-                    {%- endif -%}.{{ macros.linkQuestion(access._path) }}
-                {% else %}
-                .{{ macros.linkQuestion(environment.isSharedWorkingSpace._path) }}
-                {% endif %}
+                {%- if environment.sharedWorkingSpace -%}
+                    {% if environment.sharedWorkingSpace.controlledAccess %}
+                        {% set access = environment.sharedWorkingSpace.controlledAccess %}
+                        {%- if access._value == "membersReadWrite" %}
+                                where only project members have read/write access to the data
+                        {%- elif access._value == "anyoneReadMembersWrite" %}
+                                where anyone in the institute has read access and project members have read/write access
+                        {%- elif access._value == "membersReadSelectMembersWrite" %}
+                                where only project members can read the data and only certain members can write
+                        {%- elif access._value == "anyoneReadRequestWrite" %}
+                                where anyone in the institute may read the data and only project members may request write access
+                        {%- elif access._value %}
+                                where access rights are defined as: {{ access._value }}
+                        {%- endif -%}.{{ macros.linkQuestion(access._path) }}
+                    {%- else -%}
+                    .{{ macros.linkQuestion(environment.isSharedWorkingSpace._path) }}
+                    {%- endif -%}
+                
+                    {% if environment.sharedWorkingSpace.isLogged %}
+                    {% set isLogged = environment.sharedWorkingSpace.isLogged %}
+                        {% if isLogged._value is sameas true %}
+                            Access to the shared workspace will be monitored and logged.
+                        {% elif isLogged._value is sameas false %}
+                            Access to the shared workspace will not be monitored or logged.
+                        {% endif %}
+                        {{ macros.linkQuestion(environment.sharedWorkingSpace.isLogged._path) }}
+                    {% endif %}
 
-                {% if environment.sharedWorkingSpace.isLogged %}
-                {% set isLogged = environment.sharedWorkingSpace.isLogged %}
-                {% if isLogged._value is sameas true %}
-                    Access to the shared workspace will be monitored and logged.
-                {% elif isLogged._value is sameas false %}
-                    Access to the shared workspace will not be monitored or logged.
-                {% endif %}
-                {{ macros.linkQuestion(environment.sharedWorkingSpace.isLogged._path) }}
-                {% endif %}
+                {%- else -%}
+                    .{{ macros.linkQuestion(environment.isSharedWorkingSpace._path) }}
+                {%- endif -%}
             </p>
 
-            {% elif environment.isSharedWorkingSpace._value is sameas false and environment.isCustomWorkingSpaceSecure._value is sameas true %}
+            {% elif environment.isSharedWorkingSpace._value is sameas false %}
             <p>
-                We will not use a shared workspace. Instead, project participants will use separate working environments protected against both equipment failure and human error.
-                {{ macros.linkQuestion(environment.isCustomWorkingSpaceSecure._path) }}
+                We will not use a shared workspace.{{ macros.linkQuestion(environment.isSharedWorkingSpace._path) }}
+                {%- if environment.isCustomWorkingSpaceSecure and environment.isCustomWorkingSpaceSecure._value is sameas true %}
+                    Instead, project participants will use separate working environments protected against both equipment failure and human error. {{ macros.linkQuestion(environment.isCustomWorkingSpaceSecure._path) }}
+                {%- endif -%}
             </p>
             {% endif %}
         {% endif %}
 
         {# Information loss, validation impact #}
         {% set impactSentences = {
-            'zero': "negligible",
-            'low': "very low",
+            'zero': "zero",
+            'low': "negligible",
             'medium': "acceptably low",
             'high': "significant"
         } %}
         {% set impacts = [] %}
 
-        {% if environment.informationLostImpact._value in impactSentences %}
+        {% if environment.informationLostImpact and environment.informationLostImpact._value in impactSentences %}
             {% set _ = impacts.append(impactSentences[environment.informationLostImpact._value] ~ " if information is lost" ~ macros.linkQuestion(environment.informationLostImpact._path)) %}
         {% endif %}
-        {% if environment.informationLeakImpact._value in impactSentences %}
+        {% if environment.informationLeakImpact and environment.informationLeakImpact._value in impactSentences %}
             {% set _ = impacts.append(impactSentences[environment.informationLeakImpact._value] ~ " if information is leaked" ~ macros.linkQuestion(environment.informationLeakImpact._path)) %}
         {% endif %}
-        {% if environment.informationVandalizedImpact._value in impactSentences %}
+        {% if environment.informationVandalizedImpact and environment.informationVandalizedImpact._value in impactSentences %}
             {% set _ = impacts.append(impactSentences[environment.informationVandalizedImpact._value] ~ " if information is vandalized" ~ macros.linkQuestion(environment.informationVandalizedImpact._path)) %}
         {% endif %}
 

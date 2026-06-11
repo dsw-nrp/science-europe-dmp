@@ -4,11 +4,11 @@
 <div class="answer">
 
   {# Cold Storage #}
-  {% if data.dmp.sharedResources.preservationStrategies | length > 0 or data.dmp.sharedResources.processingEnvironments | length > 0 %}
+  {% if data.dmp.sharedResources.preservationStrategies|length > 0 or data.dmp.sharedResources.processingEnvironments|length > 0 %}
     <p>Data security and protection during the {{ globals.projects }} will be ensured through various measures of processing environment and long-term storage systems. These measures, together with potential risks, are described in Section 3, Question 5.</p>
   {%- endif -%}
 
-  {%- if data.dmp.sharedResources.collections | length > 0 -%}
+  {%- if data.dmp.sharedResources.collections|length > 0 -%}
     {%- set sensitiveDataCollections = []  -%}
     {%- for collection in data.dmp.sharedResources.collections -%}
       {%- if collection.isSensitiveDataCollection._value is sameas true -%}
@@ -16,8 +16,8 @@
       {%- endif -%}
     {%- endfor -%}
 
-    {%- if sensitiveDataCollections | length > 0 -%}
-      {%- set n = sensitiveDataCollections | length -%}
+    {%- if sensitiveDataCollections|length > 0 -%}
+      {%- set n = sensitiveDataCollections|length -%}
       <p>Specific access control and security measures will be implemented for collections involving sensitive data.</p>
       {%- if n > 1 -%}<ul>{%- endif -%}
       {%- for collection in sensitiveDataCollections -%}
@@ -25,82 +25,85 @@
 
         {# Build the dataset list (if not all) #}
         {{ macros.datasetIntro(collection, "sensitive data handling", data.dmp.datasets) }}
-        {% set numDatasets = collection.usedBy | length %}
+        {% set numDatasets = collection.usedBy|length %}
 
         {# Personal Data #}
-        {%- if collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas true -%}
-          <p>This collection involves the processing of personal data
-          {%- if collection.sensitiveDataCollection.personalDataCollection.purpose %}
-            for the purpose: {{ collection.sensitiveDataCollection.personalDataCollection.purpose._value|dot }}{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.purpose._path) }}
-          {%- else -%}.{{ macros.linkQuestion(collection.sensitiveDataCollection.isPersonalDataCollection._path) }}
-          {%- endif -%}
-          {%- if collection.sensitiveDataCollection.personalDataCollection.isFullyAnonymized._value is sameas true %}
-            The data is fully anonymized
-            {%- set processes = collection.sensitiveDataCollection.personalDataCollection.anonymizationProcess.anonymizationProcessTechniques -%}
-            {%- if processes and processes|length > 0 -%}
-              , using the following anonymization process{{ "es" if processes|length > 1 else "" }}:
-              <ul>
-              {%- for process in processes -%}
-                <li>{{ process._label }}{{ macros.linkQuestion(process._path) }}</li>
-                {%- endfor -%}
+        {%- if collection.sensitiveDataCollection -%}
+          {%- set sensitiveData = collection.sensitiveDataCollection -%}
+          {%- if sensitiveData.isPersonalDataCollection and sensitiveData.isPersonalDataCollection._value is sameas true -%}
+            {%- set personalData = sensitiveData.personalDataCollection -%}
+            <p>This collection involves the processing of personal data
+            {%- if personalData.purpose %}
+              for the purpose: {{ personalData.purpose._value|markdown }}{{ macros.linkQuestion(personalData.purpose._path) }}
+            {%- else -%}.{{ macros.linkQuestion(sensitiveData.isPersonalDataCollection._path) }}
+            {%- endif -%}
+            {%- if personalData.isFullyAnonymized and personalData.isFullyAnonymized._value is sameas true %}
+              The data is fully anonymized
+              {%- set processes = personalData.anonymizationProcess.anonymizationProcessTechniques -%}
+              {%- if processes and processes|length > 0 -%}
+                , using the following anonymization process{{ "es" if processes|length > 1 else "" }}:
+                <ul>
+                {%- for process in processes -%}
+                  <li>{{ process._label }}{{ macros.linkQuestion(process._path) }}</li>
+                  {%- endfor -%}
+                  </ul>
+              {%- else -%}.{{ macros.linkQuestion(personalData.isFullyAnonymized._path) }}
+              {%- endif -%}
+            {%- elif personalData.isFullyAnonymized and personalData.isFullyAnonymized._value is sameas false -%}
+              {%- if personalData.nonAnonymizedData.isPseudonymized and personalData.nonAnonymizedData.isPseudonymized._value is sameas true %}
+                The data is not fully anonymized, but it is pseudonymized.{{ macros.linkQuestion(personalData.nonAnonymizedData.isPseudonymized._path) }}
+              {%- elif personalData.nonAnonymizedData.isPseudonymized and personalData.nonAnonymizedData.isPseudonymized._value is sameas false -%}
+                The data is not fully anonymized, and it is not even pseudonymized{% if personalData.nonAnonymizedData.noPseudonymizationReason %}, because {{ personalData.nonAnonymizedData.noPseudonymizationReason._value }}{{ macros.linkQuestion(personalData.nonAnonymizedData.noPseudonymizationReason._path) }}{% else %}.{{ macros.linkQuestion(personalData.nonAnonymizedData.isPseudonymized._path) }}{% endif %}
+              {%- endif -%}
+
+              {# Other Safeguards, incl transfer outside EU #}
+              {%- set nonAnonymizedDataset = personalData.nonAnonymizedData -%}
+              <p>
+              {%- if nonAnonymizedDataset.dataProcessingSafeguards and nonAnonymizedDataset.dataProcessingSafeguards|length > 0 -%}
+                  {%- set safeguardsList = nonAnonymizedDataset.dataProcessingSafeguards %}
+                  For processing the data we have established the following technical and procedural safeguards: {{ safeguardsList| map(attribute="_label")| join(", ") }}.{{ macros.linkQuestion(safeguardsList[0]._path) }}
+              {%- endif -%}
+              {%- if nonAnonymizedDataset.isTransferOutsideEu and nonAnonymizedDataset.isTransferOutsideEu._value is sameas true %}
+                  We plan to transfer the data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
+                  {%- if nonAnonymizedDataset.transferOutsideEuProtectionProcess %}
+                      Additional protection measures are planned: {{ nonAnonymizedDataset.transferOutsideEuProtectionProcess._value|markdown }}{{ macros.linkQuestion(nonAnonymizedDataset.transferOutsideEuProtectionProcess._path) }}
+                  {%- else %}
+                      No specific details about additional protection measures are available yet.
+                  {%- endif -%}
+              {%- elif nonAnonymizedDataset.isTransferOutsideEu and nonAnonymizedDataset.isTransferOutsideEu._value is sameas false %}
+                  We are not planning to transfer the data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
+              {%- endif -%}
+              </p>
+            {%- endif -%}
+            {# Other Sensitive Data #}
+            {%- if sensitiveData.isOtherSensitiveDataCollection and sensitiveData.isOtherSensitiveDataCollection._value is sameas true -%}
+              {%- set otherSensitiveData = sensitiveData.otherSensitiveDataCollection -%}
+              <p>
+                  The collected data contains also sensitive data that is not personal data.{{ macros.linkQuestion(sensitiveData.isOtherSensitiveDataCollection._path) }}
+              {%- if otherSensitiveData.typeOfSensitiveData %}
+                  The type of sensitive data is: {{ otherSensitiveData.typeOfSensitiveData._value|markdown }}{{ macros.linkQuestion(otherSensitiveData.typeOfSensitiveData._path) }}
+              {%- endif -%}
+              </p>
+            {%- endif -%}                
+
+          {%- elif sensitiveData.isPersonalDataCollection and sensitiveData.isPersonalDataCollection._value is sameas false and sensitiveData.isOtherSensitiveDataCollection and sensitiveData.isOtherSensitiveDataCollection._value is sameas true -%}
+              <p>We are collecting sensitive data that is not personal data.</p>
+              {%- set otherSensitiveData = sensitiveData.otherSensitiveDataCollection -%}
+              {%- if otherSensitiveData.typeOfSensitiveData %}
+                  The type of sensitive data is: {{ otherSensitiveData.typeOfSensitiveData._value|markdown }}{{ macros.linkQuestion(otherSensitiveData.typeOfSensitiveData._path) }}
+              {%- endif -%}
+              {%- if otherSensitiveData.securityMeasures and otherSensitiveData.securityMeasures|length > 0 %}
+                The following security measure{{ "s are" if otherSensitiveData.securityMeasures|length > 1 else " is" }} in place:
+                <ul>
+                {%- for measure in otherSensitiveData.securityMeasures %}
+                    <li>
+                    {{ measure.name._value if measure.name._value else "(no name given)" }}{% if measure.description._value %}: {{ measure.description._value|markdown }}{% endif %}{{ macros.linkQuestion(measure._path) }}
+                    </li>
+                {%- endfor %}
                 </ul>
-            {%- else -%}.{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.isFullyAnonymized._path) }}
-            {%- endif -%}
-          {%- elif collection.sensitiveDataCollection.personalDataCollection.isFullyAnonymized._value is sameas false -%}
-            {%- if collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.isPseudonymized._value is sameas true %}
-              The data is not fully anonymized, but it is pseudonymized.{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.isPseudonymized._path) }}
-            {%- elif collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.isPseudonymized._value is sameas false -%}
-              The data is not fully anonymized, and it is not even pseudonymized{% if collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.noPseudonymizationReason %}, because {{ collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.noPseudonymizationReason._value }}{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.noPseudonymizationReason._path) }}{% else %}.{{ macros.linkQuestion(collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData.isPseudonymized._path) }}{% endif %}
-            {%- endif -%}
-
-            {# Other Safeguards, incl transfer outside EU #}
-            {%- set nonAnonymizedDataset = collection.sensitiveDataCollection.personalDataCollection.nonAnonymizedData -%}
-            <p>
-            {%- if nonAnonymizedDataset.dataProcessingSafeguards and nonAnonymizedDataset.dataProcessingSafeguards|length > 0 -%}
-            
-                {%- set safeguardsList = nonAnonymizedDataset.dataProcessingSafeguards %}
-                For processing this data we have established the following technical and procedural safeguards: {{ safeguardsList| map(attribute="_label")| join(", ") }}.{{ macros.linkQuestion(safeguardsList[0]._path) }}
-            {%- endif -%}
-            {%- if nonAnonymizedDataset.isTransferOutsideEu._value is sameas true %}
-                We plan to transfer this data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
-                {%- if nonAnonymizedDataset.transferOutsideEuProtectionProcess._value %}
-                    Additional protection measures are planned: {{ nonAnonymizedDataset.transferOutsideEuProtectionProcess._value }}.{{ macros.linkQuestion(nonAnonymizedDataset.transferOutsideEuProtectionProcess._path) }}
-                {%- else %}
-                    No specific details about additional protection measures are available yet.
-                {%- endif -%}
-            {%- elif nonAnonymizedDataset.isTransferOutsideEu._value is sameas false %}
-                We are not planning to transfer this data outside the EU.{{ macros.linkQuestion(nonAnonymizedDataset.isTransferOutsideEu._path) }}
-            {%- endif -%}
+              {%- endif -%}
             </p>
           {%- endif -%}
-          {# Other Sensitive Data #}
-          {%- if collection.sensitiveDataCollection.isOtherSensitiveDataCollection._value is sameas true -%}
-            {%- set otherSensitiveData = collection.sensitiveDataCollection.otherSensitiveDataCollection -%}
-            <p>
-                The collected data contains also sensitive data that is not personal data.{{ macros.linkQuestion(collection.sensitiveDataCollection.isOtherSensitiveDataCollection._path) }}
-            {%- if otherSensitiveData.typeOfSensitiveData %}
-                The type of sensitive data is: {{ otherSensitiveData.typeOfSensitiveData._value }}.{{ macros.linkQuestion(otherSensitiveData.typeOfSensitiveData._path) }}
-            {%- endif -%}
-            </p>
-          {%- endif -%}                
-
-        {%- elif collection.sensitiveDataCollection.isPersonalDataCollection._value is sameas false and collection.sensitiveDataCollection.isOtherSensitiveDataCollection._value is sameas true -%}
-            <p>We are collecting sensitive data that is not personal data.</p>
-            {%- set otherSensitiveData = collection.sensitiveDataCollection.otherSensitiveDataCollection -%}
-            {%- if otherSensitiveData.typeOfSensitiveData %}
-                The type of sensitive data is: {{ otherSensitiveData.typeOfSensitiveData._value }}.{{ macros.linkQuestion(otherSensitiveData.typeOfSensitiveData._path) }}
-            {%- endif -%}
-            {%- if otherSensitiveData.securityMeasures and otherSensitiveData.securityMeasures|length > 0 %}
-              The following security measure{{ "s are" if otherSensitiveData.securityMeasures|length > 1 else " is" }} in place:
-              <ul>
-              {%- for measure in otherSensitiveData.securityMeasures %}
-                  <li>
-                  {{ measure.name._value if measure.name._value else "(no name given)" }}{% if measure.description._value %}: {{ measure.description._value }}{% endif %}{{ macros.linkQuestion(measure._path) }}
-                  </li>
-              {%- endfor %}
-              </ul>
-            {%- endif -%}
-          </p>
         {%- endif -%}
         {%- if n > 1 -%}</li>{%- endif -%}
       {%- endfor -%}

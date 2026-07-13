@@ -2,6 +2,10 @@
 
 *The template is based on the official [Science Europe Guidance Document](https://scienceeurope.org/media/4brkxxe5/se_rdm_practical_guide_extended_final.pdf) designed for use in Data Stewardship Wizard with DSW Knowledge Model tailored to needs and specifics of Czech National Repository Platform for Research Data.*
 
+## Issues and Contributing
+
+This document template for DSW is available as open-source via GitHub Repository [dsw-nrp/science-europe-dmp](https://github.com/dsw-nrp/science-europe-dmp), you can [report issues](https://github.com/dsw-nrp/science-europe-dmp/issues) there and fork it for customizations or contributions.
+
 ## Maintainers
 
 Responsible for the overall management and development of the document template, ensuring its continuous improvement, and overseeing contributions to maintain its integrity and relevance.
@@ -28,6 +32,12 @@ Contribute to the document template by adding new information, refining existing
 |-------------------------------------|---|
 
 ## Changelog
+
+### 1.0.1
+
+*Released*: 2026-07-13
+
+* Fix rendering license from License Selector tool
 
 ### 1.0.0
 

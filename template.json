@@ -1,7 +1,7 @@
 {
     "templateId": "science-europe-dmp",
     "organizationId": "dmp.eosc.cz",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "name": "Science Europe DMP",
     "description": "Science Europe Data Management Plan for Czech National Repository Platform",
     "license": "Apache-2.0",

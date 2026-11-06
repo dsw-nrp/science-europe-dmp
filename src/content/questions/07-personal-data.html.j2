@@ -145,6 +145,9 @@
                                 {%- set name = "" -%}
                                 {%- if controller -%}
                                     {%- if controller._raw -%}
+                                        {%- if controller._raw.name -%}
+                                            {%- do names.append(controller._raw.name) -%}
+                                        {%- endif -%}
                                         {% for rawName in controller._raw.names -%}
                                             {% if "ror_display" in rawName.types %}
                                                 {%- do names.append(rawName.value) -%}

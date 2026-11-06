@@ -154,7 +154,7 @@
                 {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "new_data_access_committee" %}
                   People can apply to the data access committee that we will set up.
                 {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate._value == "existing_data_access_committee" %}
-                  People can apply to {{ "the <em>" ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte._value ~ "</em>" if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommitte else "existing" }} data access committee.
+                  People can apply to {% if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommittee %}the <em>{{ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticate.dataAccessCommittee._value }}</em>{% else %}existing{% endif %} data access committee.
                 {%- elif dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther %}
                   For the authorization of potential users, we will make special arrangements{{ ": " ~ dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther._value if dataCannotOpen.legalReason.authenticatedAccess.whoAuthenticateOther  else "." }}
                 {%- endif -%}

@@ -158,8 +158,8 @@
                         {%- endif -%}
                         </p>
                     {%- endif -%}
-                {%- elif dataChangingOverTime.isDataChangingOverTime._value is sameas false -%}
-                    <p>The data is not expected to change over time, so frequent backups are not anticipated to be needed.{{ macros.linkQuestion(dataChangingOverTime.isDataChangingOverTime._path) }}</p>
+                {%- elif storage.isDataChangingOverTime._value is sameas false -%}
+                    <p>The data is not expected to change over time, so frequent backups are not anticipated to be needed.{{ macros.linkQuestion(storage.isDataChangingOverTime._path) }}</p>
                 {%- endif -%}
             {%- endif -%}
         {% endif %}
